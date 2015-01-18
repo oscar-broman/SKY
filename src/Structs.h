@@ -398,6 +398,18 @@ typedef struct UNOCCUPIED_SYNC_t // size 0x43
 	CVector vecTurnVelocity;		// + 0x0033
 	float fHealth;				// + 0x003F
 } UNOCCUPIED_SYNC;
+class CUnoccupiedSyncData // size 0x43
+{
+	public:
+		WORD wVehicleID;		// + 0x0000
+		BYTE bytePassengerSlot;		// + 0x0002
+		CVector vecRool;		// + 0x0003
+		CVector vecDirection;		// + 0x000F
+		CVector vecPosition;		// + 0x001B
+		CVector vecVelocity;		// + 0x0027
+		CVector vecTurnVelocity;	// + 0x0033
+		float fHealth;		    // + 0x003F
+};
  
 //         ++*(_BYTE *)((unsigned __int16)a2 + v4 + 825); b streamed in
 //        ++*(_DWORD *)(v4 + 8949); - maybe streamedin cars count
@@ -907,6 +919,12 @@ typedef struct _BULLET_SYNC_DATA
 	CVector vecCenterOfHit;
 } BULLET_SYNC_DATA; // by 0x688
 #pragma pack(pop)
+
+#define BULLET_HIT_TYPE_NONE (0)
+#define BULLET_HIT_TYPE_PLAYER (1)
+#define BULLET_HIT_TYPE_VEHICLE (2)
+#define BULLET_HIT_TYPE_OBJECT (3)
+#define BULLET_HIT_TYPE_PLAYER_OBJECT (4)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 struct PlayerID

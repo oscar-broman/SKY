@@ -72,6 +72,8 @@
 	#define PAGESIZE (4096)
 #endif
 
+using std::isfinite;
+
 extern void *pAMXFunctions;
 
 subhook_t GetPacketID_hook;
@@ -179,6 +181,132 @@ static BYTE HOOK_GetPacketID(Packet *p)
 
 	if (IsPlayerUpdatePacket(packetId)) {
 		lastUpdateTick[playerid] = GetTickCount();
+	}
+
+	if (packetId == ID_VEHICLE_SYNC || packetId == ID_PASSENGER_SYNC || packetId == ID_UNOCCUPIED_SYNC)
+	{
+		static CVector emptyVector = CVector(0.0f, 0.0f, 0.0f);
+		CVector* vecPosition = &emptyVector;
+		CVector* vecVelocity = &emptyVector;
+		CVehicleSyncData *vd = NULL;
+		CUnoccupiedSyncData *ud = NULL;
+		CPassengerSyncData *pd = NULL;
+		CVehicle *pVehicle = NULL;
+		
+		switch (packetId) {
+			case ID_VEHICLE_SYNC:
+				vd = (CVehicleSyncData*)(&p->data[1]);
+				vecPosition = &vd->vecPosition;
+				vecVelocity = &vd->vecVelocity;
+
+				//logprintf("trainspeed: %f, %04x, %04x", vd->fTrainSpeed, vd->wHydraReactorAngle[0], vd->wHydraReactorAngle[1]);
+
+				pVehicle = pNetGame->pVehiclePool->pVehicle[vd->wVehicleId];
+
+				switch(pVehicle->customSpawn.iModelID) {
+					case 509:
+					case 481:
+					case 510:
+					case 462:
+					case 448:
+					case 581:
+					case 522:
+					case 461:
+					case 521:
+					case 523:
+					case 463:
+					case 586:
+					case 468:
+					case 471:
+						if (vd->fTrainSpeed < -0.52) vd->fTrainSpeed = -0.52;
+						if (vd->fTrainSpeed > 0.52) vd->fTrainSpeed = 0.52;
+						break;
+					case 520:
+						if (vd->wHydraReactorAngle[0] < 0 || vd->wHydraReactorAngle[0] > 5000) {
+							vd->wHydraReactorAngle[0] = 0;
+						}
+
+						if (vd->wHydraReactorAngle[1] < 0 || vd->wHydraReactorAngle[1] > 5000) {
+							vd->wHydraReactorAngle[1] = 0;
+						}
+						break;
+					case 449:
+					case 537:
+					case 538:
+					case 569:
+					case 570:
+					case 590:
+						if (vd->fTrainSpeed > 1.0) {
+							vd->fTrainSpeed = 1.0;
+						} else if (vd->fTrainSpeed < -1.0) {
+							vd->fTrainSpeed = -1.0;
+						}
+						break;
+					default:
+						vd->fTrainSpeed = 0.0;
+						break;
+				}
+
+				break;
+
+			case ID_UNOCCUPIED_SYNC:
+				ud = (CUnoccupiedSyncData*)(&p->data[1]);
+				vecPosition = &ud->vecPosition;
+				vecVelocity = &ud->vecVelocity;
+				break;
+
+			case ID_PASSENGER_SYNC:
+				pd = (CPassengerSyncData*)(&p->data[1]);
+				vecPosition = &pd->vecPosition;
+				break;
+
+			default:
+				break;
+		}
+
+		if (vecPosition->fX < -20000.0f || vecPosition->fX > 20000.0f ||
+			vecPosition->fY < -20000.0f || vecPosition->fY > 20000.0f ||
+			vecPosition->fZ < -20000.0f || vecPosition->fZ > 20000.0f ||
+			vecVelocity->fX > 35.0f || vecVelocity->fX < -35.0f ||
+			vecVelocity->fY > 35.0f || vecVelocity->fY < -35.0f ||
+			vecVelocity->fZ > 35.0f || vecVelocity->fZ < -35.0f ||
+			!isfinite(vecPosition->fX) || !isfinite(vecPosition->fY) || !isfinite(vecPosition->fZ) ||
+			!isfinite(vecVelocity->fX) || !isfinite(vecVelocity->fY) || !isfinite(vecVelocity->fZ)
+		   )
+		{
+			return 0xFF;
+		}
+	}
+
+	if (packetId == ID_BULLET_SYNC)
+	{
+		BULLET_SYNC_DATA *d = (BULLET_SYNC_DATA*)&p->data[1];
+		
+		if (!isfinite(d->vecCenterOfHit.fX) || !isfinite(d->vecCenterOfHit.fY) || !isfinite(d->vecCenterOfHit.fZ)) {
+			return 0xFF;
+		}
+
+		if (d->vecCenterOfHit.fX < -20000.0 || d->vecCenterOfHit.fX > 20000.0 ||
+			d->vecCenterOfHit.fY < -20000.0 || d->vecCenterOfHit.fY > 20000.0 ||
+			d->vecCenterOfHit.fZ < -20000.0 || d->vecCenterOfHit.fZ > 20000.0)
+		{
+			return 0xFF;
+		}
+
+		if (d->byteHitType == BULLET_HIT_TYPE_PLAYER && ((d->vecCenterOfHit.fX > 10.0f || d->vecCenterOfHit.fX < -10.0f) || (d->vecCenterOfHit.fY > 10.0f || d->vecCenterOfHit.fY < -10.0f) || (d->vecCenterOfHit.fZ > 10.0f || d->vecCenterOfHit.fZ < -10.0f)))
+		{
+			return 0xFF;
+		}
+
+		if (d->byteHitType == BULLET_HIT_TYPE_VEHICLE && ((d->vecCenterOfHit.fX > 100.0f || d->vecCenterOfHit.fX < -100.0f) || (d->vecCenterOfHit.fY > 100.0f || d->vecCenterOfHit.fY < -100.0f) || (d->vecCenterOfHit.fZ > 100.0f || d->vecCenterOfHit.fZ < -100.0f)))
+		{
+			return 0xFF;
+		}
+
+		if ((d->byteHitType == BULLET_HIT_TYPE_OBJECT || d->byteHitType == BULLET_HIT_TYPE_PLAYER_OBJECT) && ((d->vecCenterOfHit.fX > 1000.0 || d->vecCenterOfHit.fX < -1000.0) || (d->vecCenterOfHit.fY > 1000.0 || d->vecCenterOfHit.fY < -1000.0) || (d->vecCenterOfHit.fZ > 1000.0 || d->vecCenterOfHit.fZ < -1000.0)))
+		{
+			return 0xFF;
+		}
 	}
 
 	if (packetId == ID_PLAYER_SYNC)
