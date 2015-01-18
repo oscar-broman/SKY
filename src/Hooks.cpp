@@ -199,9 +199,26 @@ static BYTE HOOK_GetPacketID(Packet *p)
 				vecPosition = &vd->vecPosition;
 				vecVelocity = &vd->vecVelocity;
 
+				vd->wUDAnalog = 0;
+				vd->wLRAnalog = 0;
+
+				if (vd->fHealth < 0.0f) {
+					vd->fHealth = 0.0f;
+				} else if (vd->fHealth > 1000000.0f) {
+					vd->fHealth = 1000000.0f;
+				}
+
 				//logprintf("trainspeed: %f, %04x, %04x", vd->fTrainSpeed, vd->wHydraReactorAngle[0], vd->wHydraReactorAngle[1]);
 
+				if (pNetGame->pVehiclePool == NULL) {
+					return 0xFF;
+				}
+				
 				pVehicle = pNetGame->pVehiclePool->pVehicle[vd->wVehicleId];
+
+				if (pVehicle == NULL) {
+					return 0xFF;
+				}
 
 				switch(pVehicle->customSpawn.iModelID) {
 					case 509:
@@ -218,8 +235,8 @@ static BYTE HOOK_GetPacketID(Packet *p)
 					case 586:
 					case 468:
 					case 471:
-						if (vd->fTrainSpeed < -0.52) vd->fTrainSpeed = -0.52;
-						if (vd->fTrainSpeed > 0.52) vd->fTrainSpeed = 0.52;
+						if (vd->fTrainSpeed < -0.52f) vd->fTrainSpeed = -0.52f;
+						if (vd->fTrainSpeed > 0.52f) vd->fTrainSpeed = 0.52f;
 						break;
 					case 520:
 						if (vd->wHydraReactorAngle[0] < 0 || vd->wHydraReactorAngle[0] > 5000) {
@@ -236,10 +253,10 @@ static BYTE HOOK_GetPacketID(Packet *p)
 					case 569:
 					case 570:
 					case 590:
-						if (vd->fTrainSpeed > 1.0) {
-							vd->fTrainSpeed = 1.0;
-						} else if (vd->fTrainSpeed < -1.0) {
-							vd->fTrainSpeed = -1.0;
+						if (vd->fTrainSpeed > 1.0f) {
+							vd->fTrainSpeed = 1.0f;
+						} else if (vd->fTrainSpeed < -1.0f) {
+							vd->fTrainSpeed = -1.0f;
 						}
 						break;
 					default:
@@ -313,6 +330,34 @@ static BYTE HOOK_GetPacketID(Packet *p)
 	{
 		CSyncData *d = (CSyncData*)(&p->data[1]);
 
+		if (d->wUDAnalog > 0)
+			d->wUDAnalog = 128;
+		else if (d->wUDAnalog < 0)
+			d->wUDAnalog = -128;
+
+		if (d->wLRAnalog  > 0)
+			d->wLRAnalog = 128;
+		else if (d->wLRAnalog < 0)
+			d->wLRAnalog = -128;
+
+		if (d->vecPosition.fX < -20000.0f || d->vecPosition.fX > 20000.0f ||
+			d->vecPosition.fY < -20000.0f || d->vecPosition.fY > 20000.0f ||
+			d->vecPosition.fZ < -20000.0f || d->vecPosition.fZ > 20000.0f ||
+			d->vecSurfing.fX > 35.0f || d->vecSurfing.fX < -35.0f ||
+			d->vecSurfing.fY > 35.0f || d->vecSurfing.fY < -35.0f ||
+			d->vecSurfing.fZ > 35.0f || d->vecSurfing.fZ < -35.0f ||
+			d->vecVelocity.fX > 35.0f || d->vecVelocity.fX < -35.0f ||
+			d->vecVelocity.fY > 35.0f || d->vecVelocity.fY < -35.0f ||
+			d->vecVelocity.fZ > 35.0f || d->vecVelocity.fZ < -35.0f ||
+			!isfinite(d->vecPosition.fX) || !isfinite(d->vecPosition.fY) || !isfinite(d->vecPosition.fZ) ||
+			!isfinite(d->vecVelocity.fX) || !isfinite(d->vecVelocity.fY) || !isfinite(d->vecVelocity.fZ) ||
+			!isfinite(d->vecSurfing.fX) || !isfinite(d->vecSurfing.fY) || !isfinite(d->vecSurfing.fZ)
+		   )
+		{
+			return 0xFF;
+		}
+
+
 		if (syncDataFrozen[playerid]) {
 			memcpy(d, &lastSyncData[playerid], sizeof(CSyncData));
 		} else {
@@ -355,6 +400,12 @@ static BYTE HOOK_GetPacketID(Packet *p)
 			CAimSyncData *d = (CAimSyncData*)(&p->data[1]);
 
 			d->fZAim = -d->vecFront.fZ;
+
+			if (d->fZAim > 1.0f) {
+				d->fZAim = 1.0f;
+			} else if (d->fZAim < -1.0f) {
+				d->fZAim = -1.0f;
+			}
 		}
 
 	}
