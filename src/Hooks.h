@@ -33,6 +33,7 @@ extern BOOL knifeSync;
 extern glm::quat* fakeQuat[1000];
 extern BOOL distanceBasedStreamRate;
 extern DWORD lastUpdateTick[1000];
+extern BOOL disableSyncBugs;
 
 
 #endif

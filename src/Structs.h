@@ -191,7 +191,15 @@ class CSyncData
 		CVector			vecVelocity;			// 0x009C - 0x00A8
 		CVector			vecSurfing;				// 0x00A8 - 0x00B4
 		WORD			wSurfingInfo;			// 0x00B4 - 0x00B6
-		int				iAnimationId;			// 0x00B6 - 0x00BA
+		union
+		{
+			int		iAnimationId;			// 0x00B6 - 0x00BA
+			struct
+			{
+				WORD	wAnimIndex;
+				WORD	wAnimFlags;
+			};
+		};
 		// Size = 68
 
 };

@@ -353,6 +353,19 @@ static cell AMX_NATIVE_CALL Natives::SetDistanceBasedStreamRate( AMX* amx, cell*
 	return 1;
 }
 
+// native SetDisableSyncBugs(toggle);
+static cell AMX_NATIVE_CALL Natives::SetDisableSyncBugs( AMX* amx, cell* params )
+{
+	if (!serverVersion)
+		return 0;
+
+	CHECK_PARAMS(1, "SetDisableSyncBugs");
+
+	disableSyncBugs = (BOOL)params[1];
+
+	return 1;
+}
+
 // native SendDeath(playerid);
 static cell AMX_NATIVE_CALL Natives::SendDeath( AMX* amx, cell* params )
 {
@@ -413,6 +426,7 @@ AMX_NATIVE_INFO YSINatives [] =
 	{ "SetLastAnimationData",		Natives::SetLastAnimationData },
 	{ "SendLastSyncData",			Natives::SendLastSyncData },
 	{ "SetDistanceBasedStreamRate",	Natives::SetDistanceBasedStreamRate },
+	{ "SetDisableSyncBugs",			Natives::SetDisableSyncBugs },
 	{ 0,							0 }
 };
 

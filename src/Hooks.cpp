@@ -173,6 +173,7 @@ BOOL syncDataFrozen[1000] = {0};
 BYTE fakeHealth[1000] = {0};
 BYTE fakeArmour[1000] = {0};
 glm::quat* fakeQuat[1000];
+BOOL disableSyncBugs = true;
 
 static BYTE HOOK_GetPacketID(Packet *p)
 {
@@ -339,6 +340,69 @@ static BYTE HOOK_GetPacketID(Packet *p)
 			d->wLRAnalog = 128;
 		else if (d->wLRAnalog < 0)
 			d->wLRAnalog = -128;
+
+		if (disableSyncBugs) {
+			// Prevent "ghost shooting" bugs
+			switch (d->byteWeapon) {
+				case WEAPON_COLT45 ... WEAPON_SNIPER:
+				case WEAPON_MINIGUN:
+					switch (d->wAnimIndex) {
+						// PED_RUN_PLAYER
+						case 1231:
+						// PED_WEAPON_CROUCH
+						case 1274:
+						// PED_WALK_PLAYER
+						case 1266:
+						// PED_SHOT_PARTIAL(_B)
+						case 1241:
+						case 1242:
+						// PED_HIT_FRONT
+						case 1175:
+						// Baseball bat
+						case 17 ... 27:
+						// Knife
+						case 745 ... 760:
+						// Sword
+						case 1545 ... 1554:
+						// Fight
+						case 471 ... 507:
+						case 1135 ... 1151:
+							// Only remove action key if holding aim
+							if (d->wKeys & 128) {
+								d->wKeys &= ~1;
+							}
+
+							// Remove fire key
+							d->wKeys &= ~4;
+
+							break;
+					}
+
+					break;
+
+				case WEAPON_SPRAYCAN:
+				case WEAPON_FIREEXTINGUISHER:
+				case WEAPON_FLAMETHROWER:
+					if (d->wAnimIndex < 1160 || d->wAnimIndex > 1167) {
+						// Only remove action key if holding aim
+						if (d->wKeys & 128) {
+							d->wKeys &= ~1;
+						}
+
+						// Remove fire key
+						d->wKeys &= ~4;
+					}
+
+					break;
+
+				case WEAPON_GRENADE:
+					if (d->wAnimIndex < 644 || d->wAnimIndex > 646) {
+						d->wKeys &= ~1;
+					}
+
+					break;
+			}
+		}
 
 		if (d->vecPosition.fX < -20000.0f || d->vecPosition.fX > 20000.0f ||
 			d->vecPosition.fY < -20000.0f || d->vecPosition.fY > 20000.0f ||

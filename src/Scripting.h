@@ -56,6 +56,7 @@ namespace Natives
 	static cell AMX_NATIVE_CALL SetLastAnimationData(AMX *amx, cell *params);
 	static cell AMX_NATIVE_CALL SendLastSyncData(AMX *amx, cell *params);
 	static cell AMX_NATIVE_CALL SetDistanceBasedStreamRate(AMX *amx, cell *params);
+	static cell AMX_NATIVE_CALL SetDisableSyncBugs(AMX *amx, cell *params);
 };
 
 int InitScripting(AMX *amx);
