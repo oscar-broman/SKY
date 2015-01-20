@@ -284,7 +284,6 @@ static cell AMX_NATIVE_CALL Natives::SetFakeArmour( AMX* amx, cell* params )
 	return 1;
 }
 
-
 // native SetFakeHealth(playerid, health);
 static cell AMX_NATIVE_CALL Natives::SetFakeHealth( AMX* amx, cell* params )
 {
@@ -366,6 +365,56 @@ static cell AMX_NATIVE_CALL Natives::SetDisableSyncBugs( AMX* amx, cell* params 
 	return 1;
 }
 
+// native SetInfiniteAmmoSync(playerid, toggle)
+static cell AMX_NATIVE_CALL Natives::SetInfiniteAmmoSync( AMX* amx, cell* params )
+{
+	if (!serverVersion)
+		return 0;
+
+	CHECK_PARAMS(2, "SetInfiniteAmmoSync");
+
+	int playerid = (int)params[1];
+	BOOL toggle = (BOOL)params[2];
+
+	infiniteAmmo[playerid] = toggle;
+
+	return 1;
+}
+// native SetKeySyncBlocked(playerid, toggle)
+static cell AMX_NATIVE_CALL Natives::SetKeySyncBlocked( AMX* amx, cell* params )
+{
+	if (!serverVersion)
+		return 0;
+
+	CHECK_PARAMS(2, "SetKeySyncBlocked");
+
+	int playerid = (int)params[1];
+	BOOL toggle = (BOOL)params[2];
+
+	blockKeySync[playerid] = toggle;
+
+	return 1;
+}
+
+// native ClearAnimationsForPlayer(playerid, forplayerid)
+static cell AMX_NATIVE_CALL Natives::ClearAnimationsForPlayer( AMX* amx, cell* params )
+{
+	if (!serverVersion)
+		return 0;
+
+	CHECK_PARAMS(2, "ClearAnimationsForPlayer");
+
+	int playerid = (int)params[1];
+	int forplayerid = (int)params[2];
+
+	RakNet::BitStream bs;
+	bs.Write((WORD)playerid);
+
+	pRakServer->RPC(&RPC_ClearAnimations, &bs, HIGH_PRIORITY, RELIABLE_ORDERED, 0, pRakServer->GetPlayerIDFromIndex(forplayerid), false, false);
+
+	return 1;
+}
+
 // native SendDeath(playerid);
 static cell AMX_NATIVE_CALL Natives::SendDeath( AMX* amx, cell* params )
 {
@@ -427,6 +476,9 @@ AMX_NATIVE_INFO YSINatives [] =
 	{ "SendLastSyncData",			Natives::SendLastSyncData },
 	{ "SetDistanceBasedStreamRate",	Natives::SetDistanceBasedStreamRate },
 	{ "SetDisableSyncBugs",			Natives::SetDisableSyncBugs },
+	{ "ClearAnimationsForPlayer",	Natives::ClearAnimationsForPlayer },
+	{ "SetKeySyncBlocked",			Natives::SetKeySyncBlocked },
+	{ "SetInfiniteAmmoSync",		Natives::SetInfiniteAmmoSync },
 	{ 0,							0 }
 };
 

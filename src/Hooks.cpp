@@ -82,6 +82,7 @@ BOOL knifeSync = true;
 BOOL distanceBasedStreamRate = true;
 int lastAnim[1000] = {0};
 DWORD lastUpdateTick[1000] = {0};
+BOOL blockKeySync[1000] = {0};
 
 // Y_Less - original YSF
 bool Unlock(void *address, size_t len)
@@ -174,6 +175,7 @@ BYTE fakeHealth[1000] = {0};
 BYTE fakeArmour[1000] = {0};
 glm::quat* fakeQuat[1000];
 BOOL disableSyncBugs = true;
+BOOL infiniteAmmo[1000] = {0};
 
 static BYTE HOOK_GetPacketID(Packet *p)
 {
@@ -331,14 +333,14 @@ static BYTE HOOK_GetPacketID(Packet *p)
 	{
 		CSyncData *d = (CSyncData*)(&p->data[1]);
 
-		if (d->wUDAnalog > 0)
+		if (d->wUDAnalog > 128)
 			d->wUDAnalog = 128;
-		else if (d->wUDAnalog < 0)
+		else if (d->wUDAnalog < -128)
 			d->wUDAnalog = -128;
 
-		if (d->wLRAnalog  > 0)
+		if (d->wLRAnalog  > 128)
 			d->wLRAnalog = 128;
-		else if (d->wLRAnalog < 0)
+		else if (d->wLRAnalog < -128)
 			d->wLRAnalog = -128;
 
 		if (disableSyncBugs) {
@@ -347,8 +349,16 @@ static BYTE HOOK_GetPacketID(Packet *p)
 				case WEAPON_COLT45 ... WEAPON_SNIPER:
 				case WEAPON_MINIGUN:
 					switch (d->wAnimIndex) {
-						// PED_RUN_PLAYER
-						case 1231:
+						// PED_RUN_*
+						case 1222 ... 1236:
+						// PED_SWAT_RUN
+						case 1249:
+						// PED_WOMAN_(RUN/WALK)_*
+						case 1275 ... 1287:
+						// FAT_FATRUN_ARMED
+						case 459:
+						// MUSCULAR_MUSCLERUN*
+						case 908 ... 909:
 						// PED_WEAPON_CROUCH
 						case 1274:
 						// PED_WALK_PLAYER
@@ -356,8 +366,6 @@ static BYTE HOOK_GetPacketID(Packet *p)
 						// PED_SHOT_PARTIAL(_B)
 						case 1241:
 						case 1242:
-						// PED_HIT_FRONT
-						case 1175:
 						// Baseball bat
 						case 17 ... 27:
 						// Knife
@@ -375,6 +383,9 @@ static BYTE HOOK_GetPacketID(Packet *p)
 							// Remove fire key
 							d->wKeys &= ~4;
 
+							// Remove aim key
+							d->wKeys &= ~128;
+
 							break;
 					}
 
@@ -391,6 +402,9 @@ static BYTE HOOK_GetPacketID(Packet *p)
 
 						// Remove fire key
 						d->wKeys &= ~4;
+
+						// Remove aim key
+						d->wKeys &= ~128;
 					}
 
 					break;
@@ -428,6 +442,10 @@ static BYTE HOOK_GetPacketID(Packet *p)
 			memcpy(&lastSyncData[playerid], d, sizeof(CSyncData));
 		}
 
+		if (blockKeySync[playerid]) {
+			d->wKeys = 0;
+		}
+
 		if (fakeHealth[playerid] != 255) {
 			d->byteHealth = fakeHealth[playerid];
 		}
@@ -459,10 +477,10 @@ static BYTE HOOK_GetPacketID(Packet *p)
 
 	if (packetId == ID_AIM_SYNC)
 	{
+		CAimSyncData *d = (CAimSyncData*)(&p->data[1]);
+
 		// Fix first-person up/down aim sync
 		if (lastWeapon[playerid] == 34 || lastWeapon[playerid] == 35 || lastWeapon[playerid] == 36 || lastWeapon[playerid] == 43) {
-			CAimSyncData *d = (CAimSyncData*)(&p->data[1]);
-
 			d->fZAim = -d->vecFront.fZ;
 
 			if (d->fZAim > 1.0f) {
@@ -472,6 +490,10 @@ static BYTE HOOK_GetPacketID(Packet *p)
 			}
 		}
 
+		if (infiniteAmmo[playerid]) {
+			d->byteWeaponState = 2;
+			d->byteCameraMode = 2;
+		}
 	}
 
 	if (packetId == ID_VEHICLE_SYNC)

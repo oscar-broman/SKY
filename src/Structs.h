@@ -209,12 +209,12 @@ class CSyncData
 class CAimSyncData
 {
 	public:
-		BYTE			byteCameraMode;			// 0x0000 - 0x0001
+		BYTE			byteCameraZoom;			// 0x0000 - 0x0001
 		CVector			vecFront;				// 0x0001 - 0x000D
 		CVector			vecPosition;			// 0x000D - 0x0019
 		float			fZAim;					// 0x0019 - 0x001D
-		BYTE			byteWeaponState : 6;	// 0x001D - 0x001E
-		BYTE			byteCameraZoom : 2;
+		BYTE			byteCameraMode: 6;	// 0x001D - 0x001E
+		BYTE			byteWeaponState : 2;
 		BYTE			unk;					// 0x001E - 0x001F
 		// Size = 31
 };

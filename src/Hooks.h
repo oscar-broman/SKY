@@ -34,6 +34,8 @@ extern glm::quat* fakeQuat[1000];
 extern BOOL distanceBasedStreamRate;
 extern DWORD lastUpdateTick[1000];
 extern BOOL disableSyncBugs;
+extern BOOL blockKeySync[1000];
+extern BOOL infiniteAmmo[1000];
 
 
 #endif
