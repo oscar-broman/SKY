@@ -178,8 +178,8 @@ public:
 class CSyncData
 {
 	public:
-		WORD			wUDAnalog;				// 0x0076 - 0x0078
-		WORD			wLRAnalog;				// 0x0078 - 0x007A
+		signed short		wUDAnalog;				// 0x0076 - 0x0078
+		signed short		wLRAnalog;				// 0x0078 - 0x007A
 		WORD			wKeys;					// 0x007A - 0x007C
 		CVector			vecPosition;			// 0x007C - 0x0088
 		float			fQuaternionAngle;		// 0x0088 - 0x008C
