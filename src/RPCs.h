@@ -62,21 +62,20 @@ extern int RPC_DeathBroadcast;
 
 extern int RPC_ClearAnimations;
 
-enum PacketEnumeration : unsigned char
-{
-	ID_PLAYER_SYNC = 212,
-	ID_MARKERS_SYNC = 213,
-	ID_UNOCCUPIED_SYNC = 214,
-	ID_TRAILER_SYNC = 215,
-	ID_PASSENGER_SYNC = 216,
-	ID_SPECTATOR_SYNC = 217,
-	ID_AIM_SYNC = 218,
-	ID_VEHICLE_SYNC = 219,
-	ID_RCON_COMMAND = 220,
-	ID_RCON_RESPONCE = 221,
-	ID_WEAPONS_UPDATE = 222,
-	ID_STATS_UPDATE = 223,
-	ID_BULLET_SYNC = 224,
-};
+extern int ID_PLAYER_SYNC;
+extern int ID_MARKERS_SYNC;
+extern int ID_UNOCCUPIED_SYNC;
+extern int ID_TRAILER_SYNC;
+extern int ID_PASSENGER_SYNC;
+extern int ID_SPECTATOR_SYNC;
+extern int ID_AIM_SYNC;
+extern int ID_VEHICLE_SYNC;
+extern int ID_RCON_COMMAND;
+extern int ID_RCON_RESPONCE;
+extern int ID_WEAPONS_UPDATE;
+extern int ID_STATS_UPDATE;
+extern int ID_BULLET_SYNC;
+
+void InitRPCs();
 
 #endif

@@ -152,19 +152,14 @@ BYTE GetPacketID(Packet *p)
 
 bool IsPlayerUpdatePacket(unsigned char packetId)
 {
-	switch (packetId)
-	{
-	case ID_PLAYER_SYNC:
-	case ID_VEHICLE_SYNC:
-	case ID_PASSENGER_SYNC:
-	case ID_SPECTATOR_SYNC:
-	case ID_AIM_SYNC:
-	case ID_TRAILER_SYNC:
-		return true;
-	default:
-		return false;
-	}
-	return false;
+	return (
+  	packetId == ID_PLAYER_SYNC ||
+  	packetId == ID_VEHICLE_SYNC ||
+  	packetId == ID_PASSENGER_SYNC ||
+  	packetId == ID_SPECTATOR_SYNC ||
+  	packetId == ID_AIM_SYNC ||
+  	packetId == ID_TRAILER_SYNC
+  );
 }
 
 typedef BYTE (*FUNC_GetPacketID)(Packet *p);
@@ -181,6 +176,10 @@ static BYTE HOOK_GetPacketID(Packet *p)
 {
 	BYTE packetId = GetPacketID(p);
 	WORD playerid = p->playerIndex;
+  
+  if (packetId == 0xFF) {
+    return 0xFF;
+  }
 
 	if (IsPlayerUpdatePacket(packetId)) {
 		lastUpdateTick[playerid] = GetTickCount();
@@ -196,92 +195,87 @@ static BYTE HOOK_GetPacketID(Packet *p)
 		CPassengerSyncData *pd = NULL;
 		CVehicle *pVehicle = NULL;
 		
-		switch (packetId) {
-			case ID_VEHICLE_SYNC:
-				vd = (CVehicleSyncData*)(&p->data[1]);
-				vecPosition = &vd->vecPosition;
-				vecVelocity = &vd->vecVelocity;
+		if (packetId == ID_VEHICLE_SYNC)
+    {
+			vd = (CVehicleSyncData*)(&p->data[1]);
+			vecPosition = &vd->vecPosition;
+			vecVelocity = &vd->vecVelocity;
 
-				vd->wUDAnalog = 0;
-				vd->wLRAnalog = 0;
+			vd->wUDAnalog = 0;
+			vd->wLRAnalog = 0;
 
-				if (vd->fHealth < 0.0f) {
-					vd->fHealth = 0.0f;
-				} else if (vd->fHealth > 1000000.0f) {
-					vd->fHealth = 1000000.0f;
-				}
+			if (vd->fHealth < 0.0f) {
+				vd->fHealth = 0.0f;
+			} else if (vd->fHealth > 1000000.0f) {
+				vd->fHealth = 1000000.0f;
+			}
 
-				//logprintf("trainspeed: %f, %04x, %04x", vd->fTrainSpeed, vd->wHydraReactorAngle[0], vd->wHydraReactorAngle[1]);
+			//logprintf("trainspeed: %f, %04x, %04x", vd->fTrainSpeed, vd->wHydraReactorAngle[0], vd->wHydraReactorAngle[1]);
 
-				if (pNetGame->pVehiclePool == NULL) {
-					return 0xFF;
-				}
-				
-				pVehicle = pNetGame->pVehiclePool->pVehicle[vd->wVehicleId];
+			if (pNetGame->pVehiclePool == NULL) {
+				return 0xFF;
+			}
+			
+			pVehicle = pNetGame->pVehiclePool->pVehicle[vd->wVehicleId];
 
-				if (pVehicle == NULL) {
-					return 0xFF;
-				}
+			if (pVehicle == NULL) {
+				return 0xFF;
+			}
 
-				switch(pVehicle->customSpawn.iModelID) {
-					case 509:
-					case 481:
-					case 510:
-					case 462:
-					case 448:
-					case 581:
-					case 522:
-					case 461:
-					case 521:
-					case 523:
-					case 463:
-					case 586:
-					case 468:
-					case 471:
-						if (vd->fTrainSpeed < -0.52f) vd->fTrainSpeed = -0.52f;
-						if (vd->fTrainSpeed > 0.52f) vd->fTrainSpeed = 0.52f;
-						break;
-					case 520:
-						if (vd->wHydraReactorAngle[0] < 0 || vd->wHydraReactorAngle[0] > 5000) {
-							vd->wHydraReactorAngle[0] = 0;
-						}
+			switch(pVehicle->customSpawn.iModelID) {
+				case 509:
+				case 481:
+				case 510:
+				case 462:
+				case 448:
+				case 581:
+				case 522:
+				case 461:
+				case 521:
+				case 523:
+				case 463:
+				case 586:
+				case 468:
+				case 471:
+					if (vd->fTrainSpeed < -0.52f) vd->fTrainSpeed = -0.52f;
+					if (vd->fTrainSpeed > 0.52f) vd->fTrainSpeed = 0.52f;
+					break;
+				case 520:
+					if (vd->wHydraReactorAngle[0] < 0 || vd->wHydraReactorAngle[0] > 5000) {
+						vd->wHydraReactorAngle[0] = 0;
+					}
 
-						if (vd->wHydraReactorAngle[1] < 0 || vd->wHydraReactorAngle[1] > 5000) {
-							vd->wHydraReactorAngle[1] = 0;
-						}
-						break;
-					case 449:
-					case 537:
-					case 538:
-					case 569:
-					case 570:
-					case 590:
-						if (vd->fTrainSpeed > 1.0f) {
-							vd->fTrainSpeed = 1.0f;
-						} else if (vd->fTrainSpeed < -1.0f) {
-							vd->fTrainSpeed = -1.0f;
-						}
-						break;
-					default:
-						vd->fTrainSpeed = 0.0;
-						break;
-				}
-
-				break;
-
-			case ID_UNOCCUPIED_SYNC:
-				ud = (CUnoccupiedSyncData*)(&p->data[1]);
-				vecPosition = &ud->vecPosition;
-				vecVelocity = &ud->vecVelocity;
-				break;
-
-			case ID_PASSENGER_SYNC:
-				pd = (CPassengerSyncData*)(&p->data[1]);
-				vecPosition = &pd->vecPosition;
-				break;
-
-			default:
-				break;
+					if (vd->wHydraReactorAngle[1] < 0 || vd->wHydraReactorAngle[1] > 5000) {
+						vd->wHydraReactorAngle[1] = 0;
+					}
+					break;
+				case 449:
+				case 537:
+				case 538:
+				case 569:
+				case 570:
+				case 590:
+					if (vd->fTrainSpeed > 1.0f) {
+						vd->fTrainSpeed = 1.0f;
+					} else if (vd->fTrainSpeed < -1.0f) {
+						vd->fTrainSpeed = -1.0f;
+					}
+					break;
+				default:
+					vd->fTrainSpeed = 0.0;
+					break;
+			}
+    }
+    else if (packetId == ID_UNOCCUPIED_SYNC)
+    {
+			ud = (CUnoccupiedSyncData*)(&p->data[1]);
+			vecPosition = &ud->vecPosition;
+			vecVelocity = &ud->vecVelocity;
+    }
+    else if (packetId == ID_PASSENGER_SYNC)
+    {
+			pd = (CPassengerSyncData*)(&p->data[1]);
+			vecPosition = &pd->vecPosition;
 		}
 
 		if (vecPosition->fX < -20000.0f || vecPosition->fX > 20000.0f ||

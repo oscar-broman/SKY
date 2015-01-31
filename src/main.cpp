@@ -88,6 +88,11 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void ** ppData)
 		serverVersion = SAMP_VERSION_03Z_R4;
 		strcpy(szVersion, "0.3z R4");
 	}
+	else if(logprintf == (logprintf_t)CAddress::FUNC_Logprintf_037RC1)
+	{
+		serverVersion = SAMP_VERSION_037RC1;
+		strcpy(szVersion, "0.3.7 RC1");
+	}
 
 	if (1)
 	{
@@ -103,6 +108,7 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void ** ppData)
 		strcpy(szVersion, "version check skipped");
 	}
 
+	InitRPCs();
 	CAddress::Initialize();
 	CSAMPFunctions::Initialize();
 	InstallPreHooks();
