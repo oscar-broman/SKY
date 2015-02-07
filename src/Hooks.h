@@ -31,7 +31,6 @@ extern BYTE fakeHealth[1000];
 extern BYTE fakeArmour[1000];
 extern BOOL knifeSync;
 extern glm::quat* fakeQuat[1000];
-extern BOOL distanceBasedStreamRate;
 extern DWORD lastUpdateTick[1000];
 extern BOOL disableSyncBugs;
 extern BOOL blockKeySync[1000];

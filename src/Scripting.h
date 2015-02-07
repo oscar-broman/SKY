@@ -54,7 +54,6 @@ static cell AMX_NATIVE_CALL SetKnifeSync(AMX *amx, cell *params);
 static cell AMX_NATIVE_CALL SendDeath(AMX *amx, cell *params);
 static cell AMX_NATIVE_CALL SetLastAnimationData(AMX *amx, cell *params);
 static cell AMX_NATIVE_CALL SendLastSyncData(AMX *amx, cell *params);
-static cell AMX_NATIVE_CALL SetDistanceBasedStreamRate(AMX *amx, cell *params);
 static cell AMX_NATIVE_CALL SetDisableSyncBugs(AMX *amx, cell *params);
 static cell AMX_NATIVE_CALL ClearAnimationsForPlayer(AMX *amx, cell *params);
 static cell AMX_NATIVE_CALL SetKeySyncBlocked(AMX *amx, cell *params);

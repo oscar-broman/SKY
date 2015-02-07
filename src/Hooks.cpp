@@ -79,7 +79,6 @@ extern void *pAMXFunctions;
 subhook_t GetPacketID_hook;
 
 BOOL knifeSync = true;
-BOOL distanceBasedStreamRate = true;
 int lastAnim[1000] = {0};
 DWORD lastUpdateTick[1000] = {0};
 BOOL blockKeySync[1000] = {0};

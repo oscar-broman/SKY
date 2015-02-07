@@ -67,7 +67,7 @@ typedef cell AMX_NATIVE_CALL (* AMX_Function_t)(AMX *amx, cell *params);
 
 //----------------------------------------------------
 
-// native SpawnPlayerForWorld(playerid, forplayerid);
+// native SpawnPlayerForWorld(playerid);
 static cell AMX_NATIVE_CALL Natives::SpawnPlayerForWorld( AMX* amx, cell* params )
 {
 	if (!serverVersion)
@@ -290,19 +290,6 @@ static cell AMX_NATIVE_CALL Natives::SetKnifeSync( AMX* amx, cell* params )
 	return 1;
 }
 
-// native SetDistanceBasedStreamRate(toggle);
-static cell AMX_NATIVE_CALL Natives::SetDistanceBasedStreamRate( AMX* amx, cell* params )
-{
-	if (!serverVersion)
-		return 0;
-
-	CHECK_PARAMS(1, "SetDistanceBasedStreamRate");
-
-	distanceBasedStreamRate = (BOOL)params[1];
-
-	return 1;
-}
-
 // native SetDisableSyncBugs(toggle);
 static cell AMX_NATIVE_CALL Natives::SetDisableSyncBugs( AMX* amx, cell* params )
 {
@@ -423,7 +410,6 @@ AMX_NATIVE_INFO YSINatives [] = {
 	{ "SendDeath",					Natives::SendDeath },
 	{ "SetLastAnimationData",		Natives::SetLastAnimationData },
 	{ "SendLastSyncData",			Natives::SendLastSyncData },
-	{ "SetDistanceBasedStreamRate",	Natives::SetDistanceBasedStreamRate },
 	{ "SetDisableSyncBugs",			Natives::SetDisableSyncBugs },
 	{ "ClearAnimationsForPlayer",	Natives::ClearAnimationsForPlayer },
 	{ "SetKeySyncBlocked",			Natives::SetKeySyncBlocked },
