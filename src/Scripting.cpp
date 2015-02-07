@@ -82,55 +82,6 @@ static cell AMX_NATIVE_CALL Natives::SpawnPlayerForWorld( AMX* amx, cell* params
 	return 1;
 }
 
-// native ApplyAnimationForPlayer(playerid, animplayerid, animlib[], animname[], Float:fDelta, loop, lockx, locky, freeze, time);
-static cell AMX_NATIVE_CALL Natives::ApplyAnimationForPlayer(AMX *amx, cell *params)
-{
-	CHECK_PARAMS(10, "ApplyAnimationForPlayer");
-	RakNet::BitStream bsSend;
-
-	char *szAnimLib;
-	char *szAnimName;
-	BYTE byteAnimLibLen;
-	BYTE byteAnimNameLen;
-	float fS;
-	bool opt1,opt2,opt3,opt4;
-	int time;
-
-	int playerid = (int)params[1];
-	int animplayerid = (int)params[2];
-	if (!IsPlayerConnected(playerid) || !IsPlayerConnected(animplayerid)) return 0;
-
-	amx_StrParam(amx, params[3], szAnimLib);
-	amx_StrParam(amx, params[4], szAnimName);
-
-	if(!szAnimLib || !szAnimName) return 0;
-
-	byteAnimLibLen = strlen(szAnimLib);
-	byteAnimNameLen = strlen(szAnimName);
-
-	fS = amx_ctof(params[5]);
-	opt1 = !!params[6];
-	opt2 = !!params[7];
-	opt3 = !!params[8];
-	opt4 = !!params[9];
-	time = (int)params[10];
-
-	bsSend.Write((WORD)animplayerid);
-	bsSend.Write(byteAnimLibLen);
-	bsSend.Write(szAnimLib,byteAnimLibLen);
-	bsSend.Write(byteAnimNameLen);
-	bsSend.Write(szAnimName,byteAnimNameLen);
-	bsSend.Write(fS);
-	bsSend.Write(opt1);
-	bsSend.Write(opt2);
-	bsSend.Write(opt3);
-	bsSend.Write(opt4);
-	bsSend.Write(time);
-
-	pRakServer->RPC(&RPC_ScrApplyAnimation, &bsSend, HIGH_PRIORITY, UNRELIABLE, 0, pRakServer->GetPlayerIDFromIndex(playerid), false, false);
-	return 1;
-}
-
 // native SetLastAnimationData(playerid, data)
 static cell AMX_NATIVE_CALL Natives::SetLastAnimationData( AMX* amx, cell* params )
 {
@@ -465,7 +416,6 @@ static cell AMX_NATIVE_CALL Natives::FreezeSyncData( AMX* amx, cell* params )
 AMX_NATIVE_INFO YSINatives [] = {
 	{ "SpawnPlayerForWorld",		Natives::SpawnPlayerForWorld },
 	{ "SetFakeHealth",				Natives::SetFakeHealth },
-	{ "ApplyAnimationForPlayer",	Natives::ApplyAnimationForPlayer },
 	{ "SetFakeArmour",				Natives::SetFakeArmour },
 	{ "SetFakeFacingAngle",			Natives::SetFakeFacingAngle },
 	{ "FreezeSyncData",				Natives::FreezeSyncData },

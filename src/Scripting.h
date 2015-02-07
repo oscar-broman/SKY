@@ -46,7 +46,6 @@
 namespace Natives
 {
 static cell AMX_NATIVE_CALL SpawnPlayerForWorld(AMX *amx, cell *params);
-static cell AMX_NATIVE_CALL ApplyAnimationForPlayer(AMX *amx, cell *params);
 static cell AMX_NATIVE_CALL SetFakeHealth(AMX *amx, cell *params);
 static cell AMX_NATIVE_CALL SetFakeArmour(AMX *amx, cell *params);
 static cell AMX_NATIVE_CALL SetFakeFacingAngle(AMX *amx, cell *params);
