@@ -11,7 +11,7 @@ typedef unsigned short      WORD;
 typedef float               FLOAT;
 
 #ifndef MAX_PATH
-#define MAX_PATH          260
+	#define MAX_PATH          260
 #endif
 /*
 #ifndef PCHAR

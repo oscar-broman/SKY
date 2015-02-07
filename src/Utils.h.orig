@@ -1,5 +1,5 @@
 /* =========================================
-
+			
 		FCNPC - Fully Controllable NPC
 			----------------------
 
@@ -28,8 +28,8 @@ void LoadTickCount();
 #endif
 namespace CUtils
 {
-const char* GetWeaponName_(BYTE weaponid);
-BYTE GetWeaponSlot(BYTE weaponid);
+	const char* GetWeaponName_(BYTE weaponid);
+	BYTE GetWeaponSlot(BYTE weaponid);
 };
 
 float GetDistance3D(CVector *vecPosition, CVector *_vecPosition);
@@ -42,7 +42,8 @@ std::string GetServerCfgOption(const std::string &option);
 
 #define ABGR_ARGB(color) (((color >> 24) & 0x000000FF) << 24 | (((DWORD)(color) & 0xFF) << 16) | (((DWORD)(color >> 8) & 0xFF) << 8) | (((DWORD)(color >> 16) & 0xFF)))
 
-enum {
+enum
+{
 	BS_BOOL,
 	BS_CHAR,
 	BS_UNSIGNEDCHAR,

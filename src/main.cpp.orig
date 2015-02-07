@@ -21,8 +21,8 @@
 #include "subhook/subhook.h"
 
 #ifdef LINUX
-#include <cstring>
-typedef unsigned char *PCHAR;
+	#include <cstring>
+	typedef unsigned char *PCHAR;
 #endif
 
 //----------------------------------------------------------
@@ -38,9 +38,9 @@ RakServer *pRakServer = NULL;
 //----------------------------------------------------------
 // The Support() function indicates what possibilities this
 // plugin has. The SUPPORTS_VERSION flag is required to check
-// for compatibility with the server.
+// for compatibility with the server. 
 
-PLUGIN_EXPORT unsigned int PLUGIN_CALL Supports()
+PLUGIN_EXPORT unsigned int PLUGIN_CALL Supports() 
 {
 	return SUPPORTS_VERSION | SUPPORTS_AMX_NATIVES;
 }
@@ -62,35 +62,48 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void ** ppData)
 
 #ifndef _WIN32
 	LoadTickCount();
-#endif
+#endif	
 
 	// Check server version
 	serverVersion = SAMP_VERSION_UNKNOWN;
 	char szVersion[64];
 
-	if(logprintf == (logprintf_t)CAddress::FUNC_Logprintf_03Z) {
+	if(logprintf == (logprintf_t)CAddress::FUNC_Logprintf_03Z)
+	{
 		serverVersion = SAMP_VERSION_03Z;
 		strcpy(szVersion, "0.3z");
-	} else if(logprintf == (logprintf_t)CAddress::FUNC_Logprintf_03ZR2_2) {
+	}
+	else if(logprintf == (logprintf_t)CAddress::FUNC_Logprintf_03ZR2_2)
+	{
 		serverVersion = SAMP_VERSION_03Z_R2_2;
 		strcpy(szVersion, "0.3z R2-2");
-	} else if(logprintf == (logprintf_t)CAddress::FUNC_Logprintf_03ZR3) {
+	}
+	else if(logprintf == (logprintf_t)CAddress::FUNC_Logprintf_03ZR3)
+	{
 		serverVersion = SAMP_VERSION_03Z_R3;
 		strcpy(szVersion, "0.3z R3");
-	} else if(logprintf == (logprintf_t)CAddress::FUNC_Logprintf_03ZR4) {
+	}
+	else if(logprintf == (logprintf_t)CAddress::FUNC_Logprintf_03ZR4)
+	{
 		serverVersion = SAMP_VERSION_03Z_R4;
 		strcpy(szVersion, "0.3z R4");
-	} else if(logprintf == (logprintf_t)CAddress::FUNC_Logprintf_037RC1) {
+	}
+	else if(logprintf == (logprintf_t)CAddress::FUNC_Logprintf_037RC1)
+	{
 		serverVersion = SAMP_VERSION_037RC1;
 		strcpy(szVersion, "0.3.7 RC1");
 	}
 
-	if (1) {
-		if (serverVersion == SAMP_VERSION_UNKNOWN) {
+	if (1)
+	{
+		if (serverVersion == SAMP_VERSION_UNKNOWN)
+		{
 			logprintf("Error: Unknown " OS_NAME " server version\n");
 			return true;
 		}
-	} else {
+	}
+	else
+	{
 		serverVersion = SAMP_VERSION_03Z_R4;
 		strcpy(szVersion, "version check skipped");
 	}
@@ -117,11 +130,12 @@ PLUGIN_EXPORT void PLUGIN_CALL Unload()
 // the native functions we like to add to the scripts.
 typedef std::map<std::string, ConsoleVariable_s*> StringConvarMap;
 
-PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX * amx)
+PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX * amx) 
 {
 	static bool bFirst = false;
 
-	if(!bFirst) {
+	if(!bFirst)
+	{
 		bFirst = true;
 
 		// Get pNetGame
@@ -144,7 +158,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX * amx)
 // When a gamemode is over or a filterscript gets unloaded, this
 // function gets called. No special actions needed in here.
 
-PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX * amx)
+PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX * amx) 
 {
 	return AMX_ERR_NONE;
 }

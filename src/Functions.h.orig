@@ -35,7 +35,7 @@ typedef void(*CConsole__Execute_t)(void *pConsole, char* pExecLine);
 
 typedef bool(*CFilterscripts__LoadFilterscript_t)(void *pFilterscriptPool, char *szName);
 typedef bool(*CFilterscripts__UnLoadFilterscript_t)(void *pFilterscriptPool, char *szName);
-
+             
 typedef void(*CPlayer__SpawnForWorld_t)(void *pPlayer);
 
 typedef int (*Packet_WeaponsUpdate_t)(void *pNetGame, Packet *p);
@@ -46,7 +46,7 @@ class CSAMPFunctions
 {
 public:
 	static void		Initialize();
-
+	
 	static void		AddStringVariable(char *szRule, int flags, char *szString, void *changefunc);
 	static ConsoleVariable_s* FindVariable(char *szRule);
 	static void		SendRules(SOCKET s, char* data, const sockaddr_in* to, int tolen);
@@ -54,7 +54,7 @@ public:
 
 	static bool		LoadFilterscript(char *szName);
 	static bool		UnLoadFilterscript(char *szName);
-
+	
 	static void		SpawnPlayer_(int iPlayerId);
 	static void		Packet_WeaponsUpdate(Packet *p);
 	static char*	format_amxstring(AMX *amx, cell *params, int parm, int &len);

@@ -1,5 +1,5 @@
 /* =========================================
-
+			
 		FCNPC - Fully Controllable NPC
 			----------------------
 
@@ -47,14 +47,15 @@ float GetDistance3D(CVector *vecPosition, CVector *_vecPosition)
 	float fSX = (_vecPosition->fX - vecPosition->fX) * (_vecPosition->fX - vecPosition->fX);
 	float fSY = (_vecPosition->fY - vecPosition->fY) * (_vecPosition->fY - vecPosition->fY);
 	float fSZ = (_vecPosition->fZ - vecPosition->fZ) * (_vecPosition->fZ - vecPosition->fZ);
-	return ((float)sqrt(fSX + fSY + fSZ));
+	return ((float)sqrt(fSX + fSY + fSZ));	
 }
 
 BYTE CUtils::GetWeaponSlot(BYTE weaponid)
 {
 	BYTE result; // eax@2
 
-	switch (weaponid) {
+	switch (weaponid)
+	{
 	case 0:
 	case 1:
 		result = 0;
@@ -138,11 +139,14 @@ std::string GetServerCfgOption(const std::string &option)
 	std::string name, value;
 	std::string line;
 	std::fstream server_cfg("server.cfg");
-	if (server_cfg) {
-		while (std::getline(server_cfg, line)) {
+	if (server_cfg)
+	{
+		while (std::getline(server_cfg, line))
+		{
 			std::stringstream ss(line);
 			ss >> name;
-			if (name == option) {
+			if (name == option)
+			{
 				ss >> value;
 				break;
 			}

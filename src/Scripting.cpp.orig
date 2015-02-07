@@ -1,32 +1,32 @@
-/*
+/*  
  *  Version: MPL 1.1
- *
- *  The contents of this file are subject to the Mozilla Public License Version
- *  1.1 (the "License"); you may not use this file except in compliance with
- *  the License. You may obtain a copy of the License at
+ *  
+ *  The contents of this file are subject to the Mozilla Public License Version 
+ *  1.1 (the "License"); you may not use this file except in compliance with 
+ *  the License. You may obtain a copy of the License at 
  *  http://www.mozilla.org/MPL/
- *
+ *  
  *  Software distributed under the License is distributed on an "AS IS" basis,
  *  WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License
  *  for the specific language governing rights and limitations under the
  *  License.
- *
+ *  
  *  The Original Code is the YSI 2.0 SA:MP plugin.
- *
+ *  
  *  The Initial Developer of the Original Code is Alex "Y_Less" Cole.
  *  Portions created by the Initial Developer are Copyright (C) 2008
  *  the Initial Developer. All Rights Reserved.
- *
+ *  
  *  Contributor(s):
- *
+ *  
  *  Peter Beverloo
  *  Marcus Bauer
  *  MaVe;
  *  Sammy91
  *  Incognito
- *
+ *  
  *  Special Thanks to:
- *
+ *  
  *  SA:MP Team past, present and future
  */
 
@@ -45,16 +45,16 @@
 #include <glm/gtc/quaternion.hpp>
 
 #ifdef _WIN32
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-// Yes - BOTH string versions...
-#include <strsafe.h>
+	#define WIN32_LEAN_AND_MEAN
+	#include <windows.h>
+	// Yes - BOTH string versions...
+	#include <strsafe.h>
 #else
-#include <sys/stat.h>
-#include <dirent.h>
-#include <fnmatch.h>
+	#include <sys/stat.h>
+	#include <dirent.h>
+	#include <fnmatch.h>
 //	#include <sys/times.h>
-#include <algorithm>
+	#include <algorithm>
 #endif
 
 #include <sdk/plugin.h>
@@ -76,7 +76,7 @@ static cell AMX_NATIVE_CALL Natives::SpawnPlayerForWorld( AMX* amx, cell* params
 	CHECK_PARAMS(2, "SpawnPlayerForWorld");
 
 	int playerid = (int)params[1];
-
+	
 	CSAMPFunctions::SpawnPlayer_(playerid);
 
 	return 1;
@@ -95,7 +95,7 @@ static cell AMX_NATIVE_CALL Natives::ApplyAnimationForPlayer(AMX *amx, cell *par
 	float fS;
 	bool opt1,opt2,opt3,opt4;
 	int time;
-
+	
 	int playerid = (int)params[1];
 	int animplayerid = (int)params[2];
 	if (!IsPlayerConnected(playerid) || !IsPlayerConnected(animplayerid)) return 0;
@@ -262,7 +262,7 @@ static cell AMX_NATIVE_CALL Natives::SendLastSyncData( AMX* amx, cell* params )
 	} else {
 		bs.Write(false);
 	}
-
+	
 	pRakServer->Send(&bs, HIGH_PRIORITY, RELIABLE_SEQUENCED, 0, pRakServer->GetPlayerIDFromIndex(toplayerid), false);
 
 	return 1;
@@ -462,7 +462,8 @@ static cell AMX_NATIVE_CALL Natives::FreezeSyncData( AMX* amx, cell* params )
 
 
 // And an array containing the native function-names and the functions specified with them
-AMX_NATIVE_INFO YSINatives [] = {
+AMX_NATIVE_INFO YSINatives [] =
+{
 	{ "SpawnPlayerForWorld",		Natives::SpawnPlayerForWorld },
 	{ "SetFakeHealth",				Natives::SetFakeHealth },
 	{ "ApplyAnimationForPlayer",	Natives::ApplyAnimationForPlayer },
@@ -481,7 +482,8 @@ AMX_NATIVE_INFO YSINatives [] = {
 	{ 0,							0 }
 };
 
-AMX_NATIVE_INFO RedirecedtNatives[] = {
+AMX_NATIVE_INFO RedirecedtNatives[] =
+{
 	{ 0,								0 }
 };
 

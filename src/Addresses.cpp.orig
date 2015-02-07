@@ -49,9 +49,9 @@ DWORD CAddress::ADDR_CNetGame_GMX_PckupDelete = NULL;
 void CAddress::Initialize()
 {
 	// Thx for Whitetiger
-#ifdef _WIN32
+	#ifdef _WIN32
 	VAR_pRestartWaitTime =						FindPattern("\x00\x00\xC8\xC2\x00\x00", "xxxxxx") + 0x4;
-
+ 
 	FUNC_CConsole__AddStringVariable =			FindPattern("\x53\x56\x57\x8B\x7C\x24\x18\x85\xFF", "xxxxxxxxx");
 	FUNC_CConsole__FindVariable =				FindPattern("\x8B\x84\x24\x30\x01\x00\x00\x53\x56\x57", "xxxxxxxxxx") - 0x1B;
 	FUNC_CConsole__SendRules =					FindPattern("\x81\xEC\x08\x04\x00\x00\x53\x55\x56\x57\x8B\xF9\x8B\x77\x04", "xx????xxxxxxxxx");
@@ -62,7 +62,7 @@ void CAddress::Initialize()
 
 	FUNC_ContainsInvalidChars =					FindPattern("\x8B\x4C\x24\x04\x8A\x01\x84\xC0", "xxxxxxxx");
 	FUNC_GetPacketID =							FindPattern("\x8B\x44\x24\x04\x85\xC0\x75\x03\x0C\xFF\xC3", "xxxxxxx???x");
-
+	
 	FUNC_CPlayer__SpawnForWorld =				FindPattern("\x56\x8B\xF1\x8B\x86\x3B\x26\x00\x00\x85\xC0\x0F\x84", "xxxxx????xxxx");
 	FUNC_ProcessQueryPacket =					FindPattern("\x83\xEC\x24\x53\x55\x56\x57\x8B\x7C\x24", "xxxxxxxxxx");
 	FUNC_Packet_WeaponsUpdate =					FindPattern("\x6A\xFF\x68\x00\x00\x00\x00\x64\xA1\x0\x0\x0\x0\x50\x64\x89\x25\x0\x0\x0\x0\x81\xEC\x28\x01\x00\x00\x55\x56", "xx????xx????xxxx????xxxxxxxx");
@@ -81,17 +81,20 @@ void CAddress::Initialize()
 	//logprintf("FUNC_CConsole__SendRules: %x", FUNC_CConsole__SendRules); // 0x00485DD0
 	//logprintf("FUNC_CConsole__Execute: %X", FUNC_CConsole__Execute); // 0x00486350
 
-	switch(serverVersion) {
-	case SAMP_VERSION_03Z: {
-		//ADDR_RECEIVE_HOOKPOS =						0x458B80;
-		break;
+	switch(serverVersion)
+	{
+		case SAMP_VERSION_03Z:
+		{
+			//ADDR_RECEIVE_HOOKPOS =						0x458B80;
+			break;
+		}
+		case SAMP_VERSION_03Z_R4:
+		{
+			//ADDR_RECEIVE_HOOKPOS =						0x458A20;
+			break;
+		}
 	}
-	case SAMP_VERSION_03Z_R4: {
-		//ADDR_RECEIVE_HOOKPOS =						0x458A20;
-		break;
-	}
-	}
-#else
+	#else
 
 	// Thx for Mellnik
 	VAR_pRestartWaitTime = 						FindPattern("\x00\x00\x40\x41\xFF\xFF\xFF\xFF", "xxxxxxxx");
@@ -121,7 +124,7 @@ void CAddress::Initialize()
 	logprintf("FUNC_CConsole__SetStringVariable: %X", FUNC_CConsole__SetStringVariable);
 	logprintf("FUNC_CConsole__SetIntVariable: %X", FUNC_CConsole__ModifyVariableFlags);
 	logprintf("FUNC_CConsole__ModifyVariableFlags: %X", FUNC_CConsole__ModifyVariableFlags);
-
+	
 	logprintf("FUNC_CFilterscripts__LoadFilterscript: %X", FUNC_CFilterscripts__LoadFilterscript);
 	logprintf("FUNC_CFilterscripts__UnLoadFilterscript: %X", FUNC_CFilterscripts__UnLoadFilterscript);
 
@@ -130,33 +133,39 @@ void CAddress::Initialize()
 
 	logprintf("FUNC_CPlayer__SpawnForWorld: %X", FUNC_CPlayer__SpawnForWorld);
 	*/
-	switch(serverVersion) {
-	case SAMP_VERSION_03Z: {
-		VAR_pRestartWaitTime =						0x8150130;
-		break;
+	switch(serverVersion)
+	{
+		case SAMP_VERSION_03Z:
+		{
+			VAR_pRestartWaitTime =						0x8150130;
+			break;
+		}
+		case SAMP_VERSION_03Z_R2_2:
+		{
+			VAR_pRestartWaitTime =						0x8150B60;
+			break;
+		}
+		case SAMP_VERSION_03Z_R3:
+		{
+			VAR_pRestartWaitTime =						0x81512F0;
+			break;
+		}
+		case SAMP_VERSION_03Z_R4:
+		{
+			VAR_pRestartWaitTime =						0x81514E0; // 12.0
+			FUNC_Packet_WeaponsUpdate =					0x80AAC90;
+			FUNC_ProcessQueryPacket =					0x080D0EB0;
+			FUNC_CConsole__FindVariable =				0x809EA60; 
+			FUNC_CConsole__SendRules =					0x809E4C0;
+			FUNC_CConsole__Execute =					0x809EB40;
+			break;
+		}
+		case SAMP_VERSION_037RC1:
+		{
+			break;
+		}
 	}
-	case SAMP_VERSION_03Z_R2_2: {
-		VAR_pRestartWaitTime =						0x8150B60;
-		break;
-	}
-	case SAMP_VERSION_03Z_R3: {
-		VAR_pRestartWaitTime =						0x81512F0;
-		break;
-	}
-	case SAMP_VERSION_03Z_R4: {
-		VAR_pRestartWaitTime =						0x81514E0; // 12.0
-		FUNC_Packet_WeaponsUpdate =					0x80AAC90;
-		FUNC_ProcessQueryPacket =					0x080D0EB0;
-		FUNC_CConsole__FindVariable =				0x809EA60;
-		FUNC_CConsole__SendRules =					0x809E4C0;
-		FUNC_CConsole__Execute =					0x809EB40;
-		break;
-	}
-	case SAMP_VERSION_037RC1: {
-		break;
-	}
-	}
-#endif
+	#endif
 
 	// Unlock restart wait time
 	if (VAR_pRestartWaitTime)
