@@ -309,16 +309,6 @@ static BYTE HOOK_GetPacketID(Packet *p)
 	if (packetId == ID_PLAYER_SYNC) {
 		CSyncData *d = (CSyncData*)(&p->data[1]);
 
-		if (d->wUDAnalog > 128)
-			d->wUDAnalog = 128;
-		else if (d->wUDAnalog < -128)
-			d->wUDAnalog = -128;
-
-		if (d->wLRAnalog  > 128)
-			d->wLRAnalog = 128;
-		else if (d->wLRAnalog < -128)
-			d->wLRAnalog = -128;
-
 		if (disableSyncBugs) {
 			// Prevent "ghost shooting" bugs
 			switch (d->byteWeapon) {
