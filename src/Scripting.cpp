@@ -422,8 +422,9 @@ static cell AMX_NATIVE_CALL Natives::PlayerTextDrawSetPosition( AMX* amx, cell* 
 	int playerid = (int)params[1];
 	int textdrawid = (int)params[2];
 
-	if(!IsPlayerConnected(playerid)) return 0;
 	if(textdrawid < 0 || textdrawid >= MAX_PLAYER_TEXT_DRAWS) return 0;
+	if(playerid < 0 || playerid >= 1000) return 0;
+	if(!pNetGame->pPlayerPool->pPlayer[playerid]) return 0;
 	if(!pNetGame->pPlayerPool->pPlayer[playerid]->pTextdraw->bSlotState[textdrawid]) return 0;
 
 	CTextdraw *pTD = pNetGame->pPlayerPool->pPlayer[playerid]->pTextdraw->TextDraw[textdrawid];
