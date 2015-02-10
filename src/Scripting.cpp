@@ -398,6 +398,41 @@ static cell AMX_NATIVE_CALL Natives::FreezeSyncData( AMX* amx, cell* params )
 	return 1;
 }
 
+// native TextDrawSetPosition(Text:text, Float:fX, Float:fY)
+static cell AMX_NATIVE_CALL Natives::TextDrawSetPosition( AMX* amx, cell* params )
+{
+	CHECK_PARAMS(3, "TextDrawSetPosition");
+	
+	int textdrawid = (int)params[1];
+	if(textdrawid < 0 || textdrawid >= MAX_TEXT_DRAWS) return 0;
+	
+	if(!pNetGame->pTextDrawPool->bSlotState[textdrawid]) return 0;
+	CTextdraw *pTD = pNetGame->pTextDrawPool->TextDraw[textdrawid];
+
+	pTD->fX = amx_ctof(params[2]);
+	pTD->fY = amx_ctof(params[3]);
+	return 1;
+}
+
+// native PlayerTextDrawSetPosition(playerid, PlayerText:text, Float:fX, Float:fY)
+static cell AMX_NATIVE_CALL Natives::PlayerTextDrawSetPosition( AMX* amx, cell* params )
+{
+	CHECK_PARAMS(4, "PlayerTextDrawSetPosition");
+	
+	int playerid = (int)params[1];
+	int textdrawid = (int)params[2];
+
+	if(!IsPlayerConnected(playerid)) return 0;
+	if(textdrawid < 0 || textdrawid >= MAX_PLAYER_TEXT_DRAWS) return 0;
+	if(!pNetGame->pPlayerPool->pPlayer[playerid]->pTextdraw->bSlotState[textdrawid]) return 0;
+
+	CTextdraw *pTD = pNetGame->pPlayerPool->pPlayer[playerid]->pTextdraw->TextDraw[textdrawid];
+
+	pTD->fX = amx_ctof(params[3]);
+	pTD->fY = amx_ctof(params[4]);
+	return 1;
+}
+
 
 // And an array containing the native function-names and the functions specified with them
 AMX_NATIVE_INFO YSINatives [] = {
@@ -414,6 +449,8 @@ AMX_NATIVE_INFO YSINatives [] = {
 	{ "ClearAnimationsForPlayer",	Natives::ClearAnimationsForPlayer },
 	{ "SetKeySyncBlocked",			Natives::SetKeySyncBlocked },
 	{ "SetInfiniteAmmoSync",		Natives::SetInfiniteAmmoSync },
+	{ "TextDrawSetPosition",		Natives::TextDrawSetPosition },
+	{ "PlayerTextDrawSetPosition",	Natives::PlayerTextDrawSetPosition },
 	{ 0,							0 }
 };
 

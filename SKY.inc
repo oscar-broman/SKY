@@ -30,3 +30,7 @@ native SetDisableSyncBugs(toggle);
 native SetInfiniteAmmoSync(playerid, toggle);
 // Stop syncing keys for a player
 native SetKeySyncBlocked(playerid, toggle);
+// Same as YSF (renamed to avoid problems)
+native TextDrawSetPosition(Text:text, Float:x, Float:y);
+// Same as YSF (renamed to avoid problems)
+native PlayerTextDrawSetPosition(playerid, PlayerText:text, Float:x, Float:y);
