@@ -5,11 +5,11 @@
 # make SKY
 #
 
-GPP = g++ -m32 -Ilib
-GCC = gcc -m32
+GPP = g++ -m32 -Ilib -static-libgcc
+GCC = gcc -m32 -static-libgcc
 SKY_OUTFILE = "./SKY.so"
 
-COMPILE_FLAGS = -g -c -fPIC -w -D LINUX
+COMPILE_FLAGS = -g -O3 -c -fPIC -w -DLINUX
 
 SKY = -D SKY $(COMPILE_FLAGS)
 
@@ -19,8 +19,8 @@ clean:
 	-rm -f *~ *.o *.so
 
 SKY: clean
-	$(GCC) $(SKY) ./lib/sdk/*.cpp
+	$(GPP) $(SKY) ./lib/sdk/*.cpp
 	$(GPP) $(SKY) ./lib/raknet/*.cpp
 	$(GCC) $(SKY) ./lib/subhook/subhook.c
 	$(GPP) $(SKY) ./src/*.cpp
-	$(GPP) -g -fshort-wchar -shared -o $(SKY_OUTFILE) *.o
+	$(GCC) -g -fshort-wchar -shared -o $(SKY_OUTFILE) *.o
