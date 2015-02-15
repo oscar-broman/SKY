@@ -311,36 +311,146 @@ static BYTE HOOK_GetPacketID(Packet *p)
 
 		if (disableSyncBugs) {
 			// Prevent "ghost shooting" bugs
-			switch (d->byteWeapon) {
-			case WEAPON_COLT45 ... WEAPON_SNIPER:
-			case WEAPON_MINIGUN:
+			if ((d->byteWeapon >= WEAPON_COLT45 && d->byteWeapon <= WEAPON_SNIPER) || d->byteWeapon == WEAPON_MINIGUN)
+			{
 				switch (d->wAnimIndex) {
-				// PED_RUN_*
-				case 1222 ... 1236:
-				// PED_SWAT_RUN
+					// PED_RUN_*
+				case 1222:
+				case 1223:
+				case 1224:
+				case 1225:
+				case 1226:
+				case 1227:
+				case 1228:
+				case 1229:
+				case 1230:
+				case 1231:
+				case 1232:
+				case 1233:
+				case 1234:
+				case 1235:
+				case 1236:
+					// PED_SWAT_RUN
 				case 1249:
-				// PED_WOMAN_(RUN/WALK)_*
-				case 1275 ... 1287:
-				// FAT_FATRUN_ARMED
+					// PED_WOMAN_(RUN/WALK)_*
+				case 1275:
+				case 1276:
+				case 1277:
+				case 1278:
+				case 1279:
+				case 1280:
+				case 1281:
+				case 1282:
+				case 1283:
+				case 1284:
+				case 1285:
+				case 1286:
+				case 1287:
+					// FAT_FATRUN_ARMED
 				case 459:
-				// MUSCULAR_MUSCLERUN*
-				case 908 ... 909:
-				// PED_WEAPON_CROUCH
+					// MUSCULAR_MUSCLERUN*
+				case 908:
+				case 909:
+					// PED_WEAPON_CROUCH
 				case 1274:
-				// PED_WALK_PLAYER
+					// PED_WALK_PLAYER
 				case 1266:
-				// PED_SHOT_PARTIAL(_B)
+					// PED_SHOT_PARTIAL(_B)
 				case 1241:
 				case 1242:
-				// Baseball bat
-				case 17 ... 27:
-				// Knife
-				case 745 ... 760:
-				// Sword
-				case 1545 ... 1554:
-				// Fight
-				case 471 ... 507:
-				case 1135 ... 1151:
+					// Baseball bat
+				case 17:
+				case 18:
+				case 19:
+				case 20:
+				case 21:
+				case 22:
+				case 23:
+				case 24:
+				case 25:
+				case 26:
+				case 27:
+					// Knife
+				case 745:
+				case 746:
+				case 747:
+				case 748:
+				case 749:
+				case 750:
+				case 751:
+				case 752:
+				case 753:
+				case 754:
+				case 755:
+				case 756:
+				case 757:
+				case 758:
+				case 759:
+				case 760:
+					// Sword
+				case 1545:
+				case 1546:
+				case 1547:
+				case 1548:
+				case 1549:
+				case 1550:
+				case 1551:
+				case 1552:
+				case 1553:
+				case 1554:
+					// Fight
+				case 471:
+				case 472:
+				case 473:
+				case 474:
+				case 477:
+				case 478:
+				case 479:
+				case 480:
+				case 481:
+				case 482:
+				case 483:
+				case 484:
+				case 485:
+				case 486:
+				case 487:
+				case 488:
+				case 489:
+				case 490:
+				case 491:
+				case 492:
+				case 493:
+				case 494:
+				case 495:
+				case 496:
+				case 497:
+				case 498:
+				case 499:
+				case 500:
+				case 501:
+				case 502:
+				case 503:
+				case 504:
+				case 505:
+				case 506:
+				case 507:
+				case 1135:
+				case 1136:
+				case 1137:
+				case 1138:
+				case 1139:
+				case 1140:
+				case 1141:
+				case 1142:
+				case 1143:
+				case 1144:
+				case 1145:
+				case 1146:
+				case 1147:
+				case 1148:
+				case 1149:
+				case 1150:
+				case 1151:
 					// Only remove action key if holding aim
 					if (d->wKeys & 128) {
 						d->wKeys &= ~1;
@@ -355,11 +465,9 @@ static BYTE HOOK_GetPacketID(Packet *p)
 					break;
 				}
 
-				break;
-
-			case WEAPON_SPRAYCAN:
-			case WEAPON_FIREEXTINGUISHER:
-			case WEAPON_FLAMETHROWER:
+			}
+			else if (d->byteWeapon == WEAPON_SPRAYCAN || d->byteWeapon == WEAPON_FIREEXTINGUISHER || d->byteWeapon == WEAPON_FLAMETHROWER)
+			{
 				if (d->wAnimIndex < 1160 || d->wAnimIndex > 1167) {
 					// Only remove action key if holding aim
 					if (d->wKeys & 128) {
@@ -373,14 +481,12 @@ static BYTE HOOK_GetPacketID(Packet *p)
 					d->wKeys &= ~128;
 				}
 
-				break;
-
-			case WEAPON_GRENADE:
+			} 
+			else if (d->byteWeapon == WEAPON_GRENADE)
+			{
 				if (d->wAnimIndex < 644 || d->wAnimIndex > 646) {
 					d->wKeys &= ~1;
 				}
-
-				break;
 			}
 		}
 
