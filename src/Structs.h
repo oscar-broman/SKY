@@ -907,7 +907,6 @@ typedef struct _BULLET_SYNC_DATA {
 	CVector vecHitOrigin;
 	CVector vecHitTarget;
 	CVector vecCenterOfHit;
-	WORD wWeapon;
 } BULLET_SYNC_DATA; // by 0x688
 #pragma pack(pop)
 
