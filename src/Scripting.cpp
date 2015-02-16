@@ -73,7 +73,7 @@ static cell AMX_NATIVE_CALL Natives::SpawnPlayerForWorld( AMX* amx, cell* params
 	if (!serverVersion)
 		return 0;
 
-	CHECK_PARAMS(2, "SpawnPlayerForWorld");
+	CHECK_PARAMS(1, "SpawnPlayerForWorld");
 
 	int playerid = (int)params[1];
 
