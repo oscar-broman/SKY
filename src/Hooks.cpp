@@ -590,6 +590,13 @@ static BYTE HOOK_GetPacketID(Packet *p)
 		}
 	}
 
+	if (packetId == ID_BULLET_SYNC)
+	{
+		BULLET_SYNC_DATA *d = (BULLET_SYNC_DATA*)(&p->data[1]);
+
+		d->wWeapon = 31;
+	}
+
 	return packetId;
 }
 
