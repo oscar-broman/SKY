@@ -23,8 +23,8 @@ extern logprintf_t logprintf;
 #define OS_NAME			"Linux"
 #endif
 
-#define PROJECT_NAME		"YSF"
-#define PROJECT_VERSION		"R11"
+#define PROJECT_NAME		"SKY"
+#define PROJECT_VERSION		"0.1"
 
 //#define NEW_PICKUP_SYSTEM
 
