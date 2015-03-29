@@ -14,6 +14,8 @@ COMPILE_FLAGS = -g -O3 -c -fPIC -w -DLINUX
 SKY = -D SKY $(COMPILE_FLAGS)
 
 all: SKY
+03z: GPP += -DSAMP03Z
+03z: SKY
 
 clean:
 	-rm -f *~ *.o *.so

@@ -212,9 +212,11 @@ public:
 	BYTE			byteCameraMode: 6;	// 0x001D - 0x001E
 	BYTE			byteWeaponState : 2;
 	BYTE			unk;					// 0x001E - 0x001F
+	#ifndef SAMP03Z
 	WORD			wCameraObject;
 	WORD			wCameraVehicle;
 	WORD			wCameraPlayer;
+	#endif
 	// Size = 31
 };
 #pragma pack(pop)
