@@ -96,7 +96,7 @@ static cell AMX_NATIVE_CALL Natives::SetLastAnimationData( AMX* amx, cell* param
 	if (playerid < 0 || playerid >= 1000)
 		return 0;
 
-	lastSyncData[playerid].iAnimationId = data;
+	lastSyncData[playerid].dwAnimationData = data;
 
 	return 1;
 }

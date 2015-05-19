@@ -83,6 +83,9 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void ** ppData)
 	} else if(logprintf == (logprintf_t)CAddress::FUNC_Logprintf_037RC1) {
 		serverVersion = SAMP_VERSION_037RC1;
 		strcpy(szVersion, "0.3.7 RC1");
+	} else if (logprintf == (logprintf_t)CAddress::FUNC_Logprintf_037) {
+		serverVersion = SAMP_VERSION_037;
+		strcpy(szVersion, "0.3.7");
 	}
 
 	if (1) {

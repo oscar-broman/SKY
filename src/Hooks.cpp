@@ -135,15 +135,19 @@ DWORD FindPattern(char *pattern, char *mask)
 ///////////////////////////////////////////////////////////////
 
 // Original GetPacketID function
-BYTE GetPacketID(Packet *p)
+/*BYTE GetPacketID(Packet *p)
 {
-	if (p == 0) return 255;
+	if (p == NULL) return 255;
+	logprintf("p: %X", p);
+	logprintf("&p->data: %X", &p->data);
+	logprintf("p->data: %X", p->data);
+	logprintf("*p->data: %X", *p->data);
 
-	if ((unsigned char)p->data[0] == 36) {
+	if (p->data != NULL && (unsigned char)p->data[0] == 36) {
 		assert(p->length > sizeof(unsigned char) + sizeof(unsigned long));
 		return (unsigned char)p->data[sizeof(unsigned char) + sizeof(unsigned long)];
 	} else return (unsigned char)p->data[0];
-}
+}*/
 
 bool IsPlayerUpdatePacket(unsigned char packetId)
 {
@@ -169,8 +173,9 @@ BOOL infiniteAmmo[1000] = {0};
 
 static BYTE HOOK_GetPacketID(Packet *p)
 {
-	BYTE packetId = GetPacketID(p);
+	BYTE packetId = ((FUNC_GetPacketID)subhook_get_trampoline(GetPacketID_hook))(p);
 	WORD playerid = p->playerIndex;
+	logprintf("%d, %d", playerid, packetId);
 
 	if (packetId == 0xFF) {
 		return 0xFF;
@@ -178,132 +183,6 @@ static BYTE HOOK_GetPacketID(Packet *p)
 
 	if (IsPlayerUpdatePacket(packetId)) {
 		lastUpdateTick[playerid] = GetTickCount();
-	}
-
-	if (packetId == ID_VEHICLE_SYNC || packetId == ID_PASSENGER_SYNC || packetId == ID_UNOCCUPIED_SYNC) {
-		static CVector emptyVector = CVector(0.0f, 0.0f, 0.0f);
-		CVector* vecPosition = &emptyVector;
-		CVector* vecVelocity = &emptyVector;
-		CVehicleSyncData *vd = NULL;
-		CUnoccupiedSyncData *ud = NULL;
-		CPassengerSyncData *pd = NULL;
-		CVehicle *pVehicle = NULL;
-
-		if (packetId == ID_VEHICLE_SYNC) {
-			vd = (CVehicleSyncData*)(&p->data[1]);
-			vecPosition = &vd->vecPosition;
-			vecVelocity = &vd->vecVelocity;
-
-			vd->wUDAnalog = 0;
-			vd->wLRAnalog = 0;
-
-			if (vd->fHealth < 0.0f) {
-				vd->fHealth = 0.0f;
-			} else if (vd->fHealth > 1000000.0f) {
-				vd->fHealth = 1000000.0f;
-			}
-
-			//logprintf("trainspeed: %f, %04x, %04x", vd->fTrainSpeed, vd->wHydraReactorAngle[0], vd->wHydraReactorAngle[1]);
-
-			if (pNetGame->pVehiclePool == NULL) {
-				return 0xFF;
-			}
-
-			pVehicle = pNetGame->pVehiclePool->pVehicle[vd->wVehicleId];
-
-			if (pVehicle == NULL) {
-				return 0xFF;
-			}
-
-			switch(pVehicle->customSpawn.iModelID) {
-			case 509:
-			case 481:
-			case 510:
-			case 462:
-			case 448:
-			case 581:
-			case 522:
-			case 461:
-			case 521:
-			case 523:
-			case 463:
-			case 586:
-			case 468:
-			case 471:
-				if (vd->fTrainSpeed < -0.52f) vd->fTrainSpeed = -0.52f;
-				if (vd->fTrainSpeed > 0.52f) vd->fTrainSpeed = 0.52f;
-				break;
-			case 520:
-				if (vd->wHydraReactorAngle[0] < 0 || vd->wHydraReactorAngle[0] > 5000) {
-					vd->wHydraReactorAngle[0] = 0;
-				}
-
-				if (vd->wHydraReactorAngle[1] < 0 || vd->wHydraReactorAngle[1] > 5000) {
-					vd->wHydraReactorAngle[1] = 0;
-				}
-				break;
-			case 449:
-			case 537:
-			case 538:
-			case 569:
-			case 570:
-			case 590:
-				if (vd->fTrainSpeed > 1.0f) {
-					vd->fTrainSpeed = 1.0f;
-				} else if (vd->fTrainSpeed < -1.0f) {
-					vd->fTrainSpeed = -1.0f;
-				}
-				break;
-			default:
-				vd->fTrainSpeed = 0.0;
-				break;
-			}
-		} else if (packetId == ID_UNOCCUPIED_SYNC) {
-			ud = (CUnoccupiedSyncData*)(&p->data[1]);
-			vecPosition = &ud->vecPosition;
-			vecVelocity = &ud->vecVelocity;
-		} else if (packetId == ID_PASSENGER_SYNC) {
-			pd = (CPassengerSyncData*)(&p->data[1]);
-			vecPosition = &pd->vecPosition;
-		}
-
-		if (vecPosition->fX < -20000.0f || vecPosition->fX > 20000.0f ||
-				vecPosition->fY < -20000.0f || vecPosition->fY > 20000.0f ||
-				vecPosition->fZ < -20000.0f || vecPosition->fZ > 20000.0f ||
-				vecVelocity->fX > 35.0f || vecVelocity->fX < -35.0f ||
-				vecVelocity->fY > 35.0f || vecVelocity->fY < -35.0f ||
-				vecVelocity->fZ > 35.0f || vecVelocity->fZ < -35.0f ||
-				!isfinite(vecPosition->fX) || !isfinite(vecPosition->fY) || !isfinite(vecPosition->fZ) ||
-				!isfinite(vecVelocity->fX) || !isfinite(vecVelocity->fY) || !isfinite(vecVelocity->fZ)
-		   ) {
-			return 0xFF;
-		}
-	}
-
-	if (packetId == ID_BULLET_SYNC) {
-		BULLET_SYNC_DATA *d = (BULLET_SYNC_DATA*)&p->data[1];
-
-		if (!isfinite(d->vecCenterOfHit.fX) || !isfinite(d->vecCenterOfHit.fY) || !isfinite(d->vecCenterOfHit.fZ)) {
-			return 0xFF;
-		}
-
-		if (d->vecCenterOfHit.fX < -20000.0 || d->vecCenterOfHit.fX > 20000.0 ||
-				d->vecCenterOfHit.fY < -20000.0 || d->vecCenterOfHit.fY > 20000.0 ||
-				d->vecCenterOfHit.fZ < -20000.0 || d->vecCenterOfHit.fZ > 20000.0) {
-			return 0xFF;
-		}
-
-		if (d->byteHitType == BULLET_HIT_TYPE_PLAYER && ((d->vecCenterOfHit.fX > 10.0f || d->vecCenterOfHit.fX < -10.0f) || (d->vecCenterOfHit.fY > 10.0f || d->vecCenterOfHit.fY < -10.0f) || (d->vecCenterOfHit.fZ > 10.0f || d->vecCenterOfHit.fZ < -10.0f))) {
-			return 0xFF;
-		}
-
-		if (d->byteHitType == BULLET_HIT_TYPE_VEHICLE && ((d->vecCenterOfHit.fX > 100.0f || d->vecCenterOfHit.fX < -100.0f) || (d->vecCenterOfHit.fY > 100.0f || d->vecCenterOfHit.fY < -100.0f) || (d->vecCenterOfHit.fZ > 100.0f || d->vecCenterOfHit.fZ < -100.0f))) {
-			return 0xFF;
-		}
-
-		if ((d->byteHitType == BULLET_HIT_TYPE_OBJECT || d->byteHitType == BULLET_HIT_TYPE_PLAYER_OBJECT) && ((d->vecCenterOfHit.fX > 1000.0 || d->vecCenterOfHit.fX < -1000.0) || (d->vecCenterOfHit.fY > 1000.0 || d->vecCenterOfHit.fY < -1000.0) || (d->vecCenterOfHit.fZ > 1000.0 || d->vecCenterOfHit.fZ < -1000.0))) {
-			return 0xFF;
-		}
 	}
 
 	if (packetId == ID_PLAYER_SYNC) {
@@ -490,23 +369,6 @@ static BYTE HOOK_GetPacketID(Packet *p)
 			}
 		}
 
-		if (d->vecPosition.fX < -20000.0f || d->vecPosition.fX > 20000.0f ||
-				d->vecPosition.fY < -20000.0f || d->vecPosition.fY > 20000.0f ||
-				d->vecPosition.fZ < -20000.0f || d->vecPosition.fZ > 20000.0f ||
-				d->vecSurfing.fX > 35.0f || d->vecSurfing.fX < -35.0f ||
-				d->vecSurfing.fY > 35.0f || d->vecSurfing.fY < -35.0f ||
-				d->vecSurfing.fZ > 35.0f || d->vecSurfing.fZ < -35.0f ||
-				d->vecVelocity.fX > 35.0f || d->vecVelocity.fX < -35.0f ||
-				d->vecVelocity.fY > 35.0f || d->vecVelocity.fY < -35.0f ||
-				d->vecVelocity.fZ > 35.0f || d->vecVelocity.fZ < -35.0f ||
-				!isfinite(d->vecPosition.fX) || !isfinite(d->vecPosition.fY) || !isfinite(d->vecPosition.fZ) ||
-				!isfinite(d->vecVelocity.fX) || !isfinite(d->vecVelocity.fY) || !isfinite(d->vecVelocity.fZ) ||
-				!isfinite(d->vecSurfing.fX) || !isfinite(d->vecSurfing.fY) || !isfinite(d->vecSurfing.fZ)
-		   ) {
-			return 0xFF;
-		}
-
-
 		if (syncDataFrozen[playerid]) {
 			memcpy(d, &lastSyncData[playerid], sizeof(CSyncData));
 		} else {
@@ -538,7 +400,7 @@ static BYTE HOOK_GetPacketID(Packet *p)
 			d->wKeys &= ~128;
 		}
 
-		int anim = d->iAnimationId;
+		int anim = d->dwAnimationData;
 		BOOL animChanged = (lastAnim[playerid] != anim);
 
 		lastAnim[playerid] = anim;

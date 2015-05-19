@@ -11,12 +11,14 @@ DWORD CAddress::FUNC_Logprintf_03ZR2_2 = 0x00487310;
 DWORD CAddress::FUNC_Logprintf_03ZR3 = 0x00487460;
 DWORD CAddress::FUNC_Logprintf_03ZR4 = 0x004875F0;
 DWORD CAddress::FUNC_Logprintf_037RC1 = 0x487B20;
+DWORD CAddress::FUNC_Logprintf_037 = 0x0048A0B0;
 #else
 DWORD CAddress::FUNC_Logprintf_03Z = 0x080A7440;
 DWORD CAddress::FUNC_Logprintf_03ZR2_2 = 0x080A77D0;
 DWORD CAddress::FUNC_Logprintf_03ZR3 = 0x080A78E0;
 DWORD CAddress::FUNC_Logprintf_03ZR4 = 0x80A7A90;
 DWORD CAddress::FUNC_Logprintf_037RC1 = 0x080a7af0;
+DWORD CAddress::FUNC_Logprintf_037 = 0x080A9000;
 #endif
 
 // Pointers
@@ -74,13 +76,8 @@ void CAddress::Initialize()
 	FUNC_format_amxstring = 0x0046ED90;
 
 	DWORD iRealProcessNetworkPacket = FindPattern("\x6A\xFF\x68\x00\x00\x00\x00\x64\xA1\x00\x00\x00\x00\x50\x64\x89\x25\x00\x00\x00\x00\x81\xEC\x5C", "xxx????xxxxxxxxxxxxxxxxx");
-	logprintf("iRealProcessNetworkPacket  %x\n", iRealProcessNetworkPacket);
 
 	DWORD iSocketLayerSendTo = FindPattern("\x83\xEC\x10\x55\x8B\x6C\x24\x18\x83\xFD\xFF", "xxxxxxxxxxx");
-	logprintf("iSocketLayerSendTo  %x", iSocketLayerSendTo);
-	//logprintf("FUNC_CConsole__FindVariable: %x", FUNC_CConsole__FindVariable); // 0x00486110
-	//logprintf("FUNC_CConsole__SendRules: %x", FUNC_CConsole__SendRules); // 0x00485DD0
-	//logprintf("FUNC_CConsole__Execute: %X", FUNC_CConsole__Execute); // 0x00486350
 
 	switch(serverVersion) {
 	case SAMP_VERSION_03Z: {
@@ -116,21 +113,6 @@ void CAddress::Initialize()
 
 	ADDR_CNetGame_GMX_GangZoneDelete =			NULL;
 	ADDR_CNetGame_GMX_PckupDelete =				NULL;
-	/*
-	logprintf("VAR_pRestartWaitTime: %X", VAR_pRestartWaitTime);
-	logprintf("FUNC_CConsole__AddStringVariable: %X", FUNC_CConsole__AddStringVariable);
-	logprintf("FUNC_CConsole__SetStringVariable: %X", FUNC_CConsole__SetStringVariable);
-	logprintf("FUNC_CConsole__SetIntVariable: %X", FUNC_CConsole__ModifyVariableFlags);
-	logprintf("FUNC_CConsole__ModifyVariableFlags: %X", FUNC_CConsole__ModifyVariableFlags);
-
-	logprintf("FUNC_CFilterscripts__LoadFilterscript: %X", FUNC_CFilterscripts__LoadFilterscript);
-	logprintf("FUNC_CFilterscripts__UnLoadFilterscript: %X", FUNC_CFilterscripts__UnLoadFilterscript);
-
-	logprintf("FUNC_ContainsInvalidChars: %X", FUNC_ContainsInvalidChars);
-	logprintf("FUNC_GetPacketID: %X", FUNC_GetPacketID);
-
-	logprintf("FUNC_CPlayer__SpawnForWorld: %X", FUNC_CPlayer__SpawnForWorld);
-	*/
 	switch(serverVersion) {
 	case SAMP_VERSION_03Z: {
 		VAR_pRestartWaitTime =						0x8150130;
