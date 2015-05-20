@@ -134,21 +134,6 @@ DWORD FindPattern(char *pattern, char *mask)
 // Hooks //
 ///////////////////////////////////////////////////////////////
 
-// Original GetPacketID function
-/*BYTE GetPacketID(Packet *p)
-{
-	if (p == NULL) return 255;
-	logprintf("p: %X", p);
-	logprintf("&p->data: %X", &p->data);
-	logprintf("p->data: %X", p->data);
-	logprintf("*p->data: %X", *p->data);
-
-	if (p->data != NULL && (unsigned char)p->data[0] == 36) {
-		assert(p->length > sizeof(unsigned char) + sizeof(unsigned long));
-		return (unsigned char)p->data[sizeof(unsigned char) + sizeof(unsigned long)];
-	} else return (unsigned char)p->data[0];
-}*/
-
 bool IsPlayerUpdatePacket(unsigned char packetId)
 {
 	return (
@@ -175,7 +160,6 @@ static BYTE HOOK_GetPacketID(Packet *p)
 {
 	BYTE packetId = ((FUNC_GetPacketID)subhook_get_trampoline(GetPacketID_hook))(p);
 	WORD playerid = p->playerIndex;
-	logprintf("%d, %d", playerid, packetId);
 
 	if (packetId == 0xFF) {
 		return 0xFF;

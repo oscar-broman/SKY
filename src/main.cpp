@@ -94,7 +94,7 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void ** ppData)
 			return true;
 		}
 	} else {
-		serverVersion = SAMP_VERSION_03Z_R4;
+		serverVersion = SAMP_VERSION_037;
 		strcpy(szVersion, "version check skipped");
 	}
 

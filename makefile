@@ -5,8 +5,8 @@
 # make SKY
 #
 
-GPP = g++ -m32 -Ilib -fno-stack-protector
-GCC = gcc -m32 
+GPP = g++ -m32 -Ilib -fno-stack-protector  -fpack-struct=1
+GCC = gcc -m32 -fpack-struct=1
 SKY_OUTFILE = "./SKY.so"
 
 COMPILE_FLAGS = -g -O3 -c -fPIC -w -DLINUX
@@ -14,8 +14,6 @@ COMPILE_FLAGS = -g -O3 -c -fPIC -w -DLINUX
 SKY = -D SKY $(COMPILE_FLAGS)
 
 all: SKY
-03z: GPP += -DSAMP03Z
-03z: SKY
 
 clean:
 	-rm -f *~ *.o *.so
