@@ -86,15 +86,18 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void ** ppData)
 	} else if (logprintf == (logprintf_t)CAddress::FUNC_Logprintf_037) {
 		serverVersion = SAMP_VERSION_037;
 		strcpy(szVersion, "0.3.7");
+	} else if (logprintf == (logprintf_t)CAddress::FUNC_Logprintf_037R2) {
+		serverVersion = SAMP_VERSION_037R2;
+		strcpy(szVersion, "0.3.7 R2");
 	}
 
 	if (1) {
 		if (serverVersion == SAMP_VERSION_UNKNOWN) {
-			logprintf("Error: Unknown " OS_NAME " server version\n");
+			logprintf("Error: Unknown " OS_NAME " server version (%08x)\n", logprintf);
 			return true;
 		}
 	} else {
-		serverVersion = SAMP_VERSION_037;
+		serverVersion = SAMP_VERSION_037R2;
 		strcpy(szVersion, "version check skipped");
 	}
 

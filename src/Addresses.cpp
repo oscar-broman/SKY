@@ -12,6 +12,7 @@ DWORD CAddress::FUNC_Logprintf_03ZR3 = 0x00487460;
 DWORD CAddress::FUNC_Logprintf_03ZR4 = 0x004875F0;
 DWORD CAddress::FUNC_Logprintf_037RC1 = 0x487B20;
 DWORD CAddress::FUNC_Logprintf_037 = 0x0048A0B0;
+DWORD CAddress::FUNC_Logprintf_037R2 = 0x0048C860;
 #else
 DWORD CAddress::FUNC_Logprintf_03Z = 0x080A7440;
 DWORD CAddress::FUNC_Logprintf_03ZR2_2 = 0x080A77D0;
@@ -19,6 +20,7 @@ DWORD CAddress::FUNC_Logprintf_03ZR3 = 0x080A78E0;
 DWORD CAddress::FUNC_Logprintf_03ZR4 = 0x80A7A90;
 DWORD CAddress::FUNC_Logprintf_037RC1 = 0x080a7af0;
 DWORD CAddress::FUNC_Logprintf_037 = 0x080A9000;
+DWORD CAddress::FUNC_Logprintf_037R2 = 0x080a91d0;
 #endif
 
 // Pointers
