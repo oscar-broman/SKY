@@ -158,10 +158,13 @@ BOOL infiniteAmmo[1000] = {0};
 
 static BYTE HOOK_GetPacketID(Packet *p)
 {
-	BYTE packetId = ((FUNC_GetPacketID)subhook_get_trampoline(GetPacketID_hook))(p);
+	//BYTE packetId = ((FUNC_GetPacketID)subhook_get_trampoline(GetPacketID_hook))(p);
+	subhook_remove(GetPacketID_hook);
+	BYTE packetId = ((FUNC_GetPacketID)CAddress::FUNC_GetPacketID)(p);
 	WORD playerid = p->playerIndex;
 
 	if (packetId == 0xFF) {
+		subhook_install(GetPacketID_hook);
 		return 0xFF;
 	}
 
@@ -407,8 +410,7 @@ static BYTE HOOK_GetPacketID(Packet *p)
 		}
 
 		if (infiniteAmmo[playerid]) {
-			d->byteWeaponState = 2;
-			d->byteCameraMode = 2;
+			d->byteCameraZoom = 2;
 		}
 	}
 
@@ -435,6 +437,8 @@ static BYTE HOOK_GetPacketID(Packet *p)
 			d->bytePlayerArmour = fakeArmour[playerid];
 		}
 	}
+
+	subhook_install(GetPacketID_hook);
 
 	return packetId;
 }

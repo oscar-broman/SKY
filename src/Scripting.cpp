@@ -406,7 +406,7 @@ static cell AMX_NATIVE_CALL Natives::TextDrawSetPosition( AMX* amx, cell* params
 	int textdrawid = (int)params[1];
 	if(textdrawid < 0 || textdrawid >= MAX_TEXT_DRAWS) return 0;
 	
-	if(!pNetGame->pTextDrawPool->bSlotState[textdrawid]) return 0;
+	if(!pNetGame || !pNetGame->pTextDrawPool || !pNetGame->pTextDrawPool->bSlotState[textdrawid]) return 0;
 	CTextdraw *pTD = pNetGame->pTextDrawPool->TextDraw[textdrawid];
 
 	pTD->fX = amx_ctof(params[2]);

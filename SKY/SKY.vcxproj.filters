@@ -51,14 +51,14 @@
     <ClCompile Include="..\src\amxfunctions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\lib\sdk\amxplugin.cpp">
-      <Filter>Header Files\SDK</Filter>
-    </ClCompile>
     <ClCompile Include="..\lib\subhook\subhook.c">
-      <Filter>Header Files\subhook</Filter>
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\lib\raknet\BitStream.cpp">
-      <Filter>Header Files\RakNet</Filter>
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\sdk\amxplugin.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

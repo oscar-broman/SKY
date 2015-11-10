@@ -151,15 +151,15 @@ class C3DText  // size 0x21
 {
 public:
 	char* text;                                     // + 0x00
-    uint color;                         // + 0x04
+	unsigned int color;                         // + 0x04
     float posX;                                     // + 0x08
     float posY;                                     // + 0x0C
     float posZ;                                     // + 0x10
     float drawDistance;                     // + 0x14
     bool useLineOfSight;            // + 0x18
     int virtualWorld;                  // + 0x19
-    ushort attachedToPlayerID;    // + 0x1D
-    ushort attachedToVehicleID;   // + 0x1F
+    WORD attachedToPlayerID;    // + 0x1D
+	WORD attachedToVehicleID;   // + 0x1F
 };
 
 class C3DTextPool
@@ -1115,8 +1115,9 @@ public:
 	virtual void SetRouterInterface( void *routerInterface );
 	virtual void RemoveRouterInterface( void *routerInterface );
 	virtual int GetIndexFromPlayerID( PlayerID playerId ); // E4
-	virtual PlayerID GetPlayerIDFromIndex( int index ); // E8
-	virtual void AddToBanList( const char *IP, unsigned int milliseconds=0 );
+	virtual PlayerID GetPlayerIDFromIndex( int index ); // E8 - 232 - 236
+	virtual void UNKNOWN(void); // 236 - 240
+	virtual void AddToBanList( const char *IP, unsigned int milliseconds=0 ); // 240 - 244
 	virtual void RemoveFromBanList( const char *IP );
 	virtual void ClearBanList( void );
 	virtual bool IsBanned( const char *IP );
