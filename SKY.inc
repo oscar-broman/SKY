@@ -34,3 +34,5 @@ native SetKeySyncBlocked(playerid, toggle);
 native TextDrawSetPosition(Text:text, Float:x, Float:y);
 // Same as YSF (renamed to avoid problems)
 native PlayerTextDrawSetPosition(playerid, PlayerText:text, Float:x, Float:y);
+// Set the string of a TextDraw per-player
+native TextDrawSetStringForPlayer(Text:text, playerid, const string[]);
