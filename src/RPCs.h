@@ -53,6 +53,7 @@ extern int RPC_WorldPlayerAdd;
 extern int RPC_WorldPlayerRemove;
 extern int RPC_ChatBubble;
 extern int RPC_ScrApplyAnimation;
+extern int RPC_ScrEditTextDraw;
 
 extern int RPC_UpdateScoresPingsIPs;
 extern int RPC_PickedUpPickup;

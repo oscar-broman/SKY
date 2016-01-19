@@ -60,6 +60,7 @@ static cell AMX_NATIVE_CALL SetKeySyncBlocked(AMX *amx, cell *params);
 static cell AMX_NATIVE_CALL SetInfiniteAmmoSync(AMX *amx, cell *params);
 static cell AMX_NATIVE_CALL TextDrawSetPosition(AMX *amx, cell *params);
 static cell AMX_NATIVE_CALL PlayerTextDrawSetPosition(AMX *amx, cell *params);
+static cell AMX_NATIVE_CALL TextDrawSetStringForPlayer(AMX *amx, cell *params);
 };
 
 int InitScripting(AMX *amx);

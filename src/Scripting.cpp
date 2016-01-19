@@ -434,6 +434,28 @@ static cell AMX_NATIVE_CALL Natives::PlayerTextDrawSetPosition( AMX* amx, cell* 
 	return 1;
 }
 
+// native TextDrawSetStringForPlayer(Text:text, playerid, const string[])
+static cell AMX_NATIVE_CALL Natives::TextDrawSetStringForPlayer( AMX* amx, cell* params )
+{
+	CHECK_PARAMS(3, "TextDrawSetStringForPlayer");
+
+	int textdrawid = (int)params[1];
+	if(textdrawid < 0 || textdrawid >= MAX_TEXT_DRAWS) return 0;
+
+	int playerid = (int)params[2];
+	char* text;
+	amx_StrParam(amx, params[3], text);
+	unsigned short len = strlen(text);
+
+	RakNet::BitStream bs;
+	bs.Write((WORD)textdrawid);
+	bs.Write((unsigned short)len);
+	bs.Write(text, len + 1);
+
+	pRakServer->RPC(&RPC_ScrEditTextDraw, &bs, HIGH_PRIORITY, RELIABLE, 0, pRakServer->GetPlayerIDFromIndex(playerid), false, false);
+
+	return 1;
+}
 
 // And an array containing the native function-names and the functions specified with them
 AMX_NATIVE_INFO YSINatives [] = {
@@ -452,6 +474,7 @@ AMX_NATIVE_INFO YSINatives [] = {
 	{ "SetInfiniteAmmoSync",		Natives::SetInfiniteAmmoSync },
 	{ "TextDrawSetPosition",		Natives::TextDrawSetPosition },
 	{ "PlayerTextDrawSetPosition",	Natives::PlayerTextDrawSetPosition },
+	{ "TextDrawSetStringForPlayer",	Natives::TextDrawSetStringForPlayer },
 	{ 0,							0 }
 };
 

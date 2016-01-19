@@ -29,6 +29,7 @@ int RPC_WorldPlayerAdd = 32;
 int RPC_WorldPlayerRemove = 163;
 int RPC_ChatBubble = 0x3B;
 int RPC_ScrApplyAnimation = 0x56;
+int RPC_ScrEditTextDraw = 0x69;
 
 int RPC_UpdateScoresPingsIPs = 0x9B;
 int RPC_PickedUpPickup = 0x83;
