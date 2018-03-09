@@ -80,15 +80,12 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void ** ppData)
 	} else if(logprintf == (logprintf_t)CAddress::FUNC_Logprintf_03ZR4) {
 		serverVersion = SAMP_VERSION_03Z_R4;
 		strcpy(szVersion, "0.3z R4");
-	} else if(logprintf == (logprintf_t)CAddress::FUNC_Logprintf_037RC1) {
-		serverVersion = SAMP_VERSION_037RC1;
-		strcpy(szVersion, "0.3.7 RC1");
 	} else if (logprintf == (logprintf_t)CAddress::FUNC_Logprintf_037) {
 		serverVersion = SAMP_VERSION_037;
 		strcpy(szVersion, "0.3.7");
-	} else if (logprintf == (logprintf_t)CAddress::FUNC_Logprintf_037R2) {
-		serverVersion = SAMP_VERSION_037R2;
-		strcpy(szVersion, "0.3.7 R2");
+	} else if (logprintf == (logprintf_t)CAddress::FUNC_Logprintf_03DL_R1) {
+		serverVersion = SAMP_VERSION_03DL_R1;
+		strcpy(szVersion, "0.3.DL");
 	}
 
 	if (1) {
@@ -97,14 +94,19 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void ** ppData)
 			return true;
 		}
 	} else {
-		serverVersion = SAMP_VERSION_037R2;
+		serverVersion = SAMP_VERSION_03DL_R1;
 		strcpy(szVersion, "version check skipped");
 	}
 
+	logprintf("Hello World");
 	InitRPCs();
 	CAddress::Initialize();
-	CSAMPFunctions::Initialize();
+	logprintf("Hello World2");
+	CSAMPFunctions::Initialize(ppData);
+	logprintf("Hello World3");
 	InstallPreHooks();
+
+	logprintf("Hello World4");
 
 	return 1;
 }
@@ -125,7 +127,7 @@ typedef std::map<std::string, ConsoleVariable_s*> StringConvarMap;
 
 PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX * amx)
 {
-	static bool bFirst = false;
+	/*static bool bFirst = false;
 
 	if(!bFirst) {
 		bFirst = true;
@@ -141,7 +143,7 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX * amx)
 		// Get pRakServer
 		int (*pfn_GetRakServer)(void) = (int(*)(void))ppPluginData[PLUGIN_DATA_RAKSERVER];
 		pRakServer = (RakServer*)pfn_GetRakServer();
-	}
+	}*/
 
 	return InitScripting(amx);
 }
