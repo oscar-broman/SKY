@@ -98,15 +98,10 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void ** ppData)
 		strcpy(szVersion, "version check skipped");
 	}
 
-	logprintf("Hello World");
 	InitRPCs();
 	CAddress::Initialize();
-	logprintf("Hello World2");
-	CSAMPFunctions::Initialize(ppData);
-	logprintf("Hello World3");
+	
 	InstallPreHooks();
-
-	logprintf("Hello World4");
 
 	return 1;
 }
@@ -127,23 +122,13 @@ typedef std::map<std::string, ConsoleVariable_s*> StringConvarMap;
 
 PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX * amx)
 {
-	/*static bool bFirst = false;
+	static bool bFirst = false;
 
 	if(!bFirst) {
 		bFirst = true;
 
-		// Get pNetGame
-		int (*pfn_GetNetGame)(void) = (int(*)(void))ppPluginData[PLUGIN_DATA_NETGAME];
-		pNetGame = (CNetGame*)pfn_GetNetGame();
-
-		// Get pConsole
-		int (*pfn_GetConsole)(void) = (int(*)(void))ppPluginData[PLUGIN_DATA_CONSOLE];
-		pConsole = (void*)pfn_GetConsole();
-
-		// Get pRakServer
-		int (*pfn_GetRakServer)(void) = (int(*)(void))ppPluginData[PLUGIN_DATA_RAKSERVER];
-		pRakServer = (RakServer*)pfn_GetRakServer();
-	}*/
+		CSAMPFunctions::Initialize(ppPluginData);
+	}
 
 	return InitScripting(amx);
 }

@@ -3,7 +3,6 @@
 
 #include "Functions.h"
 #include "Addresses.h"
-#include "Memory.h"
 #include "main.h"
 #include "Hooks.h"
 
@@ -64,8 +63,6 @@ void CSAMPFunctions::Initialize(void **pluginData)
 	int(*pfn_GetRakServer)(void) = (int(*)(void))pluginData[PLUGIN_DATA_RAKSERVER];
 	pRakServer = (RakServer*)pfn_GetRakServer();
 
-	// Init RakServer functions & hooks
-	// causes crash ATM - 03/09/18
 	int *pRakServer_VTBL = ((int*)(*(void**)pRakServer));
 	logprintf("pRakServer_VTBL: %x", pRakServer_VTBL);
 

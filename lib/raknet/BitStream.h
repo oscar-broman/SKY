@@ -838,7 +838,9 @@ namespace RakNet
 	template <>
 		inline void BitStream::WriteCompressed(float var)
 	{
+#ifdef _DEBUG
 		assert(var > -1.01f && var < 1.01f);
+#endif
 		if (var < -1.0f)
 			var=-1.0f;
 		if (var > 1.0f)
@@ -850,7 +852,9 @@ namespace RakNet
 	template <>
 		inline void BitStream::WriteCompressed(double var)
 	{
+#ifdef _DEBUG
 		assert(var > -1.01 && var < 1.01);
+#endif
 		if (var < -1.0f)
 			var=-1.0f;
 		if (var > 1.0f)
@@ -1197,7 +1201,7 @@ namespace RakNet
 			y=0.0;
 		else
 		{
-			ReadCompressed((float)cy);
+			ReadCompressed((float&)cy);
 			y=cy;
 			//Read(sy);
 			//y=((float)sy / 32767.5f - 1.0f);
@@ -1214,7 +1218,7 @@ namespace RakNet
 			//		return false;
 
 			//	z=((float)sz / 32767.5f - 1.0f);
-			if (!ReadCompressed((float)cz))
+			if (!ReadCompressed((float&)cz))
 				return false;
 			z=cz;
 		}

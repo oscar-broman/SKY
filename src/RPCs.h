@@ -33,7 +33,7 @@
 #ifndef __YSF_RPCS
 #define __YSF_RPCS
 
-#include "types.h"
+#include "CTypes.h"
 
 extern int RPC_Gravity;
 extern int RPC_Weather;

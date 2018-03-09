@@ -20,6 +20,7 @@ DWORD CAddress::FUNC_Logprintf_03ZR3 = 0x080A78E0;
 DWORD CAddress::FUNC_Logprintf_03ZR4 = 0x80A7A90;
 DWORD CAddress::FUNC_Logprintf_037 = 0x080A9000;
 DWORD CAddress::FUNC_Logprintf_037_R2_1 = 0x080A91D0;
+DWORD CAddress::FUNC_Logprintf_03DL_R1 = 0x080A91D0;
 #endif
 
 // Pointers
@@ -39,7 +40,6 @@ DWORD CAddress::FUNC_CConsole__Execute = NULL;
 DWORD CAddress::FUNC_CFilterscripts__LoadFilterscript = NULL;
 DWORD CAddress::FUNC_CFilterscripts__UnLoadFilterscript = NULL;
 DWORD CAddress::FUNC_ContainsInvalidChars = NULL;
-DWORD CAddress::FUNC_GetPacketID = NULL;
 
 DWORD CAddress::FUNC_CPlayer__SpawnForWorld = NULL;
 DWORD CAddress::FUNC_ProcessQueryPacket = NULL;
@@ -113,11 +113,13 @@ void CAddress::Initialize()
 
 	FUNC_ContainsInvalidChars					= 0x080E1220;
 
-	FUNC_GetPacketID =							FindPattern("\x55\xB8\x00\x00\x00\x00\x89\xE5\x8B\x55\x00\x85\xD2", "xx????xxxx?xx");
+	//FUNC_GetPacketID =							FindPattern("\x55\xB8\x00\x00\x00\x00\x89\xE5\x8B\x55\x00\x85\xD2", "xx????xxxx?xx");
 
 	FUNC_CPlayer__SpawnForWorld					= 0x080D7870;
 	FUNC_ProcessQueryPacket						= 0x080DE960;
 	FUNC_Packet_WeaponsUpdate					= 0x080B52A0;
+
+	FUNC_format_amxstring 						= 0x080E1B00;
 
 	ADDR_CNetGame_GMX_GangZoneDelete =			NULL;
 	ADDR_CNetGame_GMX_PckupDelete =				NULL;
