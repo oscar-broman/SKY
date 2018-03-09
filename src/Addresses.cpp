@@ -10,17 +10,16 @@ DWORD CAddress::FUNC_Logprintf_03Z = 0x00486CB0;
 DWORD CAddress::FUNC_Logprintf_03ZR2_2 = 0x00487310;
 DWORD CAddress::FUNC_Logprintf_03ZR3 = 0x00487460;
 DWORD CAddress::FUNC_Logprintf_03ZR4 = 0x004875F0;
-DWORD CAddress::FUNC_Logprintf_037RC1 = 0x487B20;
 DWORD CAddress::FUNC_Logprintf_037 = 0x0048A0B0;
-DWORD CAddress::FUNC_Logprintf_037R2 = 0x0048C8D0;
+DWORD CAddress::FUNC_Logprintf_037_R2_1 = 0x0048C8D0;
+DWORD CAddress::FUNC_Logprintf_03DL_R1 = 0x00491FA0;
 #else
 DWORD CAddress::FUNC_Logprintf_03Z = 0x080A7440;
 DWORD CAddress::FUNC_Logprintf_03ZR2_2 = 0x080A77D0;
 DWORD CAddress::FUNC_Logprintf_03ZR3 = 0x080A78E0;
 DWORD CAddress::FUNC_Logprintf_03ZR4 = 0x80A7A90;
-DWORD CAddress::FUNC_Logprintf_037RC1 = 0x080a7af0;
 DWORD CAddress::FUNC_Logprintf_037 = 0x080A9000;
-DWORD CAddress::FUNC_Logprintf_037R2 = 0x080a91d0;
+DWORD CAddress::FUNC_Logprintf_037_R2_1 = 0x080A91D0;
 #endif
 
 // Pointers
@@ -63,19 +62,22 @@ void CAddress::Initialize()
 	FUNC_CConsole__Execute =					FindPattern("\x55\x8B\xEC\x83\xE4\xF8\x81\xEC\x0C\x01\x00\x00", "xxxxxxxxxxxx");
 
 	FUNC_CFilterscripts__LoadFilterscript =		FindPattern("\x8B\x44\x24\x04\x81\xEC\x04\x01\x00\x00", "xxxxxxxxxx");
-	FUNC_CFilterscripts__UnLoadFilterscript =	FindPattern("\xCC\x51\x53\x8B\x5C\x24\x0C\x55\x56\x57\x89", "xxxxxxxxxxx") + 0x1;
-
-	FUNC_ContainsInvalidChars =					FindPattern("\x8B\x4C\x24\x04\x8A\x01\x84\xC0", "xxxxxxxx");
+	FUNC_CFilterscripts__UnLoadFilterscript = F	indPattern("\xCC\x51\x53\x8B\x5C\x24\x0C\x55\x56\x57\x89", "xxxxxxxxxxx") + 0x1;
+	/*todo:
+	/FUNC_ContainsInvalidChars =					FindPattern("\x8B\x4C\x24\x04\x8A\x01\x84\xC0", "xxxxxxxx");
 	FUNC_GetPacketID =							FindPattern("\x8B\x44\x24\x04\x85\xC0\x75\x03\x0C\xFF\xC3", "xxxxxxx???x");
-
+	*/
+	
 	FUNC_CPlayer__SpawnForWorld =				FindPattern("\x56\x8B\xF1\x8B\x86\x3B\x26\x00\x00\x85\xC0\x0F\x84", "xxxxx????xxxx");
 	FUNC_ProcessQueryPacket =					FindPattern("\x83\xEC\x24\x53\x55\x56\x57\x8B\x7C\x24", "xxxxxxxxxx");
-	FUNC_Packet_WeaponsUpdate =					FindPattern("\x6A\xFF\x68\x00\x00\x00\x00\x64\xA1\x0\x0\x0\x0\x50\x64\x89\x25\x0\x0\x0\x0\x81\xEC\x28\x01\x00\x00\x55\x56", "xx????xx????xxxx????xxxxxxxx");
+	FUNC_Packet_WeaponsUpdate =					FindPattern("\x6A\xFF\x68\x00\x00\x00\x00\x64\xA1\x0\x0\x0\x0\x50\x64\x89\x25\x0\x0\x0\x0\x81\xEC\x2C\x01\x00\x00\x55\x56", "xx????xx????xxxx????xxxx??xx");
 
-	ADDR_CNetGame_GMX_GangZoneDelete =			FindPattern("\x83\xC4\x04\x89\x5E\x24", "xxxxxx") - 0x8;
-	ADDR_CNetGame_GMX_PckupDelete =				FindPattern("\x83\xC4\x04\x89\x5E\x10", "xxxxxx") - 0x8;
+	/*todo:
+	//ADDR_CNetGame_GMX_GangZoneDelete =			FindPattern("\x83\xC4\x04\x89\x5E\x24", "xxxxxx") - 0x8;
+	//ADDR_CNetGame_GMX_PckupDelete =				FindPattern("\x83\xC4\x04\x89\x5E\x10", "xxxxxx") - 0x8;
+	*/
+	FUNC_format_amxstring =						FindPattern("\x8B\x54\x24\x08\x56\x8B\x74\x24\x08\x57\x33\xC0", "xxxxxxxxxxxx");
 
-	FUNC_format_amxstring = 0x0046ED90;
 
 	DWORD iRealProcessNetworkPacket = FindPattern("\x6A\xFF\x68\x00\x00\x00\x00\x64\xA1\x00\x00\x00\x00\x50\x64\x89\x25\x00\x00\x00\x00\x81\xEC\x5C", "xxx????xxxxxxxxxxxxxxxxx");
 
