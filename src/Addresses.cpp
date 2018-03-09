@@ -20,7 +20,7 @@ DWORD CAddress::FUNC_Logprintf_03ZR3 = 0x080A78E0;
 DWORD CAddress::FUNC_Logprintf_03ZR4 = 0x80A7A90;
 DWORD CAddress::FUNC_Logprintf_037 = 0x080A9000;
 DWORD CAddress::FUNC_Logprintf_037_R2_1 = 0x080A91D0;
-DWORD CAddress::FUNC_Logprintf_03DL_R1 = 0x080A91D0;
+DWORD CAddress::FUNC_Logprintf_03DL_R1 = 0x080B1CA0;
 #endif
 
 // Pointers
@@ -151,7 +151,7 @@ void CAddress::Initialize()
 	}
 #endif
 
-	logprintf("VAR_pRestartWaitTime: %X", VAR_pRestartWaitTime);
+	/*logprintf("VAR_pRestartWaitTime: %X", VAR_pRestartWaitTime);
 
 	logprintf("FUNC_CConsole__AddStringVariable: %X", FUNC_CConsole__AddStringVariable);
 
@@ -169,7 +169,7 @@ void CAddress::Initialize()
 
 	logprintf("FUNC_ProcessQueryPacket: %X", FUNC_ProcessQueryPacket);
 	logprintf("FUNC_Packet_WeaponsUpdate: %X", FUNC_Packet_WeaponsUpdate);
-	logprintf("FUNC_format_amxstring: %X", FUNC_format_amxstring);
+	logprintf("FUNC_format_amxstring: %X", FUNC_format_amxstring);*/
 
 
 	// Unlock restart wait time

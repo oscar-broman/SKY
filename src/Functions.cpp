@@ -64,7 +64,7 @@ void CSAMPFunctions::Initialize(void **pluginData)
 	pRakServer = (RakServer*)pfn_GetRakServer();
 
 	int *pRakServer_VTBL = ((int*)(*(void**)pRakServer));
-	logprintf("pRakServer_VTBL: %x", pRakServer_VTBL);
+	//logprintf("pRakServer_VTBL: %x", pRakServer_VTBL);
 
 	POINT_TO_MEMBER(RakNet__Start, pRakServer_VTBL[RAKNET_START_OFFSET]);
 	POINT_TO_MEMBER(RakNet__Send, pRakServer_VTBL[RAKNET_SEND_OFFSET]);
