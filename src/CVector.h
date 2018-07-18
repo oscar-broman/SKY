@@ -116,6 +116,11 @@ public:
 		return ret;
 	}
 
+	bool IsNan(void)
+	{
+		return (fX != fX || fY != fY || fZ != fZ);
+	}
+
 	CVector operator + ( const CVector& vecRight ) const
 	{
 		return CVector ( fX + vecRight.fX, fY + vecRight.fY, fZ + vecRight.fZ );
