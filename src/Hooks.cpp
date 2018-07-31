@@ -175,6 +175,18 @@ static BYTE HOOK_GetPacketID(Packet *p)
 	if (packetId == ID_PLAYER_SYNC) {
 		CSyncData *d = (CSyncData*)(&p->data[1]);
 
+		// NAN stuff = inf loop, no idea why.
+		// This prevents it though, so I didn't bother to look too deep into it.
+		if (d->vecPosition.IsNan() ||
+			d->vecQuaternion.IsNan() ||
+			d->vecSurfing.IsNan() ||
+			d->vecVelocity.IsNan() ||
+			d->fQuaternionAngle != d->fQuaternionAngle)
+		{
+			subhook_install(GetPacketID_hook);
+			return packetId;
+		}
+
 		if (disableSyncBugs) {
 			// Prevent "ghost shooting" bugs
 			if ((d->byteWeapon >= WEAPON_COLT45 && d->byteWeapon <= WEAPON_SNIPER) || d->byteWeapon == WEAPON_MINIGUN)
@@ -397,6 +409,12 @@ static BYTE HOOK_GetPacketID(Packet *p)
 
 	if (packetId == ID_AIM_SYNC) {
 		CAimSyncData *d = (CAimSyncData*)(&p->data[1]);
+
+		// Never had an issue with getting crashed here, but... better to check.
+		if (d->vecFront.IsNan() || d->vecPosition.IsNan()) {
+			subhook_install(GetPacketID_hook);
+			return packetId;
+		}
 
 		// Fix first-person up/down aim sync
 		if (lastWeapon[playerid] == 34 || lastWeapon[playerid] == 35 || lastWeapon[playerid] == 36 || lastWeapon[playerid] == 43) {
