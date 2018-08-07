@@ -435,6 +435,15 @@ static BYTE HOOK_GetPacketID(Packet *p)
 	if (packetId == ID_VEHICLE_SYNC) {
 		CVehicleSyncData *d = (CVehicleSyncData*)(&p->data[1]);
 
+		// NaN = infinite loop. Don't really know why
+		if (d->vecPosition.IsNan() ||
+			d->vecQuaternion.IsNan() ||
+			d->vecVelocity.IsNan())
+		{
+			subhook_install(GetPacketID_hook);
+			return packetId;
+		}
+
 		if (fakeHealth[playerid] != 255) {
 			d->bytePlayerHealth = fakeHealth[playerid];
 		}
@@ -446,6 +455,13 @@ static BYTE HOOK_GetPacketID(Packet *p)
 
 	if (packetId == ID_PASSENGER_SYNC) {
 		CPassengerSyncData *d = (CPassengerSyncData*)(&p->data[1]);
+
+		// Didn't have any issues with it, but better to prevent
+		if (d->vecPosition.IsNan())
+		{
+			subhook_install(GetPacketID_hook);
+			return packetId;
+		}
 
 		if (fakeHealth[playerid] != 255) {
 			d->bytePlayerHealth = fakeHealth[playerid];
