@@ -134,7 +134,7 @@ DWORD FindPattern(char *pattern, char *mask)
 // Hooks //
 ///////////////////////////////////////////////////////////////
 
-bool IsPlayerUpdatePacket(unsigned char packetId)
+static bool IsPlayerUpdatePacket(unsigned char packetId)
 {
 	return (
 			   packetId == ID_PLAYER_SYNC ||
@@ -173,6 +173,12 @@ static BYTE HOOK_GetPacketID(Packet *p)
 	}
 
 	if (packetId == ID_PLAYER_SYNC) {
+		// Let's ensure the length is correct, because if it's incomplete it goes in infinite loop. Ex: bs->Write((PCHAR)&OnFootData, sizeof(OnFootDataStruct) / 2);
+		if (p->length != 69) { 
+			subhook_install(GetPacketID_hook);
+			return packetId;
+		}
+
 		CSyncData *d = (CSyncData*)(&p->data[1]);
 
 		// NAN stuff = inf loop, no idea why.
@@ -187,7 +193,17 @@ static BYTE HOOK_GetPacketID(Packet *p)
 			return packetId;
 		}
 
-		if (disableSyncBugs) {
+		if (d->byteWeapon > 46 || (d->byteWeapon > 18 && d->byteWeapon < 22)) {
+			d->byteWeapon = 0;
+		}
+		
+		// Because of detonator crasher - Sends AIM_KEY in this packet and cam mode IDs 7, 8, 34, 45, 46, 51 and 65 in ID_AIM_SYNC
+		if (d->byteWeapon == 40) {
+			d->wKeys &= ~128;
+		}
+
+		if (disableSyncBugs)
+		{
 			// Prevent "ghost shooting" bugs
 			if ((d->byteWeapon >= WEAPON_COLT45 && d->byteWeapon <= WEAPON_SNIPER) || d->byteWeapon == WEAPON_MINIGUN)
 			{
@@ -359,7 +375,7 @@ static BYTE HOOK_GetPacketID(Packet *p)
 					d->wKeys &= ~128;
 				}
 
-			} 
+			}
 			else if (d->byteWeapon == WEAPON_GRENADE)
 			{
 				if (d->wAnimIndex < 644 || d->wAnimIndex > 646) {
@@ -370,7 +386,8 @@ static BYTE HOOK_GetPacketID(Packet *p)
 
 		if (syncDataFrozen[playerid]) {
 			memcpy(d, &lastSyncData[playerid], sizeof(CSyncData));
-		} else {
+		}
+		else {
 			memcpy(&lastSyncData[playerid], d, sizeof(CSyncData));
 		}
 
@@ -395,7 +412,8 @@ static BYTE HOOK_GetPacketID(Packet *p)
 
 		if (d->byteWeapon == 44 || d->byteWeapon == 45) {
 			d->wKeys &= ~4;
-		} else if (d->byteWeapon == 4 && knifeSync == false) {
+		}
+		else if (d->byteWeapon == 4 && knifeSync == false) {
 			d->wKeys &= ~128;
 		}
 
@@ -408,6 +426,12 @@ static BYTE HOOK_GetPacketID(Packet *p)
 	}
 
 	if (packetId == ID_AIM_SYNC) {
+		// Let's ensure the length is correct
+		if (p->length != 32) {
+			subhook_install(GetPacketID_hook);
+			return packetId;
+		}
+
 		CAimSyncData *d = (CAimSyncData*)(&p->data[1]);
 
 		// Never had an issue with getting crashed here, but... better to check.
@@ -422,7 +446,8 @@ static BYTE HOOK_GetPacketID(Packet *p)
 
 			if (d->fZAim > 1.0f) {
 				d->fZAim = 1.0f;
-			} else if (d->fZAim < -1.0f) {
+			}
+			else if (d->fZAim < -1.0f) {
 				d->fZAim = -1.0f;
 			}
 		}
@@ -433,6 +458,12 @@ static BYTE HOOK_GetPacketID(Packet *p)
 	}
 
 	if (packetId == ID_VEHICLE_SYNC) {
+		// Let's ensure the length is correct
+		if (p->length != 64) {
+			subhook_install(GetPacketID_hook);
+			return packetId;
+		}
+
 		CVehicleSyncData *d = (CVehicleSyncData*)(&p->data[1]);
 
 		// NaN = infinite loop. Don't really know why
@@ -442,6 +473,10 @@ static BYTE HOOK_GetPacketID(Packet *p)
 		{
 			subhook_install(GetPacketID_hook);
 			return packetId;
+		}
+
+		if (d->bytePlayerWeapon > 46 || (d->bytePlayerWeapon > 18 && d->bytePlayerWeapon < 22)) {
+			d->bytePlayerWeapon = 0;
 		}
 
 		if (fakeHealth[playerid] != 255) {
@@ -454,13 +489,22 @@ static BYTE HOOK_GetPacketID(Packet *p)
 	}
 
 	if (packetId == ID_PASSENGER_SYNC) {
+		// Let's ensure the length is correct
+		if (p->length != 25) {
+			subhook_install(GetPacketID_hook);
+			return packetId;
+		}
+
 		CPassengerSyncData *d = (CPassengerSyncData*)(&p->data[1]);
 
 		// Didn't have any issues with it, but better to prevent
-		if (d->vecPosition.IsNan())
-		{
+		if (d->vecPosition.IsNan()) {
 			subhook_install(GetPacketID_hook);
 			return packetId;
+		}
+
+		if (d->bytePlayerWeapon > 46 || (d->bytePlayerWeapon > 18 && d->bytePlayerWeapon < 22)) {
+			d->bytePlayerWeapon = 0;
 		}
 
 		if (fakeHealth[playerid] != 255) {
