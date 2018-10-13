@@ -1,0 +1,16 @@
+{
+    "user": "oscar-broman",
+    "repo": "SKY",
+    "contributors": ["oscar-broman"],
+    "resources": [
+        {
+            "name": "SKY.dll.zip",
+            "platform": "windows",
+            "archive": true,
+            "plugins": ["plugins/SKY.dll"]
+        }
+    ],    
+    "runtime": {
+        "plugins": ["oscar-broman/SKY"]
+    }
+}
