@@ -9,6 +9,8 @@ extern void *pConsole;
 extern RakServer *pRakServer;
 extern int serverVersion;
 
+extern void **ppPluginData;
+
 typedef void(*logprintf_t)(char *, ...);
 extern logprintf_t logprintf;
 
@@ -24,7 +26,7 @@ extern logprintf_t logprintf;
 #endif
 
 #define PROJECT_NAME		"SKY"
-#define PROJECT_VERSION		"0.1"
+#define PROJECT_VERSION		"0.2"
 
 //#define NEW_PICKUP_SYSTEM
 
