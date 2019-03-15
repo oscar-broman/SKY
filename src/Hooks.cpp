@@ -187,8 +187,7 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 		// Let's ensure the length is correct, because if it's incomplete it goes in infinite loop. Ex: bs->Write((PCHAR)&OnFootData, sizeof(OnFootDataStruct) / 2);
 		if (p->length != 69)
 		{
-			subhook_install(GetPacketID_hook);
-			return packetId;
+			return nullptr;
 		}
 
 		CSyncData *d = (CSyncData *)(&p->data[1]);
@@ -196,13 +195,11 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 		// NAN stuff = inf loop, no idea why.
 		// This prevents it though, so I didn't bother to look too deep into it.
 		if (d->vecPosition.IsNan() ||
-			d->vecQuaternion.IsNan() ||
+			//d->fQuaternion.IsNan() ||
 			d->vecSurfing.IsNan() ||
-			d->vecVelocity.IsNan() ||
-			d->fQuaternionAngle != d->fQuaternionAngle)
+			d->vecVelocity.IsNan())
 		{
-			subhook_install(GetPacketID_hook);
-			return packetId;
+			return nullptr;
 		}
 
 		if (d->byteWeapon > 46 || (d->byteWeapon > 18 && d->byteWeapon < 22))
@@ -458,8 +455,7 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 		// Let's ensure the length is correct
 		if (p->length != 32)
 		{
-			subhook_install(GetPacketID_hook);
-			return packetId;
+			return nullptr;
 		}
 
 		CAimSyncData *d = (CAimSyncData *)(&p->data[1]);
@@ -467,8 +463,7 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 		// Never had an issue with getting crashed here, but... better to check.
 		if (d->vecFront.IsNan() || d->vecPosition.IsNan())
 		{
-			subhook_install(GetPacketID_hook);
-			return packetId;
+			return nullptr;
 		}
 
 		// Fix first-person up/down aim sync
@@ -497,19 +492,17 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 		// Let's ensure the length is correct
 		if (p->length != 64)
 		{
-			subhook_install(GetPacketID_hook);
-			return packetId;
+			return nullptr;
 		}
 
 		CVehicleSyncData *d = (CVehicleSyncData *)(&p->data[1]);
 
 		// NaN = infinite loop. Don't really know why
 		if (d->vecPosition.IsNan() ||
-			d->vecQuaternion.IsNan() ||
+			//d->fQuaternion.IsNan() ||
 			d->vecVelocity.IsNan())
 		{
-			subhook_install(GetPacketID_hook);
-			return packetId;
+			return nullptr;
 		}
 
 		if (d->bytePlayerWeapon > 46 || (d->bytePlayerWeapon > 18 && d->bytePlayerWeapon < 22))
@@ -533,8 +526,7 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 		// Let's ensure the length is correct
 		if (p->length != 25)
 		{
-			subhook_install(GetPacketID_hook);
-			return packetId;
+			return nullptr;
 		}
 
 		CPassengerSyncData *d = (CPassengerSyncData *)(&p->data[1]);
@@ -542,8 +534,7 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 		// Didn't have any issues with it, but better to prevent
 		if (d->vecPosition.IsNan())
 		{
-			subhook_install(GetPacketID_hook);
-			return packetId;
+			return nullptr;
 		}
 
 		if (d->bytePlayerWeapon > 46 || (d->bytePlayerWeapon > 18 && d->bytePlayerWeapon < 22))
