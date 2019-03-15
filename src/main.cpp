@@ -80,12 +80,15 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void ** ppData)
 	} else if(logprintf == (logprintf_t)CAddress::FUNC_Logprintf_03ZR4) {
 		serverVersion = SAMP_VERSION_03Z_R4;
 		strcpy(szVersion, "0.3z R4");
+	} else if(logprintf == (logprintf_t)CAddress::FUNC_Logprintf_037RC1) {
+		serverVersion = SAMP_VERSION_037RC1;
+		strcpy(szVersion, "0.3.7 RC1");
 	} else if (logprintf == (logprintf_t)CAddress::FUNC_Logprintf_037) {
 		serverVersion = SAMP_VERSION_037;
 		strcpy(szVersion, "0.3.7");
-	} else if (logprintf == (logprintf_t)CAddress::FUNC_Logprintf_03DL_R1) {
-		serverVersion = SAMP_VERSION_03DL_R1;
-		strcpy(szVersion, "0.3.DL");
+	} else if (logprintf == (logprintf_t)CAddress::FUNC_Logprintf_037R2) {
+		serverVersion = SAMP_VERSION_037R2;
+		strcpy(szVersion, "0.3.7 R2");
 	}
 
 	if (1) {
@@ -94,13 +97,13 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void ** ppData)
 			return true;
 		}
 	} else {
-		serverVersion = SAMP_VERSION_03DL_R1;
+		serverVersion = SAMP_VERSION_037R2;
 		strcpy(szVersion, "version check skipped");
 	}
 
 	InitRPCs();
 	CAddress::Initialize();
-	
+	CSAMPFunctions::Initialize();
 	InstallPreHooks();
 
 	return 1;
@@ -127,7 +130,17 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX * amx)
 	if(!bFirst) {
 		bFirst = true;
 
-		CSAMPFunctions::Initialize(ppPluginData);
+		// Get pNetGame
+		int (*pfn_GetNetGame)(void) = (int(*)(void))ppPluginData[PLUGIN_DATA_NETGAME];
+		pNetGame = (CNetGame*)pfn_GetNetGame();
+
+		// Get pConsole
+		int (*pfn_GetConsole)(void) = (int(*)(void))ppPluginData[PLUGIN_DATA_CONSOLE];
+		pConsole = (void*)pfn_GetConsole();
+
+		// Get pRakServer
+		int (*pfn_GetRakServer)(void) = (int(*)(void))ppPluginData[PLUGIN_DATA_RAKSERVER];
+		pRakServer = (RakServer*)pfn_GetRakServer();
 	}
 
 	return InitScripting(amx);

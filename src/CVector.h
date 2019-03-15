@@ -48,7 +48,7 @@ public:
 
 	float Normalize ( void )
 	{
-		float t = (float)sqrt(fX*fX + fY*fY + fZ*fZ);
+		double t = sqrt(fX*fX + fY*fY + fZ*fZ);
 		if ( t > FLOAT_EPSILON ) {
 			double fX2 = fX / t;
 			double fY2 = fY / t;
@@ -63,7 +63,7 @@ public:
 
 	float Length ( void ) const
 	{
-		return (float)sqrt ( (fX*fX) + (fY*fY) + (fZ*fZ) );
+		return sqrt ( (fX*fX) + (fY*fY) + (fZ*fZ) );
 	}
 
 	float DotProduct ( const CVector * param ) const
@@ -105,15 +105,20 @@ public:
 
 	float GetAngleRadians ( void )
 	{
-		return (float)-atan2(fY, -fX);
+		return -atan2(fY, -fX);
 	}
 
 	float GetAngleDegrees ( void )
 	{
 		static float radtodeg = 57.324840764331210191082802547771f; // 180/pi
-		float ret = (float)((atan2(fY, -fX) * radtodeg) + 270.0f);
+		float ret = (atan2(fY, -fX) * radtodeg) + 270.0f;
 		if (ret >= 360.0f) ret -= 360.0f;
 		return ret;
+	}
+
+	bool IsNan(void)
+	{
+		return (fX != fX || fY != fY || fZ != fZ);
 	}
 
 	CVector operator + ( const CVector& vecRight ) const

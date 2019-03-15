@@ -116,17 +116,5 @@
     <ClInclude Include="..\lib\raknet\BitStream.h">
       <Filter>Header Files\RakNet</Filter>
     </ClInclude>
-    <ClInclude Include="CVector2D.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\lib\raknet\NetworkTypes.h">
-      <Filter>Header Files\RakNet</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\types.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\net.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>
