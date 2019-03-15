@@ -90,16 +90,17 @@ bool Unlock(void *address, size_t len)
 	return !!VirtualProtect(address, len, PAGE_EXECUTE_READWRITE, &oldp);
 #else
 	size_t
-	iPageSize = getpagesize(),
-	iAddr = ((reinterpret_cast <uint32_t>(address) / iPageSize) * iPageSize);
-	return !mprotect(reinterpret_cast <void*>(iAddr), len, PROT_READ | PROT_WRITE | PROT_EXEC);
+		iPageSize = getpagesize(),
+		iAddr = ((reinterpret_cast<uint32_t>(address) / iPageSize) * iPageSize);
+	return !mprotect(reinterpret_cast<void *>(iAddr), len, PROT_READ | PROT_WRITE | PROT_EXEC);
 #endif
 }
 
 bool memory_compare(const BYTE *data, const BYTE *pattern, const char *mask)
 {
-	for(; *mask; ++mask, ++data, ++pattern) {
-		if(*mask == 'x' && *data != *pattern)
+	for (; *mask; ++mask, ++data, ++pattern)
+	{
+		if (*mask == 'x' && *data != *pattern)
 			return false;
 	}
 	return (*mask) == NULL;
@@ -111,7 +112,7 @@ DWORD FindPattern(char *pattern, char *mask)
 	DWORD size;
 	DWORD address;
 #ifdef _WIN32
-	MODULEINFO info = { 0 };
+	MODULEINFO info = {0};
 
 	address = (DWORD)GetModuleHandle(NULL);
 	GetModuleInformation(GetCurrentProcess(), GetModuleHandle(NULL), &info, sizeof(MODULEINFO));
@@ -120,8 +121,9 @@ DWORD FindPattern(char *pattern, char *mask)
 	address = 0x804b480; // around the elf base
 	size = 0x8128B80 - address;
 #endif
-	for(i = 0; i < size; ++i) {
-		if(memory_compare((BYTE *)(address + i), (BYTE *)pattern, mask))
+	for (i = 0; i < size; ++i)
+	{
+		if (memory_compare((BYTE *)(address + i), (BYTE *)pattern, mask))
 			return (DWORD)(address + i);
 	}
 	return 0;
@@ -134,13 +136,12 @@ DWORD FindPattern(char *pattern, char *mask)
 static bool IsPlayerUpdatePacket(unsigned char packetId)
 {
 	return (
-			   packetId == ID_PLAYER_SYNC ||
-			   packetId == ID_VEHICLE_SYNC ||
-			   packetId == ID_PASSENGER_SYNC ||
-			   packetId == ID_SPECTATOR_SYNC ||
-			   packetId == ID_AIM_SYNC ||
-			   packetId == ID_TRAILER_SYNC
-		   );
+		packetId == ID_PLAYER_SYNC ||
+		packetId == ID_VEHICLE_SYNC ||
+		packetId == ID_PASSENGER_SYNC ||
+		packetId == ID_SPECTATOR_SYNC ||
+		packetId == ID_AIM_SYNC ||
+		packetId == ID_TRAILER_SYNC);
 }
 
 BYTE lastWeapon[1000] = {0};
@@ -148,45 +149,49 @@ CSyncData lastSyncData[1000];
 BOOL syncDataFrozen[1000] = {0};
 BYTE fakeHealth[1000] = {0};
 BYTE fakeArmour[1000] = {0};
-glm::quat* fakeQuat[1000];
+glm::quat *fakeQuat[1000];
 BOOL disableSyncBugs = true;
 BOOL infiniteAmmo[1000] = {0};
 
-
 BYTE GetPacketID(Packet *p)
 {
-	if (p == 0) return 255;
+	if (p == 0)
+		return 255;
 
 	if ((unsigned char)p->data[0] == ID_TIMESTAMP)
 	{
 		assert(p->length > sizeof(unsigned char) + sizeof(unsigned long));
 		return (unsigned char)p->data[sizeof(unsigned char) + sizeof(unsigned long)];
 	}
-	else return (unsigned char)p->data[0];
+	else
+		return (unsigned char)p->data[0];
 }
 //----------------------------------------------------
 
-Packet* THISCALL CHookRakServer::Receive(void* ppRakServer)
+Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 {
-	Packet* p = CSAMPFunctions::Receive(ppRakServer);
+	Packet *p = CSAMPFunctions::Receive(ppRakServer);
 	BYTE packetId = GetPacketID(p);
-	if (packetId == 0xFF) return p;
+	if (packetId == 0xFF)
+		return p;
 
 	WORD playerid = p->playerIndex;
 
-
-	if (IsPlayerUpdatePacket(packetId)) {
+	if (IsPlayerUpdatePacket(packetId))
+	{
 		lastUpdateTick[playerid] = GetTickCount();
 	}
 
-	if (packetId == ID_PLAYER_SYNC) {
+	if (packetId == ID_PLAYER_SYNC)
+	{
 		// Let's ensure the length is correct, because if it's incomplete it goes in infinite loop. Ex: bs->Write((PCHAR)&OnFootData, sizeof(OnFootDataStruct) / 2);
-		if (p->length != 69) { 
+		if (p->length != 69)
+		{
 			subhook_install(GetPacketID_hook);
 			return packetId;
 		}
 
-		CSyncData *d = (CSyncData*)(&p->data[1]);
+		CSyncData *d = (CSyncData *)(&p->data[1]);
 
 		// NAN stuff = inf loop, no idea why.
 		// This prevents it though, so I didn't bother to look too deep into it.
@@ -200,12 +205,14 @@ Packet* THISCALL CHookRakServer::Receive(void* ppRakServer)
 			return packetId;
 		}
 
-		if (d->byteWeapon > 46 || (d->byteWeapon > 18 && d->byteWeapon < 22)) {
+		if (d->byteWeapon > 46 || (d->byteWeapon > 18 && d->byteWeapon < 22))
+		{
 			d->byteWeapon = 0;
 		}
-		
+
 		// Because of detonator crasher - Sends AIM_KEY in this packet and cam mode IDs 7, 8, 34, 45, 46, 51 and 65 in ID_AIM_SYNC
-		if (d->byteWeapon == 40) {
+		if (d->byteWeapon == 40)
+		{
 			d->wKeys &= ~128;
 		}
 
@@ -214,7 +221,8 @@ Packet* THISCALL CHookRakServer::Receive(void* ppRakServer)
 			// Prevent "ghost shooting" bugs
 			if ((d->byteWeapon >= WEAPON_COLT45 && d->byteWeapon <= WEAPON_SNIPER) || d->byteWeapon == WEAPON_MINIGUN)
 			{
-				switch (d->wAnimIndex) {
+				switch (d->wAnimIndex)
+				{
 					// PED_RUN_*
 				case 1222:
 				case 1223:
@@ -353,7 +361,8 @@ Packet* THISCALL CHookRakServer::Receive(void* ppRakServer)
 				case 1150:
 				case 1151:
 					// Only remove action key if holding aim
-					if (d->wKeys & 128) {
+					if (d->wKeys & 128)
+					{
 						d->wKeys &= ~1;
 					}
 
@@ -365,13 +374,14 @@ Packet* THISCALL CHookRakServer::Receive(void* ppRakServer)
 
 					break;
 				}
-
 			}
 			else if (d->byteWeapon == WEAPON_SPRAYCAN || d->byteWeapon == WEAPON_FIREEXTINGUISHER || d->byteWeapon == WEAPON_FLAMETHROWER)
 			{
-				if (d->wAnimIndex < 1160 || d->wAnimIndex > 1167) {
+				if (d->wAnimIndex < 1160 || d->wAnimIndex > 1167)
+				{
 					// Only remove action key if holding aim
-					if (d->wKeys & 128) {
+					if (d->wKeys & 128)
+					{
 						d->wKeys &= ~1;
 					}
 
@@ -381,36 +391,42 @@ Packet* THISCALL CHookRakServer::Receive(void* ppRakServer)
 					// Remove aim key
 					d->wKeys &= ~128;
 				}
-
 			}
 			else if (d->byteWeapon == WEAPON_GRENADE)
 			{
-				if (d->wAnimIndex < 644 || d->wAnimIndex > 646) {
+				if (d->wAnimIndex < 644 || d->wAnimIndex > 646)
+				{
 					d->wKeys &= ~1;
 				}
 			}
 		}
 
-		if (syncDataFrozen[playerid]) {
+		if (syncDataFrozen[playerid])
+		{
 			memcpy(d, &lastSyncData[playerid], sizeof(CSyncData));
 		}
-		else {
+		else
+		{
 			memcpy(&lastSyncData[playerid], d, sizeof(CSyncData));
 		}
 
-		if (blockKeySync[playerid]) {
+		if (blockKeySync[playerid])
+		{
 			d->wKeys = 0;
 		}
 
-		if (fakeHealth[playerid] != 255) {
+		if (fakeHealth[playerid] != 255)
+		{
 			d->byteHealth = fakeHealth[playerid];
 		}
 
-		if (fakeArmour[playerid] != 255) {
+		if (fakeArmour[playerid] != 255)
+		{
 			d->byteArmour = fakeArmour[playerid];
 		}
 
-		if (fakeQuat[playerid] != NULL) {
+		if (fakeQuat[playerid] != NULL)
+		{
 			// NOT AT ALL SURE WHICH ELEMENTS OF THIS ARRAY ARE WHAT. THIS CODE MIGHT BE COMPLETELY WRONG.
 			// SOMEONE WHO KNOWS WHAT THEY'RE DOING PLEASE CHECK THIS.
 			// 03/09/18 - Whitetiger
@@ -420,10 +436,12 @@ Packet* THISCALL CHookRakServer::Receive(void* ppRakServer)
 			d->fQuaternion[3] = fakeQuat[playerid]->z; // z
 		}
 
-		if (d->byteWeapon == 44 || d->byteWeapon == 45) {
+		if (d->byteWeapon == 44 || d->byteWeapon == 45)
+		{
 			d->wKeys &= ~4;
 		}
-		else if (d->byteWeapon == 4 && knifeSync == false) {
+		else if (d->byteWeapon == 4 && knifeSync == false)
+		{
 			d->wKeys &= ~128;
 		}
 
@@ -435,46 +453,55 @@ Packet* THISCALL CHookRakServer::Receive(void* ppRakServer)
 		lastWeapon[playerid] = d->byteWeapon;
 	}
 
-	if (packetId == ID_AIM_SYNC) {
+	if (packetId == ID_AIM_SYNC)
+	{
 		// Let's ensure the length is correct
-		if (p->length != 32) {
+		if (p->length != 32)
+		{
 			subhook_install(GetPacketID_hook);
 			return packetId;
 		}
 
-		CAimSyncData *d = (CAimSyncData*)(&p->data[1]);
+		CAimSyncData *d = (CAimSyncData *)(&p->data[1]);
 
 		// Never had an issue with getting crashed here, but... better to check.
-		if (d->vecFront.IsNan() || d->vecPosition.IsNan()) {
+		if (d->vecFront.IsNan() || d->vecPosition.IsNan())
+		{
 			subhook_install(GetPacketID_hook);
 			return packetId;
 		}
 
 		// Fix first-person up/down aim sync
-		if (lastWeapon[playerid] == 34 || lastWeapon[playerid] == 35 || lastWeapon[playerid] == 36 || lastWeapon[playerid] == 43) {
+		if (lastWeapon[playerid] == 34 || lastWeapon[playerid] == 35 || lastWeapon[playerid] == 36 || lastWeapon[playerid] == 43)
+		{
 			d->fZAim = -d->vecFront.fZ;
 
-			if (d->fZAim > 1.0f) {
+			if (d->fZAim > 1.0f)
+			{
 				d->fZAim = 1.0f;
 			}
-			else if (d->fZAim < -1.0f) {
+			else if (d->fZAim < -1.0f)
+			{
 				d->fZAim = -1.0f;
 			}
 		}
 
-		if (infiniteAmmo[playerid]) {
+		if (infiniteAmmo[playerid])
+		{
 			d->byteCameraZoom = 2;
 		}
 	}
 
-	if (packetId == ID_VEHICLE_SYNC) {
+	if (packetId == ID_VEHICLE_SYNC)
+	{
 		// Let's ensure the length is correct
-		if (p->length != 64) {
+		if (p->length != 64)
+		{
 			subhook_install(GetPacketID_hook);
 			return packetId;
 		}
 
-		CVehicleSyncData *d = (CVehicleSyncData*)(&p->data[1]);
+		CVehicleSyncData *d = (CVehicleSyncData *)(&p->data[1]);
 
 		// NaN = infinite loop. Don't really know why
 		if (d->vecPosition.IsNan() ||
@@ -485,43 +512,52 @@ Packet* THISCALL CHookRakServer::Receive(void* ppRakServer)
 			return packetId;
 		}
 
-		if (d->bytePlayerWeapon > 46 || (d->bytePlayerWeapon > 18 && d->bytePlayerWeapon < 22)) {
+		if (d->bytePlayerWeapon > 46 || (d->bytePlayerWeapon > 18 && d->bytePlayerWeapon < 22))
+		{
 			d->bytePlayerWeapon = 0;
 		}
 
-		if (fakeHealth[playerid] != 255) {
+		if (fakeHealth[playerid] != 255)
+		{
 			d->bytePlayerHealth = fakeHealth[playerid];
 		}
 
-		if (fakeArmour[playerid] != 255) {
+		if (fakeArmour[playerid] != 255)
+		{
 			d->bytePlayerArmour = fakeArmour[playerid];
 		}
 	}
 
-	if (packetId == ID_PASSENGER_SYNC) {
+	if (packetId == ID_PASSENGER_SYNC)
+	{
 		// Let's ensure the length is correct
-		if (p->length != 25) {
+		if (p->length != 25)
+		{
 			subhook_install(GetPacketID_hook);
 			return packetId;
 		}
 
-		CPassengerSyncData *d = (CPassengerSyncData*)(&p->data[1]);
+		CPassengerSyncData *d = (CPassengerSyncData *)(&p->data[1]);
 
 		// Didn't have any issues with it, but better to prevent
-		if (d->vecPosition.IsNan()) {
+		if (d->vecPosition.IsNan())
+		{
 			subhook_install(GetPacketID_hook);
 			return packetId;
 		}
 
-		if (d->bytePlayerWeapon > 46 || (d->bytePlayerWeapon > 18 && d->bytePlayerWeapon < 22)) {
+		if (d->bytePlayerWeapon > 46 || (d->bytePlayerWeapon > 18 && d->bytePlayerWeapon < 22))
+		{
 			d->bytePlayerWeapon = 0;
 		}
 
-		if (fakeHealth[playerid] != 255) {
+		if (fakeHealth[playerid] != 255)
+		{
 			d->bytePlayerHealth = fakeHealth[playerid];
 		}
 
-		if (fakeArmour[playerid] != 255) {
+		if (fakeArmour[playerid] != 255)
+		{
 			d->bytePlayerArmour = fakeArmour[playerid];
 		}
 	}
@@ -536,14 +572,13 @@ void InstallPreHooks()
 	memset(&fakeHealth, 255, sizeof(fakeHealth));
 	memset(&fakeArmour, 255, sizeof(fakeArmour));
 
-	for (int i = 0; i < 1000; i++) {
+	for (int i = 0; i < 1000; i++)
+	{
 		fakeQuat[i] = NULL;
 	}
 
-	if (!serverVersion) {
+	if (!serverVersion)
+	{
 		return;
 	}
-
-	GetPacketID_hook = subhook_new((void*)CAddress::FUNC_GetPacketID, (void*)HOOK_GetPacketID, (subhook_flags_t)0);
-	subhook_install(GetPacketID_hook);
 }
