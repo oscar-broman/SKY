@@ -465,4 +465,7 @@ void InstallPreHooks()
 	if (!serverVersion) {
 		return;
 	}
+	
+	GetPacketID_hook = subhook_new((void*)CAddress::FUNC_GetPacketID, (void*)HOOK_GetPacketID, (subhook_flags_t)0);
+	subhook_install(GetPacketID_hook);
 }
