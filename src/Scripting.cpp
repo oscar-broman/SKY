@@ -77,7 +77,7 @@ static cell AMX_NATIVE_CALL Natives::SpawnPlayerForWorld( AMX* amx, cell* params
 
 	int playerid = (int)params[1];
 
-	CSAMPFunctions::SpawnPlayer(playerid);
+	CSAMPFunctions::SpawnPlayer_(playerid);
 
 	return 1;
 }
@@ -148,13 +148,13 @@ static cell AMX_NATIVE_CALL Natives::SendLastSyncData( AMX* amx, cell* params )
 		bs.Write((unsigned short)(fabs(fakeQuat[playerid]->y)*65535.0));
 		bs.Write((unsigned short)(fabs(fakeQuat[playerid]->z)*65535.0));
 	} else {
-		bs.Write((bool)(d->fQuaternion[0]<0.0f));
-		bs.Write((bool)(d->fQuaternion[1]<0.0f));
-		bs.Write((bool)(d->fQuaternion[2]<0.0f));
-		bs.Write((bool)(d->fQuaternion[3]<0.0f));
-		bs.Write((unsigned short)(fabs(d->fQuaternion[1])*65535.0));
-		bs.Write((unsigned short)(fabs(d->fQuaternion[2])*65535.0));
-		bs.Write((unsigned short)(fabs(d->fQuaternion[3])*65535.0));
+		bs.Write((bool)(d->fQuaternionAngle<0.0f));
+		bs.Write((bool)(d->vecQuaternion.fX<0.0f));
+		bs.Write((bool)(d->vecQuaternion.fY<0.0f));
+		bs.Write((bool)(d->vecQuaternion.fZ<0.0f));
+		bs.Write((unsigned short)(fabs(d->vecQuaternion.fX)*65535.0));
+		bs.Write((unsigned short)(fabs(d->vecQuaternion.fY)*65535.0));
+		bs.Write((unsigned short)(fabs(d->vecQuaternion.fZ)*65535.0));
 	}
 
 	BYTE health, armour;
@@ -214,7 +214,7 @@ static cell AMX_NATIVE_CALL Natives::SendLastSyncData( AMX* amx, cell* params )
 		bs.Write(false);
 	}
 
-	CSAMPFunctions::Send(&bs, HIGH_PRIORITY, RELIABLE_SEQUENCED, 0, CSAMPFunctions::GetPlayerIDFromIndex(toplayerid), false);
+	pRakServer->Send(&bs, HIGH_PRIORITY, RELIABLE_SEQUENCED, 0, pRakServer->GetPlayerIDFromIndex(toplayerid), false);
 
 	return 1;
 }
@@ -348,7 +348,7 @@ static cell AMX_NATIVE_CALL Natives::ClearAnimationsForPlayer( AMX* amx, cell* p
 	RakNet::BitStream bs;
 	bs.Write((WORD)playerid);
 
-	CSAMPFunctions::RPC(&RPC_ClearAnimations, &bs, HIGH_PRIORITY, RELIABLE_ORDERED, 0, CSAMPFunctions::GetPlayerIDFromIndex(forplayerid), false, false);
+	pRakServer->RPC(&RPC_ClearAnimations, &bs, HIGH_PRIORITY, RELIABLE_ORDERED, 0, pRakServer->GetPlayerIDFromIndex(forplayerid), false, false);
 
 	return 1;
 }
@@ -371,7 +371,7 @@ static cell AMX_NATIVE_CALL Natives::SendDeath( AMX* amx, cell* params )
 	RakNet::BitStream bs;
 	bs.Write((WORD)playerid);
 
-	CSAMPFunctions::RPC(&RPC_DeathBroadcast, &bs, HIGH_PRIORITY, RELIABLE_ORDERED, 0, CSAMPFunctions::GetPlayerIDFromIndex(playerid), true, false);
+	pRakServer->RPC(&RPC_DeathBroadcast, &bs, HIGH_PRIORITY, RELIABLE_ORDERED, 0, pRakServer->GetPlayerIDFromIndex(playerid), true, false);
 
 	return 1;
 }
@@ -409,8 +409,8 @@ static cell AMX_NATIVE_CALL Natives::TextDrawSetPosition( AMX* amx, cell* params
 	if(!pNetGame || !pNetGame->pTextDrawPool || !pNetGame->pTextDrawPool->bSlotState[textdrawid]) return 0;
 	CTextdraw *pTD = pNetGame->pTextDrawPool->TextDraw[textdrawid];
 
-	pTD->vecPos.fX = amx_ctof(params[2]);
-	pTD->vecPos.fY = amx_ctof(params[3]);
+	pTD->fX = amx_ctof(params[2]);
+	pTD->fY = amx_ctof(params[3]);
 	return 1;
 }
 
@@ -429,8 +429,8 @@ static cell AMX_NATIVE_CALL Natives::PlayerTextDrawSetPosition( AMX* amx, cell* 
 
 	CTextdraw *pTD = pNetGame->pPlayerPool->pPlayer[playerid]->pTextdraw->TextDraw[textdrawid];
 
-	pTD->vecPos.fX = amx_ctof(params[3]);
-	pTD->vecPos.fY = amx_ctof(params[4]);
+	pTD->fX = amx_ctof(params[3]);
+	pTD->fY = amx_ctof(params[4]);
 	return 1;
 }
 
@@ -445,14 +445,14 @@ static cell AMX_NATIVE_CALL Natives::TextDrawSetStringForPlayer( AMX* amx, cell*
 	int playerid = (int)params[2];
 	char* text;
 	amx_StrParam(amx, params[3], text);
-	unsigned short len = (unsigned short)strlen(text);
+	unsigned short len = strlen(text);
 
 	RakNet::BitStream bs;
 	bs.Write((WORD)textdrawid);
 	bs.Write((unsigned short)len);
 	bs.Write(text, len + 1);
 
-	CSAMPFunctions::RPC(&RPC_ScrEditTextDraw, &bs, HIGH_PRIORITY, RELIABLE, 0, CSAMPFunctions::GetPlayerIDFromIndex(playerid), false, false);
+	pRakServer->RPC(&RPC_ScrEditTextDraw, &bs, HIGH_PRIORITY, RELIABLE, 0, pRakServer->GetPlayerIDFromIndex(playerid), false, false);
 
 	return 1;
 }
