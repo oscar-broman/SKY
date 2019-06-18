@@ -174,7 +174,7 @@ static BYTE HOOK_GetPacketID(Packet *p)
 
 	if (packetId == ID_PLAYER_SYNC) {
 		// Let's ensure the length is correct, because if it's incomplete it goes in infinite loop. Ex: bs->Write((PCHAR)&OnFootData, sizeof(OnFootDataStruct) / 2);
-		if (p->length != 69) { 
+		if (p->length != (sizeof(CSyncData) + 1)) { 
 			subhook_install(GetPacketID_hook);
 			return packetId;
 		}
@@ -191,10 +191,6 @@ static BYTE HOOK_GetPacketID(Packet *p)
 		{
 			subhook_install(GetPacketID_hook);
 			return packetId;
-		}
-
-		if (d->byteWeapon > 46 || (d->byteWeapon > 18 && d->byteWeapon < 22)) {
-			d->byteWeapon = 0;
 		}
 		
 		// Because of detonator crasher - Sends AIM_KEY in this packet and cam mode IDs 7, 8, 34, 45, 46, 51 and 65 in ID_AIM_SYNC
@@ -427,7 +423,7 @@ static BYTE HOOK_GetPacketID(Packet *p)
 
 	if (packetId == ID_AIM_SYNC) {
 		// Let's ensure the length is correct
-		if (p->length != 32) {
+		if (p->length != (sizeof(CAimSyncData) + 1)) {
 			subhook_install(GetPacketID_hook);
 			return packetId;
 		}
@@ -459,7 +455,7 @@ static BYTE HOOK_GetPacketID(Packet *p)
 
 	if (packetId == ID_VEHICLE_SYNC) {
 		// Let's ensure the length is correct
-		if (p->length != 64) {
+		if (p->length != (sizeof(CVehicleSyncData) + 1)) {
 			subhook_install(GetPacketID_hook);
 			return packetId;
 		}
@@ -475,10 +471,6 @@ static BYTE HOOK_GetPacketID(Packet *p)
 			return packetId;
 		}
 
-		if (d->bytePlayerWeapon > 46 || (d->bytePlayerWeapon > 18 && d->bytePlayerWeapon < 22)) {
-			d->bytePlayerWeapon = 0;
-		}
-
 		if (fakeHealth[playerid] != 255) {
 			d->bytePlayerHealth = fakeHealth[playerid];
 		}
@@ -490,7 +482,7 @@ static BYTE HOOK_GetPacketID(Packet *p)
 
 	if (packetId == ID_PASSENGER_SYNC) {
 		// Let's ensure the length is correct
-		if (p->length != 25) {
+		if (p->length != (sizeof(CPassengerSyncData) + 1)) {
 			subhook_install(GetPacketID_hook);
 			return packetId;
 		}
@@ -501,10 +493,6 @@ static BYTE HOOK_GetPacketID(Packet *p)
 		if (d->vecPosition.IsNan()) {
 			subhook_install(GetPacketID_hook);
 			return packetId;
-		}
-
-		if (d->bytePlayerWeapon > 46 || (d->bytePlayerWeapon > 18 && d->bytePlayerWeapon < 22)) {
-			d->bytePlayerWeapon = 0;
 		}
 
 		if (fakeHealth[playerid] != 255) {
