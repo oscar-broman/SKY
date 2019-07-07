@@ -5,7 +5,7 @@
 # make SKY
 #
 
-GPP = g++ -m32 -Ilib -fno-stack-protector  -fpack-struct=1
+GPP = g++ -m32 -std=c++11 -Ilib -fno-stack-protector -fpack-struct=1
 GCC = gcc -m32 -fpack-struct=1
 SKY_OUTFILE = "./SKY.so"
 
@@ -23,4 +23,4 @@ SKY: clean
 	$(GPP) $(SKY) ./lib/raknet/*.cpp
 	$(GCC) $(SKY) ./lib/subhook/subhook.c
 	$(GPP) $(SKY) ./src/*.cpp
-	$(GCC) -g -nodefaultlibs -fshort-wchar -shared -o $(SKY_OUTFILE) *.o
+	$(GCC) -static -g -nodefaultlibs -fshort-wchar -shared -o $(SKY_OUTFILE) *.o
