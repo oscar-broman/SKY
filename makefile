@@ -5,7 +5,7 @@
 # make SKY
 #
 
-GPP = g++ -m32 -Ilib -fno-stack-protector  -fpack-struct=1
+GPP = g++ -m32 -std=c++11 -Ilib -fno-stack-protector  -fpack-struct=1
 GCC = gcc -m32 -fpack-struct=1
 SKY_OUTFILE = "./SKY.so"
 
