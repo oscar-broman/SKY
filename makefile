@@ -23,4 +23,4 @@ SKY: clean
 	$(GPP) $(SKY) ./lib/raknet/*.cpp
 	$(GCC) $(SKY) ./lib/subhook/subhook.c
 	$(GPP) $(SKY) ./src/*.cpp
-	$(GCC) -g -nodefaultlibs -fshort-wchar -shared -o $(SKY_OUTFILE) *.o
+	$(GCC) -static -g -nodefaultlibs -fshort-wchar -shared -o $(SKY_OUTFILE) *.o
