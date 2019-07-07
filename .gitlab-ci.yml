@@ -1,0 +1,14 @@
+variables:
+    GIT_SUBMODULE_STRATEGY: recursive 
+
+stages:
+  - build
+
+build:linux:
+  stage: build
+  image: maddinat0r/debian-samp:jessie
+  script:
+    - make
+  artifacts:
+    paths:
+      - SKY.so
