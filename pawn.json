@@ -4,16 +4,16 @@
     "contributors": ["oscar-broman"],
     "resources": [
         {
-            "name": "SKY.dll.zip",
+            "name": "SKY_0.3.7.zip",
             "platform": "windows",
             "archive": true,
-            "plugins": ["plugins/SKY.dll"]
+            "plugins": ["SKY.dll"]
         },
         {
-            "name": "SKY.dll.zip",
+            "name": "SKY_0.3.7.zip",
             "platform": "linux",
             "archive": true,
-            "plugins": ["plugins/SKY.so"]            
+            "plugins": ["SKY.so"]            
         }
     ],    
     "runtime": {
