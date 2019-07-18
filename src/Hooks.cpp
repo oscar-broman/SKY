@@ -185,7 +185,7 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 	if (packetId == ID_PLAYER_SYNC)
 	{
 		// Let's ensure the length is correct, because if it's incomplete it goes in infinite loop. Ex: bs->Write((PCHAR)&OnFootData, sizeof(OnFootDataStruct) / 2);
-		if (p->length != 69)
+		if (p->length != (sizeof(CAimSyncData) + 1))
 		{
 			return nullptr;
 		}
@@ -453,7 +453,7 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 	if (packetId == ID_AIM_SYNC)
 	{
 		// Let's ensure the length is correct
-		if (p->length != 32)
+		if (p->length != (sizeof(CAimSyncData) + 1))
 		{
 			return nullptr;
 		}
@@ -490,7 +490,7 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 	if (packetId == ID_VEHICLE_SYNC)
 	{
 		// Let's ensure the length is correct
-		if (p->length != 64)
+		if (p->length != (sizeof(CVehicleSyncData) + 1))
 		{
 			return nullptr;
 		}
@@ -524,7 +524,7 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 	if (packetId == ID_PASSENGER_SYNC)
 	{
 		// Let's ensure the length is correct
-		if (p->length != 25)
+		if (p->length != (sizeof(CPassengerSyncData) + 1))
 		{
 			return nullptr;
 		}
