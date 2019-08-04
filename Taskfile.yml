@@ -1,0 +1,17 @@
+version: '2'
+
+tasks:
+
+  build:linux:
+    cmds:
+    - rm -rf builds/linux
+    - mkdir -p builds/linux
+    - docker build -f Dockerfile.linux -t oscar-broman/sky:linux .
+    - docker run --volume=$(pwd)/builds/linux:/work/builds oscar-broman/sky:linux
+
+  build:windows:
+    cmds:    
+    - rm -rf builds/windows
+    - mkdir -p builds/windows
+    - docker build -f Dockerfile.windows -t oscar-broman/sky:windows .
+    - docker run --volume=$(pwd)/builds/windows:/work/builds oscar-broman/sky:windows

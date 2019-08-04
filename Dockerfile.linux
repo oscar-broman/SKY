@@ -1,0 +1,4 @@
+FROM dockcross/linux-x86:latest
+COPY . /work
+RUN cmake .
+ENTRYPOINT ["make"]

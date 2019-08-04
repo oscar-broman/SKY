@@ -1,0 +1,4 @@
+FROM dockcross/windows-static-x86:latest
+COPY . /work
+RUN cmake -DMXE=true .
+ENTRYPOINT ["make"]
