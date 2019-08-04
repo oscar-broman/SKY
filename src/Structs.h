@@ -39,7 +39,7 @@
 
 #include <raknet/BitStream.h>
 #include <raknet/NetworkTypes.h>
-#include <sdk/amx/amx.h>
+#include <amx/amx.h>
 #include "CTypes.h"
 
 #if !defined PAD
@@ -215,6 +215,8 @@ enum CON_VARTYPE { CON_VARTYPE_FLOAT, CON_VARTYPE_INT, CON_VARTYPE_BOOL, CON_VAR
 typedef void(*VARCHANGEFUNC)();
 
 /* -------------------------------------------------------- */
+
+#pragma pack(push, 1)
 
 // RakNet Remote system
 struct PingAndClockDifferential

@@ -33,7 +33,8 @@
 #ifndef SCRIPTING_H
 #define SCRIPTING_H
 
-#include <sdk/plugin.h>
+#include <plugincommon.h>
+#include <amx/amx.h>
 #include "main.h"
 
 #define CHECK_PARAMS(m, n) \

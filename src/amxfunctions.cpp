@@ -1,4 +1,4 @@
-#include "amxfunctions.h"
+#include <amx/amx.h>
 
 // From "amx.c", part of the PAWN language runtime:
 // http://code.google.com/p/pawnscript/source/browse/trunk/amx/amx.c

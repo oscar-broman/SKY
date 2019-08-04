@@ -1,5 +1,6 @@
 #include <unordered_map>
-#include "sdk/plugincommon.h"
+#include <plugincommon.h>
+#include <amx/amx.h>
 
 #include "Functions.h"
 #include "Addresses.h"

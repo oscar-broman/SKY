@@ -16,7 +16,8 @@
 #include "Scripting.h"
 #include "Functions.h"
 
-#include <sdk/plugin.h>
+#include <plugincommon.h>
+#include <amx/amx.h>
 
 #include "subhook/subhook.h"
 

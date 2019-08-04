@@ -48,8 +48,8 @@
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 //#define VC_EXTRALEAN
-#include <Windows.h>
-#include <Psapi.h>
+#include <windows.h>
+#include <psapi.h>
 #else
 #include <stdio.h>
 #include <sys/mman.h>
@@ -65,7 +65,8 @@
 #define INVALID_SOCKET -1
 #endif
 
-#include <sdk/plugin.h>
+#include <plugincommon.h>
+#include <amx/amx.h>
 
 #ifndef PAGESIZE
 #define PAGESIZE (4096)

@@ -33,7 +33,7 @@
 #ifndef YSF_FUNCTIONS_H
 #define YSF_FUNCTIONS_H
 
-#include <sdk/amx/amx.h>
+#include <amx/amx.h>
 #include <raknet/NetworkTypes.h>
 #include "net.h"
 

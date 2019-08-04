@@ -34,7 +34,6 @@
 
 #include <raknet/BitStream.h>
 #include "RPCs.h"
-#include "amxfunctions.h"
 #include "Utils.h"
 #include "Structs.h"
 #include "Functions.h"
@@ -57,7 +56,8 @@
 #include <algorithm>
 #endif
 
-#include <sdk/plugin.h>
+#include <plugincommon.h>
+#include <amx/amx.h>
 
 #include <string.h>
 #include <stdio.h>

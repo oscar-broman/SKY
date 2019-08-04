@@ -1,7 +1,9 @@
 #ifndef HOOKS_H
 #define HOOKS_H
 
-#include <sdk/plugin.h>
+#include <plugincommon.h>
+#include <amx/amx.h>
+
 #include "CTypes.h"
 #include "Structs.h"
 #include <glm/glm.hpp>

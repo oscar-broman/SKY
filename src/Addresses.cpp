@@ -3,7 +3,8 @@
 #include "Hooks.h"
 #include "main.h"
 
-#include <sdk/plugin.h>
+#include <plugincommon.h>
+#include <amx/amx.h>
 
 #ifdef _WIN32
 DWORD CAddress::FUNC_Logprintf_03Z = 0x00486CB0;
@@ -24,31 +25,31 @@ DWORD CAddress::FUNC_Logprintf_03DL_R1 = 0x080B1CA0;
 #endif
 
 // Pointers
-DWORD CAddress::VAR_ppNetGame = NULL;
-DWORD CAddress::VAR_ppConsole = NULL;
-DWORD CAddress::VAR_ppRakServer = NULL;
+DWORD CAddress::VAR_ppNetGame = 0;
+DWORD CAddress::VAR_ppConsole = 0;
+DWORD CAddress::VAR_ppRakServer = 0;
 
 // Variables
-DWORD CAddress::VAR_pRestartWaitTime = NULL;
+DWORD CAddress::VAR_pRestartWaitTime = 0;
 
 // Functions
-DWORD CAddress::FUNC_CConsole__AddStringVariable = NULL;
-DWORD CAddress::FUNC_CConsole__FindVariable = NULL;
-DWORD CAddress::FUNC_CConsole__SendRules = NULL;
-DWORD CAddress::FUNC_CConsole__Execute = NULL;
+DWORD CAddress::FUNC_CConsole__AddStringVariable = 0;
+DWORD CAddress::FUNC_CConsole__FindVariable = 0;
+DWORD CAddress::FUNC_CConsole__SendRules = 0;
+DWORD CAddress::FUNC_CConsole__Execute = 0;
 
-DWORD CAddress::FUNC_CFilterscripts__LoadFilterscript = NULL;
-DWORD CAddress::FUNC_CFilterscripts__UnLoadFilterscript = NULL;
-DWORD CAddress::FUNC_ContainsInvalidChars = NULL;
+DWORD CAddress::FUNC_CFilterscripts__LoadFilterscript = 0;
+DWORD CAddress::FUNC_CFilterscripts__UnLoadFilterscript = 0;
+DWORD CAddress::FUNC_ContainsInvalidChars = 0;
 
-DWORD CAddress::FUNC_CPlayer__SpawnForWorld = NULL;
-DWORD CAddress::FUNC_ProcessQueryPacket = NULL;
-DWORD CAddress::FUNC_Packet_WeaponsUpdate = NULL;
-DWORD CAddress::FUNC_format_amxstring = NULL;
+DWORD CAddress::FUNC_CPlayer__SpawnForWorld = 0;
+DWORD CAddress::FUNC_ProcessQueryPacket = 0;
+DWORD CAddress::FUNC_Packet_WeaponsUpdate = 0;
+DWORD CAddress::FUNC_format_amxstring = 0;
 
 // Others
-DWORD CAddress::ADDR_CNetGame_GMX_GangZoneDelete = NULL;
-DWORD CAddress::ADDR_CNetGame_GMX_PckupDelete = NULL;
+DWORD CAddress::ADDR_CNetGame_GMX_GangZoneDelete = 0;
+DWORD CAddress::ADDR_CNetGame_GMX_PckupDelete = 0;
 
 void CAddress::Initialize()
 {
