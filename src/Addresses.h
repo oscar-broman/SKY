@@ -37,7 +37,6 @@ typedef unsigned long       DWORD;
 
 #include <vector>
 
-
 #ifdef _WIN32
 	#define RAKNET_START_OFFSET							1
 	#define RAKNET_SEND_OFFSET							7
@@ -89,7 +88,7 @@ enum eSAMPVersion {
 class CAddress
 {
 public:
-	static void	Initialize();
+	static void	Initialize(int iVersion);
 
 	static DWORD			FUNC_Logprintf_03Z;
 	static DWORD			FUNC_Logprintf_03ZR2_2;
@@ -104,28 +103,7 @@ public:
 	static DWORD			VAR_ppConsole;
 	static DWORD			VAR_ppRakServer;
 
-	// Variables
-	static DWORD			VAR_pRestartWaitTime;
-
-	// Functions
-	static DWORD			FUNC_CConsole__AddStringVariable;
-	static DWORD			FUNC_CConsole__FindVariable;
-	static DWORD			FUNC_CConsole__SendRules;
-	static DWORD			FUNC_CConsole__Execute;
-
-	static DWORD			FUNC_CFilterscripts__LoadFilterscript;
-	static DWORD			FUNC_CFilterscripts__UnLoadFilterscript;
-	static DWORD			FUNC_ContainsInvalidChars;
-	static DWORD			FUNC_GetPacketID;
-
 	static DWORD			FUNC_CPlayer__SpawnForWorld;
-	static DWORD			FUNC_ProcessQueryPacket;
-	static DWORD			FUNC_Packet_WeaponsUpdate;
-	static DWORD			FUNC_format_amxstring;
-
-	// Others
-	static DWORD			ADDR_CNetGame_GMX_GangZoneDelete;
-	static DWORD			ADDR_CNetGame_GMX_PckupDelete;
 };
 
 #endif

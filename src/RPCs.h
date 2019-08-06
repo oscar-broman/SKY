@@ -83,6 +83,4 @@ enum PacketEnumeration : unsigned char
 	ID_STATS_UPDATE = 205,
 };
 
-void InitRPCs();
-
 #endif

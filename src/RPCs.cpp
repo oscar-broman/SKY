@@ -2,7 +2,6 @@
 
 #include "main.h"
 
-#include "Structs.h"
 #include "Functions.h"
 #include "Utils.h"
 #include "Addresses.h"
@@ -61,9 +60,3 @@ int RPC_SendArtList = 0xB3; // 179
 int RPC_ClearAnimations = 0x57;
 int RPC_ScrApplyAnimation = 0x56;
 int RPC_ScrEditTextDraw = 0x69;
-
-
-void InitRPCs()
-{
-	
-}

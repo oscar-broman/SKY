@@ -29,157 +29,23 @@ DWORD CAddress::VAR_ppNetGame = 0;
 DWORD CAddress::VAR_ppConsole = 0;
 DWORD CAddress::VAR_ppRakServer = 0;
 
-// Variables
-DWORD CAddress::VAR_pRestartWaitTime = 0;
-
-// Functions
-DWORD CAddress::FUNC_CConsole__AddStringVariable = 0;
-DWORD CAddress::FUNC_CConsole__FindVariable = 0;
-DWORD CAddress::FUNC_CConsole__SendRules = 0;
-DWORD CAddress::FUNC_CConsole__Execute = 0;
-
-DWORD CAddress::FUNC_CFilterscripts__LoadFilterscript = 0;
-DWORD CAddress::FUNC_CFilterscripts__UnLoadFilterscript = 0;
-DWORD CAddress::FUNC_ContainsInvalidChars = 0;
-
 DWORD CAddress::FUNC_CPlayer__SpawnForWorld = 0;
-DWORD CAddress::FUNC_ProcessQueryPacket = 0;
-DWORD CAddress::FUNC_Packet_WeaponsUpdate = 0;
-DWORD CAddress::FUNC_format_amxstring = 0;
 
-// Others
-DWORD CAddress::ADDR_CNetGame_GMX_GangZoneDelete = 0;
-DWORD CAddress::ADDR_CNetGame_GMX_PckupDelete = 0;
-
-void CAddress::Initialize()
+void CAddress::Initialize(int iVersion)
 {
-	// Thx for Whitetiger
 #ifdef _WIN32
-	VAR_pRestartWaitTime						= 0x0051C188;
-
-	FUNC_CConsole__AddStringVariable			= 0x00491C40;
-	FUNC_CConsole__FindVariable					= 0x00490AA0;
-	FUNC_CConsole__SendRules					= 0x00490770;
-	FUNC_CConsole__Execute						= 0x00490CE0;
-
-	FUNC_CFilterscripts__LoadFilterscript		= 0x0046A9D0;
-	FUNC_CFilterscripts__UnLoadFilterscript		= 0x0046D1C0;
-
-	FUNC_ContainsInvalidChars = 0x00468EE0;
-
-	/*todo:
-	FUNC_GetPacketID =							FindPattern("\x8B\x44\x24\x04\x85\xC0\x75\x03\x0C\xFF\xC3", "xxxxxxx???x");
-	*/
-	
-	FUNC_CPlayer__SpawnForWorld					= 0x00487730;
-	FUNC_ProcessQueryPacket						= 0x0049E480;
-	FUNC_Packet_WeaponsUpdate					= 0x00495940;
-
-	/*todo:
-	//ADDR_CNetGame_GMX_GangZoneDelete =			FindPattern("\x83\xC4\x04\x89\x5E\x24", "xxxxxx") - 0x8;
-	//ADDR_CNetGame_GMX_PckupDelete =				FindPattern("\x83\xC4\x04\x89\x5E\x10", "xxxxxx") - 0x8;
-	*/
-
-	FUNC_format_amxstring						= 0x0046FD00;
-
-
-	DWORD iRealProcessNetworkPacket = FindPattern("\x6A\xFF\x68\x00\x00\x00\x00\x64\xA1\x00\x00\x00\x00\x50\x64\x89\x25\x00\x00\x00\x00\x81\xEC\x5C", "xxx????xxxxxxxxxxxxxxxxx");
-
-	DWORD iSocketLayerSendTo = FindPattern("\x83\xEC\x10\x55\x8B\x6C\x24\x18\x83\xFD\xFF", "xxxxxxxxxxx");
-
-	switch(serverVersion) {
-	case SAMP_VERSION_03Z: {
-		//ADDR_RECEIVE_HOOKPOS =						0x458B80;
-		break;
+	if(iVersion == SAMP_VERSION_03DL_R1) {
+		FUNC_CPlayer__SpawnForWorld = FindPattern("\x56\x8B\xF1\x8B\x86\x3B\x26\x00\x00\x85\xC0\x0F\x84", "xxxxx????xxxx");
 	}
-	case SAMP_VERSION_03Z_R4: {
-		//ADDR_RECEIVE_HOOKPOS =						0x458A20;
-		break;
-	}
+	else {
+		FUNC_CPlayer__SpawnForWorld = 0x00487730;
 	}
 #else
-
-	// Thx for Mellnik
-	VAR_pRestartWaitTime						= 0x08166610;
-
-	FUNC_CConsole__AddStringVariable			= 0x080A8E00;
-
-	FUNC_CConsole__FindVariable					= 0x080A8250;
-	FUNC_CConsole__SendRules					= 0x080A7CB0;
-	FUNC_CConsole__Execute						= 0x080A8330;
-
-	FUNC_CFilterscripts__LoadFilterscript		= 0x080A9980;
-	FUNC_CFilterscripts__UnLoadFilterscript		= 0x080A9DB0;
-
-
-	FUNC_ContainsInvalidChars					= 0x080E1220;
-
-	//FUNC_GetPacketID =							FindPattern("\x55\xB8\x00\x00\x00\x00\x89\xE5\x8B\x55\x00\x85\xD2", "xx????xxxx?xx");
-
-	FUNC_CPlayer__SpawnForWorld					= 0x080D7870;
-	FUNC_ProcessQueryPacket						= 0x080DE960;
-	FUNC_Packet_WeaponsUpdate					= 0x080B52A0;
-
-	FUNC_format_amxstring 						= 0x080E1B00;
-
-	ADDR_CNetGame_GMX_GangZoneDelete =			NULL;
-	ADDR_CNetGame_GMX_PckupDelete =				NULL;
-	switch(serverVersion) {
-	case SAMP_VERSION_03Z: {
-		VAR_pRestartWaitTime =						0x8150130;
-		break;
+	if(iVersion == SAMP_VERSION_03DL_R1) {
+		FUNC_CPlayer__SpawnForWorld = FindPattern("\x55\x89\xE5\x56\x53\x83\xEC\x00\x8B\x75\x00\xA1\x00\x00\x00\x00", "xxxxxxx?xx?x????");
 	}
-	case SAMP_VERSION_03Z_R2_2: {
-		VAR_pRestartWaitTime =						0x8150B60;
-		break;
+	else {
+		FUNC_CPlayer__SpawnForWorld = 0x080D7870;
 	}
-	case SAMP_VERSION_03Z_R3: {
-		VAR_pRestartWaitTime =						0x81512F0;
-		break;
-	}
-	case SAMP_VERSION_03Z_R4: {
-		VAR_pRestartWaitTime =						0x81514E0; // 12.0
-		FUNC_Packet_WeaponsUpdate =					0x80AAC90;
-		FUNC_ProcessQueryPacket =					0x080D0EB0;
-		FUNC_CConsole__FindVariable =				0x809EA60;
-		FUNC_CConsole__SendRules =					0x809E4C0;
-		FUNC_CConsole__Execute =					0x809EB40;
-		break;
-	}
-	case SAMP_VERSION_037RC1: {
-		break;
-	}
-	}
-#endif
-
-	/*logprintf("VAR_pRestartWaitTime: %X", VAR_pRestartWaitTime);
-
-	logprintf("FUNC_CConsole__AddStringVariable: %X", FUNC_CConsole__AddStringVariable);
-
-	logprintf("FUNC_CConsole__FindVariable: %X", FUNC_CConsole__FindVariable);
-	logprintf("FUNC_CConsole__SendRules: %X", FUNC_CConsole__SendRules);
-	logprintf("FUNC_CConsole__Execute: %X", FUNC_CConsole__Execute);
-
-
-	logprintf("FUNC_CFilterscripts__LoadFilterscript: %X", FUNC_CFilterscripts__LoadFilterscript);
-	logprintf("FUNC_CFilterscripts__UnLoadFilterscript: %X", FUNC_CFilterscripts__UnLoadFilterscript);
-
-	logprintf("FUNC_ContainsInvalidChars: %X", FUNC_ContainsInvalidChars);
-
-	logprintf("FUNC_CPlayer__SpawnForWorld: %X", FUNC_CPlayer__SpawnForWorld);
-
-	logprintf("FUNC_ProcessQueryPacket: %X", FUNC_ProcessQueryPacket);
-	logprintf("FUNC_Packet_WeaponsUpdate: %X", FUNC_Packet_WeaponsUpdate);
-	logprintf("FUNC_format_amxstring: %X", FUNC_format_amxstring);*/
-
-
-	// Unlock restart wait time
-	if (VAR_pRestartWaitTime)
-		Unlock((void*)VAR_pRestartWaitTime, 4);
-
-#ifdef NEW_PICKUP_SYSTEM
-	// Disable PickupPool deletion at GMX
-	//Unlock((void*)ADDR_CNetGame_GMX_PckupDelete, 2); // jz      short loc_489DC8 -> change to jnz      short loc_489DC8
-	//*(BYTE*)(ADDR_CNetGame_GMX_PckupDelete) = 0x75;	// jnz
 #endif
 }

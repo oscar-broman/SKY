@@ -38,7 +38,6 @@
 #include "main.h"
 #include "Utils.h"
 #include "Scripting.h"
-#include "Structs.h"
 #include "Functions.h"
 #include <cmath>
 #include <limits>
@@ -172,6 +171,7 @@ BYTE GetPacketID(Packet *p)
 Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 {
 	Packet *p = CSAMPFunctions::Receive(ppRakServer);
+	
 	BYTE packetId = GetPacketID(p);
 	if (packetId == 0xFF)
 		return p;
@@ -186,13 +186,13 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 	if (packetId == ID_PLAYER_SYNC)
 	{
 		// Let's ensure the length is correct, because if it's incomplete it goes in infinite loop. Ex: bs->Write((PCHAR)&OnFootData, sizeof(OnFootDataStruct) / 2);
-		if (p->length != (sizeof(CAimSyncData) + 1))
+		if (p->length != (sizeof(CSyncData) + 1))
 		{
 			return nullptr;
 		}
 
 		CSyncData *d = (CSyncData *)(&p->data[1]);
-
+		
 		// NAN stuff = inf loop, no idea why.
 		// This prevents it though, so I didn't bother to look too deep into it.
 		if (d->vecPosition.IsNan() ||
@@ -567,10 +567,5 @@ void InstallPreHooks()
 	for (int i = 0; i < 1000; i++)
 	{
 		fakeQuat[i] = NULL;
-	}
-
-	if (!serverVersion)
-	{
-		return;
 	}
 }
