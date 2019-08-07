@@ -399,9 +399,9 @@ struct Natives : Type
 	}
 
 	// native TextDrawSetStringForPlayer(Text:text, playerid, const string[])
-	static cell AMX_NATIVE_CALL TextDrawSetStringForPlayer( AMX* amx, cell* params )
+	static cell AMX_NATIVE_CALL TextDrawSetStrForPlayer( AMX* amx, cell* params )
 	{
-		CHECK_PARAMS(3, "TextDrawSetStringForPlayer");
+		CHECK_PARAMS(3, "TextDrawSetStrForPlayer");
 
 		int textdrawid = (int)params[1];
 		if(textdrawid < 0 || textdrawid >= MAX_TEXT_DRAWS) return 0;
@@ -441,7 +441,7 @@ AMX_NATIVE_INFO *get_natives()
 		{ "SetInfiniteAmmoSync",		Natives<Type>::SetInfiniteAmmoSync },
 		{ "TextDrawSetPosition",		Natives<Type>::TextDrawSetPosition },
 		{ "PlayerTextDrawSetPosition",	Natives<Type>::PlayerTextDrawSetPosition },
-		{ "TextDrawSetStringForPlayer",	Natives<Type>::TextDrawSetStringForPlayer },
+		{ "TextDrawSetStrForPlayer",	Natives<Type>::TextDrawSetStrForPlayer },
 		{ 0,							0 }
     };
     return native_list;
