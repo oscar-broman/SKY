@@ -8,16 +8,16 @@
 
   =========================================*/
 
+#include "main.h"
 #include "Utils.h"
 
 #include "CVector.h"
+#include "Addresses.h"
 
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <iostream>
-
-#include <sdk/plugin.h>
 
 // Linux GetTickCount
 #ifndef _WIN32
@@ -149,4 +149,28 @@ std::string GetServerCfgOption(const std::string &option)
 		}
 	}
 	return "0";
+}
+
+int GetServerVersion()
+{
+	// Check server version
+	int version = eSAMPVersion::SAMP_VERSION_UNKNOWN;
+
+	if(logprintf == (logprintf_t)CAddress::FUNC_Logprintf_03Z) {
+		version = eSAMPVersion::SAMP_VERSION_03Z;
+	} else if(logprintf == (logprintf_t)CAddress::FUNC_Logprintf_03ZR2_2) {
+		version = eSAMPVersion::SAMP_VERSION_03Z_R2_2;
+	} else if(logprintf == (logprintf_t)CAddress::FUNC_Logprintf_03ZR3) {
+		version = eSAMPVersion::SAMP_VERSION_03Z_R3;
+	} else if(logprintf == (logprintf_t)CAddress::FUNC_Logprintf_03ZR4) {
+		version = eSAMPVersion::SAMP_VERSION_03Z_R4;
+	} else if (logprintf == (logprintf_t)CAddress::FUNC_Logprintf_037) {
+		version = eSAMPVersion::SAMP_VERSION_037;
+	} else if (logprintf == (logprintf_t)CAddress::FUNC_Logprintf_037_R2_1) {
+		version = eSAMPVersion::SAMP_VERSION_037R2;
+	} else if (logprintf == (logprintf_t)CAddress::FUNC_Logprintf_03DL_R1) {
+		version = eSAMPVersion::SAMP_VERSION_03DL_R1;
+	}
+
+	return version;	
 }

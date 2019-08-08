@@ -1,9 +1,8 @@
 #ifndef HOOKS_H
 #define HOOKS_H
 
-#include <sdk/plugin.h>
 #include "CTypes.h"
-#include "Structs.h"
+#include "main.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 
@@ -16,13 +15,13 @@
 
 // Definitions
 bool Unlock(void *address, size_t len);
-//void AssemblySwap(char * addr, char * dat, int len);
-//void AssemblyRedirect(void * from, void * to, char * ret);
 
 bool memory_compare(const BYTE *data, const BYTE *pattern, const char *mask);
-DWORD FindPattern(char *pattern, char *mask);
+DWORD FindPattern(const char *pattern, const char *mask);
 
 void InstallPreHooks();
+
+BYTE GetPacketID(Packet *p);
 
 extern BYTE lastWeapon[1000];
 extern CSyncData lastSyncData[1000];

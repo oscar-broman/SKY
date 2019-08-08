@@ -26,3 +26,11 @@
 *.exe
 *.out
 *.app
+
+# Builds
+Release/
+Debug/
+builds/
+
+# VScode
+.vs/

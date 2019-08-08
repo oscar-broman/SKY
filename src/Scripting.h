@@ -33,8 +33,8 @@
 #ifndef SCRIPTING_H
 #define SCRIPTING_H
 
-#include <sdk/plugin.h>
 #include "main.h"
+#include "Addresses.h"
 
 #define CHECK_PARAMS(m, n) \
 	if (params[0] != (m * 4)) \
@@ -43,27 +43,5 @@
 		return 0; \
 	}
 
-namespace Natives
-{
-static cell AMX_NATIVE_CALL SpawnPlayerForWorld(AMX *amx, cell *params);
-static cell AMX_NATIVE_CALL SetFakeHealth(AMX *amx, cell *params);
-static cell AMX_NATIVE_CALL SetFakeArmour(AMX *amx, cell *params);
-static cell AMX_NATIVE_CALL SetFakeFacingAngle(AMX *amx, cell *params);
-static cell AMX_NATIVE_CALL FreezeSyncData(AMX *amx, cell *params);
-static cell AMX_NATIVE_CALL SetKnifeSync(AMX *amx, cell *params);
-static cell AMX_NATIVE_CALL SendDeath(AMX *amx, cell *params);
-static cell AMX_NATIVE_CALL SetLastAnimationData(AMX *amx, cell *params);
-static cell AMX_NATIVE_CALL SendLastSyncData(AMX *amx, cell *params);
-static cell AMX_NATIVE_CALL SetDisableSyncBugs(AMX *amx, cell *params);
-static cell AMX_NATIVE_CALL ClearAnimationsForPlayer(AMX *amx, cell *params);
-static cell AMX_NATIVE_CALL SetKeySyncBlocked(AMX *amx, cell *params);
-static cell AMX_NATIVE_CALL SetInfiniteAmmoSync(AMX *amx, cell *params);
-static cell AMX_NATIVE_CALL TextDrawSetPosition(AMX *amx, cell *params);
-static cell AMX_NATIVE_CALL PlayerTextDrawSetPosition(AMX *amx, cell *params);
-static cell AMX_NATIVE_CALL TextDrawSetStringForPlayer(AMX *amx, cell *params);
-};
-
-int InitScripting(AMX *amx);
-
-extern AMX_NATIVE_INFO RedirecedtNatives[];
+int InitScripting(AMX *amx, int version);
 #endif

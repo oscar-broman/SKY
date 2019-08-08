@@ -1,87 +1,62 @@
-#include "Functions.h"
+#include <unordered_map>
 
-#include "Structs.h"
-#include "Addresses.h"
 #include "main.h"
+#include "Functions.h"
+#include "Addresses.h"
+#include "Hooks.h"
 
-CConsole__AddStringVariable_t			CSAMPFunctions::pfn__CConsole__AddStringVariable = NULL;
-CConsole__FindVariable_t				CSAMPFunctions::pfn__CConsole__FindVariable = NULL;
-CConsole__SendRules_t					CSAMPFunctions::pfn__CConsole__SendRules = NULL;
-CConsole__Execute_t						CSAMPFunctions::pfn__CConsole__Execute = NULL;
+RakNet__Send_t								CSAMPFunctions::pfn__RakNet__Send = NULL;
+RakNet__Receive_t							CSAMPFunctions::pfn__RakNet__Receive = NULL;
+RakNet__RPC_t								CSAMPFunctions::pfn__RakNet__RPC = NULL;
+RakNet__GetPlayerIDFromIndex_t				CSAMPFunctions::pfn__RakNet__GetPlayerIDFromIndex = NULL;
 
-CFilterscripts__LoadFilterscript_t		CSAMPFunctions::pfn__CFilterscripts__LoadFilterscript = NULL;
-CFilterscripts__UnLoadFilterscript_t	CSAMPFunctions::pfn__CFilterscripts__UnLoadFilterscript = NULL;
-
-CPlayer__SpawnForWorld_t				CSAMPFunctions::pfn__CPlayer__SpawnForWorld = NULL;
-
-Packet_WeaponsUpdate_t					CSAMPFunctions::pfn__Packet_WeaponsUpdate = NULL;
-
-format_amxstring_t						CSAMPFunctions::pfn__format_amxstring = NULL;
-
-void CSAMPFunctions::Initialize()
+void CSAMPFunctions::Initialize(void **pluginData)
 {
-	pfn__CConsole__AddStringVariable = (CConsole__AddStringVariable_t)(CAddress::FUNC_CConsole__AddStringVariable);
-	pfn__CConsole__FindVariable = (CConsole__FindVariable_t)(CAddress::FUNC_CConsole__FindVariable);
-	pfn__CConsole__SendRules = (CConsole__SendRules_t)(CAddress::FUNC_CConsole__SendRules);
-	pfn__CConsole__Execute = (CConsole__Execute_t)(CAddress::FUNC_CConsole__Execute);
+	// Get pNetGame
+	int(*pfn_GetNetGame)(void) = (int(*)(void))pluginData[PLUGIN_DATA_NETGAME];
+	pNetGame = (CNetGame*)pfn_GetNetGame();
 
-	pfn__CFilterscripts__LoadFilterscript = (CFilterscripts__LoadFilterscript_t)(CAddress::FUNC_CFilterscripts__LoadFilterscript);
-	pfn__CFilterscripts__UnLoadFilterscript = (CFilterscripts__UnLoadFilterscript_t)(CAddress::FUNC_CFilterscripts__UnLoadFilterscript);
+	// Get pConsole
+	int(*pfn_GetConsole)(void) = (int(*)(void))pluginData[PLUGIN_DATA_CONSOLE];
+	pConsole = (void*)pfn_GetConsole();
 
-	pfn__CPlayer__SpawnForWorld = (CPlayer__SpawnForWorld_t)(CAddress::FUNC_CPlayer__SpawnForWorld);
+	// Get pRakServer
+	int(*pfn_GetRakServer)(void) = (int(*)(void))pluginData[PLUGIN_DATA_RAKSERVER];
+	pRakServer = (RakServer*)pfn_GetRakServer();
 
-	pfn__Packet_WeaponsUpdate = (Packet_WeaponsUpdate_t)(CAddress::FUNC_Packet_WeaponsUpdate);
+	int *pRakServer_VTBL = ((int*)(*(void**)pRakServer));
 
-	pfn__format_amxstring = (format_amxstring_t)(CAddress::FUNC_format_amxstring);
+	POINT_TO_MEMBER(RakNet__Send, pRakServer_VTBL[RAKNET_SEND_OFFSET]);
+	POINT_TO_MEMBER(RakNet__Receive, pRakServer_VTBL[RAKNET_RECEIVE_OFFSET]);
+	POINT_TO_MEMBER(RakNet__RPC, pRakServer_VTBL[RAKNET_RPC_OFFSET]);
+	POINT_TO_MEMBER(RakNet__GetPlayerIDFromIndex, pRakServer_VTBL[RAKNET_GET_PLAYERID_FROM_INDEX_OFFSET]);
+
+	Unlock((void*)&pRakServer_VTBL[RAKNET_RECEIVE_OFFSET], 4); 
+	pRakServer_VTBL[RAKNET_RECEIVE_OFFSET] = reinterpret_cast<int>(CHookRakServer::Receive);
 }
 
-void CSAMPFunctions::AddStringVariable(char *szRule, int flags, char *szString, void *changefunc)
+void CSAMPFunctions::SpawnPlayer(int playerid)
 {
-	pfn__CConsole__AddStringVariable(pConsole, szRule, flags, szString, changefunc);
+	CPlayer__SpawnForWorld_t SpawnForWorld = (CPlayer__SpawnForWorld_t)CAddress::FUNC_CPlayer__SpawnForWorld;
+	SpawnForWorld(pNetGame->pPlayerPool->pPlayer[playerid]);
 }
 
-ConsoleVariable_s* CSAMPFunctions::FindVariable(char *szRule)
+bool CSAMPFunctions::Send(RakNet::BitStream* parameters, PacketPriority priority, PacketReliability reliability, unsigned orderingChannel, PlayerID playerId, bool broadcast)
 {
-	if (!CAddress::FUNC_CConsole__SendRules)
-		return NULL;
-
-	return pfn__CConsole__FindVariable(pConsole, szRule);
+	return pfn__RakNet__Send(pRakServer, parameters, priority, reliability, orderingChannel, playerId, broadcast);
 }
 
-void CSAMPFunctions::SendRules(SOCKET s, char* data, const sockaddr_in* to, int tolen)
+Packet* CSAMPFunctions::Receive(void* ppRakServer)
 {
-	if (CAddress::FUNC_CConsole__SendRules)
-		pfn__CConsole__SendRules(pConsole, s, data, to, tolen);
+	return pfn__RakNet__Receive(ppRakServer);
 }
 
-void CSAMPFunctions::Execute(char* pExecLine)
+bool CSAMPFunctions::RPC(int* uniqueID, RakNet::BitStream* parameters, PacketPriority priority, PacketReliability reliability, unsigned orderingChannel, PlayerID playerId, bool broadcast, bool shiftTimestamp)
 {
-	if (CAddress::FUNC_CConsole__Execute)
-		pfn__CConsole__Execute(pConsole, pExecLine);
+	return pfn__RakNet__RPC(pRakServer, uniqueID, parameters, priority, reliability, orderingChannel, playerId, broadcast, shiftTimestamp);
 }
 
-bool CSAMPFunctions::LoadFilterscript(char *szName)
+PlayerID CSAMPFunctions::GetPlayerIDFromIndex(int index)
 {
-	return pfn__CFilterscripts__LoadFilterscript(pNetGame->pFilterScriptPool, szName);
-}
-
-bool CSAMPFunctions::UnLoadFilterscript(char *szName)
-{
-	return pfn__CFilterscripts__UnLoadFilterscript(pNetGame->pFilterScriptPool, szName);
-}
-
-void CSAMPFunctions::SpawnPlayer_(int playerid)
-{
-	pfn__CPlayer__SpawnForWorld(pNetGame->pPlayerPool->pPlayer[playerid]);
-}
-
-void CSAMPFunctions::Packet_WeaponsUpdate(Packet *p)
-{
-	if (CAddress::FUNC_Packet_WeaponsUpdate)
-		pfn__Packet_WeaponsUpdate(pNetGame, p);
-}
-
-char* CSAMPFunctions::format_amxstring(AMX *amx, cell *params, int parm, int &len)
-{
-	return pfn__format_amxstring(amx, params, parm, len);
+	return pfn__RakNet__GetPlayerIDFromIndex(pRakServer, index);
 }

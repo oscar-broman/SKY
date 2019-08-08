@@ -16,8 +16,6 @@
 #include "Scripting.h"
 #include "Functions.h"
 
-#include <sdk/plugin.h>
-
 #include "subhook/subhook.h"
 
 #ifdef LINUX
@@ -49,63 +47,24 @@ PLUGIN_EXPORT unsigned int PLUGIN_CALL Supports()
 // The Load() function gets passed on exported functions from
 // the SA-MP Server, like the AMX Functions and logprintf().
 // Should return true if loading the plugin has succeeded.
-typedef void(*logprintf_t)(char* format, ...);
 logprintf_t logprintf;
 
-int serverVersion = SAMP_VERSION_UNKNOWN;
+int serverVersion = eSAMPVersion::SAMP_VERSION_UNKNOWN;
 
 PLUGIN_EXPORT bool PLUGIN_CALL Load(void ** ppData)
 {
 	ppPluginData = ppData;
 	pAMXFunctions = ppData[PLUGIN_DATA_AMX_EXPORTS];
-	logprintf = (logprintf_t)ppData[PLUGIN_DATA_LOGPRINTF];
+	logprintf = reinterpret_cast<logprintf_t>(ppData[PLUGIN_DATA_LOGPRINTF]);
+	serverVersion = GetServerVersion();
 
 #ifndef _WIN32
 	LoadTickCount();
 #endif
 
-	// Check server version
-	serverVersion = SAMP_VERSION_UNKNOWN;
-	char szVersion[64];
-
-	if(logprintf == (logprintf_t)CAddress::FUNC_Logprintf_03Z) {
-		serverVersion = SAMP_VERSION_03Z;
-		strcpy(szVersion, "0.3z");
-	} else if(logprintf == (logprintf_t)CAddress::FUNC_Logprintf_03ZR2_2) {
-		serverVersion = SAMP_VERSION_03Z_R2_2;
-		strcpy(szVersion, "0.3z R2-2");
-	} else if(logprintf == (logprintf_t)CAddress::FUNC_Logprintf_03ZR3) {
-		serverVersion = SAMP_VERSION_03Z_R3;
-		strcpy(szVersion, "0.3z R3");
-	} else if(logprintf == (logprintf_t)CAddress::FUNC_Logprintf_03ZR4) {
-		serverVersion = SAMP_VERSION_03Z_R4;
-		strcpy(szVersion, "0.3z R4");
-	} else if(logprintf == (logprintf_t)CAddress::FUNC_Logprintf_037RC1) {
-		serverVersion = SAMP_VERSION_037RC1;
-		strcpy(szVersion, "0.3.7 RC1");
-	} else if (logprintf == (logprintf_t)CAddress::FUNC_Logprintf_037) {
-		serverVersion = SAMP_VERSION_037;
-		strcpy(szVersion, "0.3.7");
-	} else if (logprintf == (logprintf_t)CAddress::FUNC_Logprintf_037R2) {
-		serverVersion = SAMP_VERSION_037R2;
-		strcpy(szVersion, "0.3.7 R2");
-	}
-
-	if (1) {
-		if (serverVersion == SAMP_VERSION_UNKNOWN) {
-			logprintf("Error: Unknown " OS_NAME " server version (%08x)\n", logprintf);
-			return true;
-		}
-	} else {
-		serverVersion = SAMP_VERSION_037R2;
-		strcpy(szVersion, "version check skipped");
-	}
-
-	InitRPCs();
-	CAddress::Initialize();
-	CSAMPFunctions::Initialize();
+	CAddress::Initialize(serverVersion);
 	InstallPreHooks();
-
+	
 	return 1;
 }
 
@@ -121,29 +80,17 @@ PLUGIN_EXPORT void PLUGIN_CALL Unload()
 // The AmxLoad() function gets called when a new gamemode or
 // filterscript gets loaded with the server. In here we register
 // the native functions we like to add to the scripts.
-typedef std::map<std::string, ConsoleVariable_s*> StringConvarMap;
 
 PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX * amx)
 {
 	static bool bFirst = false;
 
 	if(!bFirst) {
-		bFirst = true;
-
-		// Get pNetGame
-		int (*pfn_GetNetGame)(void) = (int(*)(void))ppPluginData[PLUGIN_DATA_NETGAME];
-		pNetGame = (CNetGame*)pfn_GetNetGame();
-
-		// Get pConsole
-		int (*pfn_GetConsole)(void) = (int(*)(void))ppPluginData[PLUGIN_DATA_CONSOLE];
-		pConsole = (void*)pfn_GetConsole();
-
-		// Get pRakServer
-		int (*pfn_GetRakServer)(void) = (int(*)(void))ppPluginData[PLUGIN_DATA_RAKSERVER];
-		pRakServer = (RakServer*)pfn_GetRakServer();
+		bFirst = true;			
+		CSAMPFunctions::Initialize(ppPluginData);	
 	}
 
-	return InitScripting(amx);
+	return InitScripting(amx, serverVersion);
 }
 
 //----------------------------------------------------------

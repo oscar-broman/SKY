@@ -18,14 +18,14 @@
 #include <algorithm>
 #include <string>
 #include "main.h"
+#include "Addresses.h"
 
 // Linux
 #ifndef _WIN32
-
 int GetTickCount();
 void LoadTickCount();
-
 #endif
+
 namespace CUtils
 {
 const char* GetWeaponName_(BYTE weaponid);
@@ -36,6 +36,7 @@ float GetDistance3D(CVector *vecPosition, CVector *_vecPosition);
 bool IsPlayerConnected(int playerid);
 char *GetPlayerName(int playerid);
 std::string GetServerCfgOption(const std::string &option);
+int GetServerVersion();
 
 #define ABGR_RGBA(color) (((DWORD)color & 0xff) << 24) | (((DWORD)(color >> 8) & 0xff) << 16) | (((DWORD)(color >> 16) & 0xff) << 8) | (color >> 24) & 0xff
 #define RGBA_ABGR(color) (((color >> 24) & 0x000000FF) | ((color >> 8) & 0x0000FF00) | ((color << 8) & 0x00FF0000) | ((color << 24) & 0xFF000000))

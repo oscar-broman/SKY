@@ -38,7 +38,6 @@
 #include "main.h"
 #include "Utils.h"
 #include "Scripting.h"
-#include "Structs.h"
 #include "Functions.h"
 #include <cmath>
 #include <limits>
@@ -48,8 +47,8 @@
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 //#define VC_EXTRALEAN
-#include <Windows.h>
-#include <Psapi.h>
+#include <windows.h>
+#include <psapi.h>
 #else
 #include <stdio.h>
 #include <sys/mman.h>
@@ -65,9 +64,6 @@
 #define INVALID_SOCKET -1
 #endif
 
-#include "subhook/subhook.h"
-#include <sdk/plugin.h>
-
 #ifndef PAGESIZE
 #define PAGESIZE (4096)
 #endif
@@ -75,8 +71,6 @@
 using std::isfinite;
 
 extern void *pAMXFunctions;
-
-subhook_t GetPacketID_hook;
 
 BOOL knifeSync = true;
 int lastAnim[1000] = {0};
@@ -93,28 +87,29 @@ bool Unlock(void *address, size_t len)
 	return !!VirtualProtect(address, len, PAGE_EXECUTE_READWRITE, &oldp);
 #else
 	size_t
-	iPageSize = getpagesize(),
-	iAddr = ((reinterpret_cast <uint32_t>(address) / iPageSize) * iPageSize);
-	return !mprotect(reinterpret_cast <void*>(iAddr), len, PROT_READ | PROT_WRITE | PROT_EXEC);
+		iPageSize = getpagesize(),
+		iAddr = ((reinterpret_cast<uint32_t>(address) / iPageSize) * iPageSize);
+	return !mprotect(reinterpret_cast<void *>(iAddr), len, PROT_READ | PROT_WRITE | PROT_EXEC);
 #endif
 }
 
 bool memory_compare(const BYTE *data, const BYTE *pattern, const char *mask)
 {
-	for(; *mask; ++mask, ++data, ++pattern) {
-		if(*mask == 'x' && *data != *pattern)
+	for (; *mask; ++mask, ++data, ++pattern)
+	{
+		if (*mask == 'x' && *data != *pattern)
 			return false;
 	}
-	return (*mask) == NULL;
+	return (*mask) == 0;
 }
 
-DWORD FindPattern(char *pattern, char *mask)
+DWORD FindPattern(const char *pattern, const char *mask)
 {
 	DWORD i;
 	DWORD size;
 	DWORD address;
 #ifdef _WIN32
-	MODULEINFO info = { 0 };
+	MODULEINFO info = {0};
 
 	address = (DWORD)GetModuleHandle(NULL);
 	GetModuleInformation(GetCurrentProcess(), GetModuleHandle(NULL), &info, sizeof(MODULEINFO));
@@ -123,8 +118,9 @@ DWORD FindPattern(char *pattern, char *mask)
 	address = 0x804b480; // around the elf base
 	size = 0x8128B80 - address;
 #endif
-	for(i = 0; i < size; ++i) {
-		if(memory_compare((BYTE *)(address + i), (BYTE *)pattern, mask))
+	for (i = 0; i < size; ++i)
+	{
+		if (memory_compare((BYTE *)(address + i), (BYTE *)pattern, mask))
 			return (DWORD)(address + i);
 	}
 	return 0;
@@ -137,64 +133,81 @@ DWORD FindPattern(char *pattern, char *mask)
 static bool IsPlayerUpdatePacket(unsigned char packetId)
 {
 	return (
-			   packetId == ID_PLAYER_SYNC ||
-			   packetId == ID_VEHICLE_SYNC ||
-			   packetId == ID_PASSENGER_SYNC ||
-			   packetId == ID_SPECTATOR_SYNC ||
-			   packetId == ID_AIM_SYNC ||
-			   packetId == ID_TRAILER_SYNC
-		   );
+		packetId == ID_PLAYER_SYNC ||
+		packetId == ID_VEHICLE_SYNC ||
+		packetId == ID_PASSENGER_SYNC ||
+		packetId == ID_SPECTATOR_SYNC ||
+		packetId == ID_AIM_SYNC ||
+		packetId == ID_TRAILER_SYNC);
 }
 
-typedef BYTE (*FUNC_GetPacketID)(Packet *p);
 BYTE lastWeapon[1000] = {0};
 CSyncData lastSyncData[1000];
 BOOL syncDataFrozen[1000] = {0};
 BYTE fakeHealth[1000] = {0};
 BYTE fakeArmour[1000] = {0};
-glm::quat* fakeQuat[1000];
+glm::quat *fakeQuat[1000];
 BOOL disableSyncBugs = true;
 BOOL infiniteAmmo[1000] = {0};
 
-static BYTE HOOK_GetPacketID(Packet *p)
+BYTE GetPacketID(Packet *p)
 {
-	//BYTE packetId = ((FUNC_GetPacketID)subhook_get_trampoline(GetPacketID_hook))(p);
-	subhook_remove(GetPacketID_hook);
-	BYTE packetId = ((FUNC_GetPacketID)CAddress::FUNC_GetPacketID)(p);
+	if (p == 0)
+		return 255;
+
+	if ((unsigned char)p->data[0] == ID_TIMESTAMP)
+	{
+		assert(p->length > sizeof(unsigned char) + sizeof(unsigned long));
+		return (unsigned char)p->data[sizeof(unsigned char) + sizeof(unsigned long)];
+	}
+	else
+		return (unsigned char)p->data[0];
+}
+//----------------------------------------------------
+
+Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
+{
+	Packet *p = CSAMPFunctions::Receive(ppRakServer);
+	
+	BYTE packetId = GetPacketID(p);
+	if (packetId == 0xFF)
+		return p;
+
 	WORD playerid = p->playerIndex;
 
-	if (packetId == 0xFF) {
-		subhook_install(GetPacketID_hook);
-		return 0xFF;
-	}
-
-	if (IsPlayerUpdatePacket(packetId)) {
+	if (IsPlayerUpdatePacket(packetId))
+	{
 		lastUpdateTick[playerid] = GetTickCount();
 	}
 
-	if (packetId == ID_PLAYER_SYNC) {
+	if (packetId == ID_PLAYER_SYNC)
+	{
 		// Let's ensure the length is correct, because if it's incomplete it goes in infinite loop. Ex: bs->Write((PCHAR)&OnFootData, sizeof(OnFootDataStruct) / 2);
-		if (p->length != (sizeof(CSyncData) + 1)) { 
-			subhook_install(GetPacketID_hook);
-			return packetId;
+		if (p->length != (sizeof(CSyncData) + 1))
+		{
+			return nullptr;
 		}
 
-		CSyncData *d = (CSyncData*)(&p->data[1]);
-
+		CSyncData *d = (CSyncData *)(&p->data[1]);
+		
 		// NAN stuff = inf loop, no idea why.
 		// This prevents it though, so I didn't bother to look too deep into it.
 		if (d->vecPosition.IsNan() ||
-			d->vecQuaternion.IsNan() ||
+			//d->fQuaternion.IsNan() ||
 			d->vecSurfing.IsNan() ||
-			d->vecVelocity.IsNan() ||
-			d->fQuaternionAngle != d->fQuaternionAngle)
+			d->vecVelocity.IsNan())
 		{
-			subhook_install(GetPacketID_hook);
-			return packetId;
+			return nullptr;
 		}
-		
+
+		if (d->byteWeapon > 46 || (d->byteWeapon > 18 && d->byteWeapon < 22))
+		{
+			d->byteWeapon = 0;
+		}
+
 		// Because of detonator crasher - Sends AIM_KEY in this packet and cam mode IDs 7, 8, 34, 45, 46, 51 and 65 in ID_AIM_SYNC
-		if (d->byteWeapon == 40) {
+		if (d->byteWeapon == 40)
+		{
 			d->wKeys &= ~128;
 		}
 
@@ -203,7 +216,8 @@ static BYTE HOOK_GetPacketID(Packet *p)
 			// Prevent "ghost shooting" bugs
 			if ((d->byteWeapon >= WEAPON_COLT45 && d->byteWeapon <= WEAPON_SNIPER) || d->byteWeapon == WEAPON_MINIGUN)
 			{
-				switch (d->wAnimIndex) {
+				switch (d->wAnimIndex)
+				{
 					// PED_RUN_*
 				case 1222:
 				case 1223:
@@ -342,7 +356,8 @@ static BYTE HOOK_GetPacketID(Packet *p)
 				case 1150:
 				case 1151:
 					// Only remove action key if holding aim
-					if (d->wKeys & 128) {
+					if (d->wKeys & 128)
+					{
 						d->wKeys &= ~1;
 					}
 
@@ -354,13 +369,14 @@ static BYTE HOOK_GetPacketID(Packet *p)
 
 					break;
 				}
-
 			}
 			else if (d->byteWeapon == WEAPON_SPRAYCAN || d->byteWeapon == WEAPON_FIREEXTINGUISHER || d->byteWeapon == WEAPON_FLAMETHROWER)
 			{
-				if (d->wAnimIndex < 1160 || d->wAnimIndex > 1167) {
+				if (d->wAnimIndex < 1160 || d->wAnimIndex > 1167)
+				{
 					// Only remove action key if holding aim
-					if (d->wKeys & 128) {
+					if (d->wKeys & 128)
+					{
 						d->wKeys &= ~1;
 					}
 
@@ -370,46 +386,57 @@ static BYTE HOOK_GetPacketID(Packet *p)
 					// Remove aim key
 					d->wKeys &= ~128;
 				}
-
 			}
 			else if (d->byteWeapon == WEAPON_GRENADE)
 			{
-				if (d->wAnimIndex < 644 || d->wAnimIndex > 646) {
+				if (d->wAnimIndex < 644 || d->wAnimIndex > 646)
+				{
 					d->wKeys &= ~1;
 				}
 			}
 		}
 
-		if (syncDataFrozen[playerid]) {
+		if (syncDataFrozen[playerid])
+		{
 			memcpy(d, &lastSyncData[playerid], sizeof(CSyncData));
 		}
-		else {
+		else
+		{
 			memcpy(&lastSyncData[playerid], d, sizeof(CSyncData));
 		}
 
-		if (blockKeySync[playerid]) {
+		if (blockKeySync[playerid])
+		{
 			d->wKeys = 0;
 		}
 
-		if (fakeHealth[playerid] != 255) {
+		if (fakeHealth[playerid] != 255)
+		{
 			d->byteHealth = fakeHealth[playerid];
 		}
 
-		if (fakeArmour[playerid] != 255) {
+		if (fakeArmour[playerid] != 255)
+		{
 			d->byteArmour = fakeArmour[playerid];
 		}
 
-		if (fakeQuat[playerid] != NULL) {
-			d->fQuaternionAngle = fakeQuat[playerid]->w;
-			d->vecQuaternion.fX = fakeQuat[playerid]->x;
-			d->vecQuaternion.fY = fakeQuat[playerid]->y;
-			d->vecQuaternion.fZ = fakeQuat[playerid]->z;
+		if (fakeQuat[playerid] != NULL)
+		{
+			// NOT AT ALL SURE WHICH ELEMENTS OF THIS ARRAY ARE WHAT. THIS CODE MIGHT BE COMPLETELY WRONG.
+			// SOMEONE WHO KNOWS WHAT THEY'RE DOING PLEASE CHECK THIS.
+			// 03/09/18 - Whitetiger
+			d->fQuaternion[0] = fakeQuat[playerid]->w; // angle
+			d->fQuaternion[1] = fakeQuat[playerid]->x; // x
+			d->fQuaternion[2] = fakeQuat[playerid]->y; // y
+			d->fQuaternion[3] = fakeQuat[playerid]->z; // z
 		}
 
-		if (d->byteWeapon == 44 || d->byteWeapon == 45) {
+		if (d->byteWeapon == 44 || d->byteWeapon == 45)
+		{
 			d->wKeys &= ~4;
 		}
-		else if (d->byteWeapon == 4 && knifeSync == false) {
+		else if (d->byteWeapon == 4 && knifeSync == false)
+		{
 			d->wKeys &= ~128;
 		}
 
@@ -421,92 +448,110 @@ static BYTE HOOK_GetPacketID(Packet *p)
 		lastWeapon[playerid] = d->byteWeapon;
 	}
 
-	if (packetId == ID_AIM_SYNC) {
+	if (packetId == ID_AIM_SYNC)
+	{
 		// Let's ensure the length is correct
-		if (p->length != (sizeof(CAimSyncData) + 1)) {
-			subhook_install(GetPacketID_hook);
-			return packetId;
+		if (p->length != (sizeof(CAimSyncData) + 1))
+		{
+			return nullptr;
 		}
 
-		CAimSyncData *d = (CAimSyncData*)(&p->data[1]);
+		CAimSyncData *d = (CAimSyncData *)(&p->data[1]);
 
 		// Never had an issue with getting crashed here, but... better to check.
-		if (d->vecFront.IsNan() || d->vecPosition.IsNan()) {
-			subhook_install(GetPacketID_hook);
-			return packetId;
+		if (d->vecFront.IsNan() || d->vecPosition.IsNan())
+		{
+			return nullptr;
 		}
 
 		// Fix first-person up/down aim sync
-		if (lastWeapon[playerid] == 34 || lastWeapon[playerid] == 35 || lastWeapon[playerid] == 36 || lastWeapon[playerid] == 43) {
+		if (lastWeapon[playerid] == 34 || lastWeapon[playerid] == 35 || lastWeapon[playerid] == 36 || lastWeapon[playerid] == 43)
+		{
 			d->fZAim = -d->vecFront.fZ;
 
-			if (d->fZAim > 1.0f) {
+			if (d->fZAim > 1.0f)
+			{
 				d->fZAim = 1.0f;
 			}
-			else if (d->fZAim < -1.0f) {
+			else if (d->fZAim < -1.0f)
+			{
 				d->fZAim = -1.0f;
 			}
 		}
 
-		if (infiniteAmmo[playerid]) {
+		if (infiniteAmmo[playerid])
+		{
 			d->byteCameraZoom = 2;
 		}
 	}
 
-	if (packetId == ID_VEHICLE_SYNC) {
+	if (packetId == ID_VEHICLE_SYNC)
+	{
 		// Let's ensure the length is correct
-		if (p->length != (sizeof(CVehicleSyncData) + 1)) {
-			subhook_install(GetPacketID_hook);
-			return packetId;
+		if (p->length != (sizeof(CVehicleSyncData) + 1))
+		{
+			return nullptr;
 		}
 
-		CVehicleSyncData *d = (CVehicleSyncData*)(&p->data[1]);
+		CVehicleSyncData *d = (CVehicleSyncData *)(&p->data[1]);
 
 		// NaN = infinite loop. Don't really know why
 		if (d->vecPosition.IsNan() ||
-			d->vecQuaternion.IsNan() ||
+			//d->fQuaternion.IsNan() ||
 			d->vecVelocity.IsNan())
 		{
-			subhook_install(GetPacketID_hook);
-			return packetId;
+			return nullptr;
 		}
 
-		if (fakeHealth[playerid] != 255) {
+		if (d->bytePlayerWeapon > 46 || (d->bytePlayerWeapon > 18 && d->bytePlayerWeapon < 22))
+		{
+			d->bytePlayerWeapon = 0;
+		}
+
+		if (fakeHealth[playerid] != 255)
+		{
 			d->bytePlayerHealth = fakeHealth[playerid];
 		}
 
-		if (fakeArmour[playerid] != 255) {
+		if (fakeArmour[playerid] != 255)
+		{
 			d->bytePlayerArmour = fakeArmour[playerid];
 		}
 	}
 
-	if (packetId == ID_PASSENGER_SYNC) {
+	if (packetId == ID_PASSENGER_SYNC)
+	{
 		// Let's ensure the length is correct
-		if (p->length != (sizeof(CPassengerSyncData) + 1)) {
-			subhook_install(GetPacketID_hook);
-			return packetId;
+		if (p->length != (sizeof(CPassengerSyncData) + 1))
+		{
+			return nullptr;
 		}
 
-		CPassengerSyncData *d = (CPassengerSyncData*)(&p->data[1]);
+		CPassengerSyncData *d = (CPassengerSyncData *)(&p->data[1]);
 
 		// Didn't have any issues with it, but better to prevent
-		if (d->vecPosition.IsNan()) {
-			subhook_install(GetPacketID_hook);
-			return packetId;
+		if (d->vecPosition.IsNan())
+		{
+			return nullptr;
 		}
 
-		if (fakeHealth[playerid] != 255) {
+		if (d->bytePlayerWeapon > 46 || (d->bytePlayerWeapon > 18 && d->bytePlayerWeapon < 22))
+		{
+			d->bytePlayerWeapon = 0;
+		}
+
+		if (fakeHealth[playerid] != 255)
+		{
 			d->bytePlayerHealth = fakeHealth[playerid];
 		}
 
-		if (fakeArmour[playerid] != 255) {
+		if (fakeArmour[playerid] != 255)
+		{
 			d->bytePlayerArmour = fakeArmour[playerid];
 		}
 	}
 
-	subhook_install(GetPacketID_hook);
-
-	return packetId;
+	return p;
 }
 
 //----------------------------------------------------
@@ -516,14 +561,8 @@ void InstallPreHooks()
 	memset(&fakeHealth, 255, sizeof(fakeHealth));
 	memset(&fakeArmour, 255, sizeof(fakeArmour));
 
-	for (int i = 0; i < 1000; i++) {
+	for (int i = 0; i < 1000; i++)
+	{
 		fakeQuat[i] = NULL;
 	}
-
-	if (!serverVersion) {
-		return;
-	}
-
-	GetPacketID_hook = subhook_new((void*)CAddress::FUNC_GetPacketID, (void*)HOOK_GetPacketID, (subhook_flags_t)0);
-	subhook_install(GetPacketID_hook);
 }

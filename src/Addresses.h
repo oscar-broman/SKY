@@ -37,6 +37,40 @@ typedef unsigned long       DWORD;
 
 #include <vector>
 
+#ifdef _WIN32
+	#define RAKNET_START_OFFSET							1
+	#define RAKNET_SEND_OFFSET							7
+	#define RAKNET_RECEIVE_OFFSET						10
+	#define RAKNET_SET_ALLOWED_PLAYERS_OFFSET			13
+	#define RAKNET_GET_LAST_PING_OFFSET					19
+	#define RAKNET_REGISTER_RPC_OFFSET					29
+	#define RAKNET_UNREGISTER_RPC_OFFSET				31
+	#define RAKNET_RPC_OFFSET							32
+	#define RAKNET_GET_LOCAL_IP_OFFSET					52
+	#define RAKNET_GET_INDEX_FROM_PLAYERID_OFFSET		57
+	#define RAKNET_GET_PLAYERID_FROM_INDEX_OFFSET		58
+	#define RAKNET_ADD_BAN_OFFSET						60
+	#define RAKNET_REMOVE_BAN_OFFSET					61
+	#define RAKNET_CLEAR_BAN_OFFSET						62
+	#define RAKNET_SET_TIMEOUT_OFFSET					65
+#else
+	#define RAKNET_START_OFFSET							2
+	#define RAKNET_SEND_OFFSET							9
+	#define RAKNET_RECEIVE_OFFSET						11
+	#define RAKNET_SET_ALLOWED_PLAYERS_OFFSET			14
+	#define RAKNET_GET_LAST_PING_OFFSET					20
+	#define RAKNET_REGISTER_RPC_OFFSET					30
+	#define RAKNET_UNREGISTER_RPC_OFFSET				32
+	#define RAKNET_RPC_OFFSET							35
+	#define RAKNET_GET_LOCAL_IP_OFFSET					53
+	#define RAKNET_GET_INDEX_FROM_PLAYERID_OFFSET		58
+	#define RAKNET_GET_PLAYERID_FROM_INDEX_OFFSET		59
+	#define RAKNET_ADD_BAN_OFFSET						61
+	#define RAKNET_REMOVE_BAN_OFFSET					62
+	#define RAKNET_CLEAR_BAN_OFFSET						63
+	#define RAKNET_SET_TIMEOUT_OFFSET					65
+#endif
+
 enum eSAMPVersion {
 	SAMP_VERSION_UNKNOWN,
 	SAMP_VERSION_03Z,
@@ -46,6 +80,7 @@ enum eSAMPVersion {
 	SAMP_VERSION_037RC1,
 	SAMP_VERSION_037,
 	SAMP_VERSION_037R2,
+	SAMP_VERSION_03DL_R1,
 
 	SAMP_VERSION_SKIPPED,
 };
@@ -53,43 +88,22 @@ enum eSAMPVersion {
 class CAddress
 {
 public:
-	static void	Initialize();
+	static void	Initialize(int iVersion);
 
 	static DWORD			FUNC_Logprintf_03Z;
 	static DWORD			FUNC_Logprintf_03ZR2_2;
 	static DWORD			FUNC_Logprintf_03ZR3;
 	static DWORD			FUNC_Logprintf_03ZR4;
-	static DWORD			FUNC_Logprintf_037RC1;
 	static DWORD			FUNC_Logprintf_037;
-	static DWORD			FUNC_Logprintf_037R2;
+	static DWORD			FUNC_Logprintf_037_R2_1;
+	static DWORD			FUNC_Logprintf_03DL_R1;
 
 	// Pointers
 	static DWORD			VAR_ppNetGame;
 	static DWORD			VAR_ppConsole;
 	static DWORD			VAR_ppRakServer;
 
-	// Variables
-	static DWORD			VAR_pRestartWaitTime;
-
-	// Functions
-	static DWORD			FUNC_CConsole__AddStringVariable;
-	static DWORD			FUNC_CConsole__FindVariable;
-	static DWORD			FUNC_CConsole__SendRules;
-	static DWORD			FUNC_CConsole__Execute;
-
-	static DWORD			FUNC_CFilterscripts__LoadFilterscript;
-	static DWORD			FUNC_CFilterscripts__UnLoadFilterscript;
-	static DWORD			FUNC_ContainsInvalidChars;
-	static DWORD			FUNC_GetPacketID;
-
 	static DWORD			FUNC_CPlayer__SpawnForWorld;
-	static DWORD			FUNC_ProcessQueryPacket;
-	static DWORD			FUNC_Packet_WeaponsUpdate;
-	static DWORD			FUNC_format_amxstring;
-
-	// Others
-	static DWORD			ADDR_CNetGame_GMX_GangZoneDelete;
-	static DWORD			ADDR_CNetGame_GMX_PckupDelete;
 };
 
 #endif
