@@ -16,9 +16,6 @@
 #include "Scripting.h"
 #include "Functions.h"
 
-#include <plugincommon.h>
-#include <amx/amx.h>
-
 #include "subhook/subhook.h"
 
 #ifdef LINUX
@@ -50,7 +47,6 @@ PLUGIN_EXPORT unsigned int PLUGIN_CALL Supports()
 // The Load() function gets passed on exported functions from
 // the SA-MP Server, like the AMX Functions and logprintf().
 // Should return true if loading the plugin has succeeded.
-typedef void(*logprintf_t)(char* format, ...);
 logprintf_t logprintf;
 
 int serverVersion = eSAMPVersion::SAMP_VERSION_UNKNOWN;
@@ -68,9 +64,7 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void ** ppData)
 
 	CAddress::Initialize(serverVersion);
 	InstallPreHooks();
-
-	logprintf("%s - OS: %s - Version: %s (%i)", PROJECT_NAME, OS_NAME, PROJECT_VERSION, serverVersion);
-
+	
 	return 1;
 }
 

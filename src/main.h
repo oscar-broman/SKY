@@ -4,6 +4,20 @@
 #include "Structs.h"
 #include "Addresses.h"
 
+// Fixes an annoying warning when building with MXE/MinGW "plugincommon.h" 
+// will display a warning about "Not using a VC++ compiler" not being set, 
+// since MXE is not windows. 
+// (This fixes multiple warnings, but it will still show once)
+#if defined _MXE
+    #define _MSC_VER
+    #include <plugincommon.h>
+    #undef _MSC_VER
+#else 
+    #include <plugincommon.h>
+#endif 
+
+#include <amx/amx.h>
+
 class CNetGame;
 class RakServer;
 
@@ -12,7 +26,7 @@ extern void *pConsole;
 extern RakServer *pRakServer;
 extern void **ppPluginData;
 
-typedef void(*logprintf_t)(char *, ...);
+typedef void(*logprintf_t)(const char * szFormat, ...);
 extern logprintf_t logprintf;
 
 // Defines

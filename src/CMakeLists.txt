@@ -8,7 +8,9 @@ find_package(SAMPSDK REQUIRED)
 include_directories(${SAMPSDK_DIR})
 include_directories(${SAMPSDK_DIR}/amx)
 
-find_library(PSAPI Psapi)
+if(MXE)
+	find_library(PSAPI Psapi)
+endif()
 
 file(GLOB PLUGIN_SOURCE_FILES
 	${PROJECT_SOURCE_DIR}/src/*.cpp
@@ -22,7 +24,6 @@ add_samp_plugin(SKY
 	${PLUGIN_SOURCE_FILES}
 	${PROJECT_SOURCE_DIR}/SKY.def
 )
-
 
 target_link_libraries(SKY subhook)
 

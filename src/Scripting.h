@@ -33,8 +33,6 @@
 #ifndef SCRIPTING_H
 #define SCRIPTING_H
 
-#include <plugincommon.h>
-#include <amx/amx.h>
 #include "main.h"
 #include "Addresses.h"
 

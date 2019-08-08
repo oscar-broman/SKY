@@ -19,9 +19,6 @@
 #include <sstream>
 #include <iostream>
 
-#include <plugincommon.h>
-#include <amx/amx.h>
-
 // Linux GetTickCount
 #ifndef _WIN32
 

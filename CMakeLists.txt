@@ -3,9 +3,7 @@ project(SKY)
 
 set(PLUGIN_VERSION "1.0.0")
 
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/builds)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/builds)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/builds)
 
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/lib/cmake-modules")
 include_directories(${PROJECT_SOURCE_DIR}/lib)
@@ -24,6 +22,7 @@ if(UNIX)
 elseif(MXE)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -lpsapi")
 	set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -lpsapi")
+	add_definitions(-D_MXE)
 endif()
 
 if(WIN32)

@@ -6,9 +6,6 @@
 #include "Utils.h"
 #include "Addresses.h"
 
-#include <plugincommon.h>
-#include <amx/amx.h>
-
 int RPC_SelectObject = 0x1B; // 27
 int RPC_Spawn = 0x34; // 52
 int RPC_Death = 0x35; // 53

@@ -1,10 +1,8 @@
 #include <unordered_map>
-#include <plugincommon.h>
-#include <amx/amx.h>
 
+#include "main.h"
 #include "Functions.h"
 #include "Addresses.h"
-#include "main.h"
 #include "Hooks.h"
 
 RakNet__Send_t								CSAMPFunctions::pfn__RakNet__Send = NULL;

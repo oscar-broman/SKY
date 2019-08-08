@@ -57,9 +57,6 @@
 #include <algorithm>
 #endif
 
-#include <plugincommon.h>
-#include <amx/amx.h>
-
 #include <string.h>
 #include <stdio.h>
 

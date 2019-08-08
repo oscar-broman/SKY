@@ -3,9 +3,6 @@
 #include "Hooks.h"
 #include "main.h"
 
-#include <plugincommon.h>
-#include <amx/amx.h>
-
 #ifdef _WIN32
 DWORD CAddress::FUNC_Logprintf_03Z = 0x00486CB0;
 DWORD CAddress::FUNC_Logprintf_03ZR2_2 = 0x00487310;

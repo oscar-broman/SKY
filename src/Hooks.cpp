@@ -64,9 +64,6 @@
 #define INVALID_SOCKET -1
 #endif
 
-#include <plugincommon.h>
-#include <amx/amx.h>
-
 #ifndef PAGESIZE
 #define PAGESIZE (4096)
 #endif
@@ -103,10 +100,10 @@ bool memory_compare(const BYTE *data, const BYTE *pattern, const char *mask)
 		if (*mask == 'x' && *data != *pattern)
 			return false;
 	}
-	return (*mask) == NULL;
+	return (*mask) == 0;
 }
 
-DWORD FindPattern(char *pattern, char *mask)
+DWORD FindPattern(const char *pattern, const char *mask)
 {
 	DWORD i;
 	DWORD size;
