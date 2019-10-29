@@ -31,6 +31,9 @@
 */
 
 /* -------------------------------------------------------- */
+#if defined MAX_OBJECTS
+#undef MAX_OBJECTS
+#endif
 
 // Defines from SAMPGDK
 #define MAX_PLAYER_NAME (24)
