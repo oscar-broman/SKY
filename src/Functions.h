@@ -33,18 +33,18 @@
 #ifndef YSF_FUNCTIONS_H
 #define YSF_FUNCTIONS_H
 
-#include <raknet/NetworkTypes.h>
-#include "net.h"
 #include "main.h"
+#include "net.h"
+#include <raknet/NetworkTypes.h>
 
 #define DEFINE_FUNCTION_POINTER(name) \
-	static name ## _t		pfn__ ## name
+	static name##_t pfn__##name
 
 #define POINT_TO_MEMBER(name, address) \
-	pfn__ ## name = (name ## _t)(address) 
+	pfn__##name = (name##_t)(address)
 
 #define INIT_FPTR(name) \
-	pfn__ ## name = (name ## _t)(CAddress::FUNC_ ## name) 
+	pfn__##name = (name##_t)(CAddress::FUNC_##name)
 
 #ifdef _WIN32
 #define STDCALL __stdcall
@@ -60,32 +60,30 @@
 struct Packet;
 struct ConsoleVariable_s;
 
-typedef void (THISCALL *CPlayer__SpawnForWorld_t)(void *pPlayer);
+typedef void(THISCALL *CPlayer__SpawnForWorld_t)(void *pPlayer);
 
-typedef bool (THISCALL *RakNet__Send_t)(void* ppRakServer, RakNet::BitStream* parameters, PacketPriority priority, PacketReliability reliability, unsigned orderingChannel, PlayerID playerId, bool broadcast);
-typedef Packet* (THISCALL *RakNet__Receive_t)(void* ppRakServer);
-typedef bool (THISCALL *RakNet__RPC_t)(void* ppRakServer, int* uniqueID, RakNet::BitStream* parameters, PacketPriority priority, PacketReliability reliability, unsigned orderingChannel, PlayerID playerId, bool broadcast, bool shiftTimestamp);
-typedef PlayerID(THISCALL *RakNet__GetPlayerIDFromIndex_t)(void* ppRakServer, int index);
-
+typedef bool(THISCALL *RakNet__Send_t)(void *ppRakServer, RakNet::BitStream *parameters, PacketPriority priority, PacketReliability reliability, unsigned orderingChannel, PlayerID playerId, bool broadcast);
+typedef Packet *(THISCALL *RakNet__Receive_t)(void *ppRakServer);
+typedef bool(THISCALL *RakNet__RPC_t)(void *ppRakServer, int *uniqueID, RakNet::BitStream *parameters, PacketPriority priority, PacketReliability reliability, unsigned orderingChannel, PlayerID playerId, bool broadcast, bool shiftTimestamp);
+typedef PlayerID(THISCALL *RakNet__GetPlayerIDFromIndex_t)(void *ppRakServer, int index);
 
 class CHookRakServer
 {
 public:
-	static Packet* THISCALL Receive(void* ppRakServer);
+	static Packet *THISCALL Receive(void *ppRakServer);
 };
-
 
 class CSAMPFunctions
 {
 public:
-	static void		Initialize(void **pluginData);
+	static void Initialize(void **pluginData);
 
-	static void		SpawnPlayer(int iPlayerId);
+	static void SpawnPlayer(int iPlayerId);
 
-	static bool		Start(unsigned short AllowedPlayers, unsigned int depreciated, int threadSleepTimer, unsigned short port, const char *forceHostAddress = 0);
-	static bool		Send(RakNet::BitStream* parameters, PacketPriority priority, PacketReliability reliability, unsigned orderingChannel, PlayerID playerId, bool broadcast);
-	static Packet*	Receive(void* ppRakServer);
-	static bool		RPC(int* uniqueID, RakNet::BitStream* parameters, PacketPriority priority, PacketReliability reliability, unsigned orderingChannel, PlayerID playerId, bool broadcast, bool shiftTimestamp);
+	static bool Start(unsigned short AllowedPlayers, unsigned int depreciated, int threadSleepTimer, unsigned short port, const char *forceHostAddress = 0);
+	static bool Send(RakNet::BitStream *parameters, PacketPriority priority, PacketReliability reliability, unsigned orderingChannel, PlayerID playerId, bool broadcast);
+	static Packet *Receive(void *ppRakServer);
+	static bool RPC(int *uniqueID, RakNet::BitStream *parameters, PacketPriority priority, PacketReliability reliability, unsigned orderingChannel, PlayerID playerId, bool broadcast, bool shiftTimestamp);
 	static PlayerID GetPlayerIDFromIndex(int index);
 
 	// RakServer

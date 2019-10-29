@@ -11,10 +11,10 @@
 #include "Hooks.h"
 #include "RPCs.h"
 
-#include <fstream>
-#include "Utils.h"
-#include "Scripting.h"
 #include "Functions.h"
+#include "Scripting.h"
+#include "Utils.h"
+#include <fstream>
 
 #include "subhook/subhook.h"
 
@@ -29,9 +29,11 @@ void **ppPluginData;
 extern void *pAMXFunctions;
 
 // Internal server pointers
-CNetGame *pNetGame = NULL;
-void *pConsole = NULL;
-RakServer *pRakServer = NULL;
+CNetGame *pNetGame = 0;
+void *pConsole = 0;
+RakServer *pRakServer = 0;
+
+int iVersion = eSAMPVersion::SAMP_VERSION_UNKNOWN;
 
 //----------------------------------------------------------
 // The Support() function indicates what possibilities this
@@ -49,22 +51,20 @@ PLUGIN_EXPORT unsigned int PLUGIN_CALL Supports()
 // Should return true if loading the plugin has succeeded.
 logprintf_t logprintf;
 
-int serverVersion = eSAMPVersion::SAMP_VERSION_UNKNOWN;
-
-PLUGIN_EXPORT bool PLUGIN_CALL Load(void ** ppData)
+PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData)
 {
 	ppPluginData = ppData;
 	pAMXFunctions = ppData[PLUGIN_DATA_AMX_EXPORTS];
 	logprintf = reinterpret_cast<logprintf_t>(ppData[PLUGIN_DATA_LOGPRINTF]);
-	serverVersion = GetServerVersion();
+	iVersion = GetServerVersion();
 
 #ifndef _WIN32
 	LoadTickCount();
 #endif
 
-	CAddress::Initialize(serverVersion);
+	CAddress::Initialize(iVersion);
 	InstallPreHooks();
-	
+
 	return 1;
 }
 
@@ -81,24 +81,24 @@ PLUGIN_EXPORT void PLUGIN_CALL Unload()
 // filterscript gets loaded with the server. In here we register
 // the native functions we like to add to the scripts.
 
-PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX * amx)
+PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx)
 {
 	static bool bFirst = false;
 
-	if(!bFirst) {
-		bFirst = true;			
-		CSAMPFunctions::Initialize(ppPluginData);	
+	if (!bFirst)
+	{
+		bFirst = true;
+		CSAMPFunctions::Initialize(ppPluginData);
 	}
 
-	return InitScripting(amx, serverVersion);
+	return InitScripting(amx, iVersion);
 }
 
 //----------------------------------------------------------
 // When a gamemode is over or a filterscript gets unloaded, this
 // function gets called. No special actions needed in here.
 
-PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX * amx)
+PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx)
 {
 	return AMX_ERR_NONE;
 }
-

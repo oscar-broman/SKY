@@ -35,31 +35,32 @@
 #include "Addresses.h"
 #include "RPCs.h"
 
-#include "main.h"
-#include "Utils.h"
-#include "Scripting.h"
 #include "Functions.h"
+#include "Scripting.h"
+#include "Utils.h"
+#include "Versions.h"
+#include "main.h"
 #include <cmath>
-#include <limits>
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
+#include <limits>
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 //#define VC_EXTRALEAN
-#include <windows.h>
 #include <psapi.h>
+#include <windows.h>
 #else
-#include <stdio.h>
-#include <sys/mman.h>
-#include <limits.h>
-#include <string.h>
 #include <algorithm>
-#include <unistd.h>
-#include <cstdarg>
-#include <sys/types.h>
-#include <sys/socket.h>
 #include <arpa/inet.h>
+#include <cstdarg>
+#include <limits.h>
+#include <stdio.h>
+#include <string.h>
+#include <sys/mman.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 #define INVALID_SOCKET -1
 #endif
@@ -142,7 +143,6 @@ static bool IsPlayerUpdatePacket(unsigned char packetId)
 }
 
 BYTE lastWeapon[1000] = {0};
-CSyncData lastSyncData[1000];
 BOOL syncDataFrozen[1000] = {0};
 BYTE fakeHealth[1000] = {0};
 BYTE fakeArmour[1000] = {0};
@@ -167,391 +167,396 @@ BYTE GetPacketID(Packet *p)
 
 Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 {
-	Packet *p = CSAMPFunctions::Receive(ppRakServer);
-	
-	BYTE packetId = GetPacketID(p);
-	if (packetId == 0xFF)
+	return getNetGame([ppRakServer](auto netGame, auto structs) -> Packet * {
+		using Structs = decltype(structs);
+
+		Packet *p = CSAMPFunctions::Receive(ppRakServer);
+
+		BYTE packetId = GetPacketID(p);
+		if (packetId == 0xFF)
+			return p;
+
+		WORD playerid = p->playerIndex;
+
+		if (IsPlayerUpdatePacket(packetId))
+		{
+			lastUpdateTick[playerid] = GetTickCount();
+		}
+
+		if (packetId == ID_PLAYER_SYNC)
+		{
+			// Let's ensure the length is correct, because if it's incomplete it goes in infinite loop. Ex: bs->Write((PCHAR)&OnFootData, sizeof(OnFootDataStruct) / 2);
+			if (p->length != (sizeof(typename Structs::CSyncData) + 1))
+			{
+				return nullptr;
+			}
+
+			auto *d = reinterpret_cast<typename Structs::CSyncData *>(&p->data[1]);
+
+			// NAN stuff = inf loop, no idea why.
+			// This prevents it though, so I didn't bother to look too deep into it.
+			if (d->vecPosition.IsNan() ||
+				//d->fQuaternion.IsNan() ||
+				d->vecSurfing.IsNan() ||
+				d->vecVelocity.IsNan())
+			{
+				return nullptr;
+			}
+
+			if (d->byteWeapon > 46 || (d->byteWeapon > 18 && d->byteWeapon < 22))
+			{
+				d->byteWeapon = 0;
+			}
+
+			// Because of detonator crasher - Sends AIM_KEY in this packet and cam mode IDs 7, 8, 34, 45, 46, 51 and 65 in ID_AIM_SYNC
+			if (d->byteWeapon == 40)
+			{
+				d->wKeys &= ~128;
+			}
+
+			if (disableSyncBugs)
+			{
+				// Prevent "ghost shooting" bugs
+				if ((d->byteWeapon >= WEAPON_COLT45 && d->byteWeapon <= WEAPON_SNIPER) || d->byteWeapon == WEAPON_MINIGUN)
+				{
+					switch (d->wAnimIndex)
+					{
+						// PED_RUN_*
+					case 1222:
+					case 1223:
+					case 1224:
+					case 1225:
+					case 1226:
+					case 1227:
+					case 1228:
+					case 1229:
+					case 1230:
+					case 1231:
+					case 1232:
+					case 1233:
+					case 1234:
+					case 1235:
+					case 1236:
+						// PED_SWAT_RUN
+					case 1249:
+						// PED_WOMAN_(RUN/WALK)_*
+					case 1275:
+					case 1276:
+					case 1277:
+					case 1278:
+					case 1279:
+					case 1280:
+					case 1281:
+					case 1282:
+					case 1283:
+					case 1284:
+					case 1285:
+					case 1286:
+					case 1287:
+						// FAT_FATRUN_ARMED
+					case 459:
+						// MUSCULAR_MUSCLERUN*
+					case 908:
+					case 909:
+						// PED_WEAPON_CROUCH
+					case 1274:
+						// PED_WALK_PLAYER
+					case 1266:
+						// PED_SHOT_PARTIAL(_B)
+					case 1241:
+					case 1242:
+						// Baseball bat
+					case 17:
+					case 18:
+					case 19:
+					case 20:
+					case 21:
+					case 22:
+					case 23:
+					case 24:
+					case 25:
+					case 26:
+					case 27:
+						// Knife
+					case 745:
+					case 746:
+					case 747:
+					case 748:
+					case 749:
+					case 750:
+					case 751:
+					case 752:
+					case 753:
+					case 754:
+					case 755:
+					case 756:
+					case 757:
+					case 758:
+					case 759:
+					case 760:
+						// Sword
+					case 1545:
+					case 1546:
+					case 1547:
+					case 1548:
+					case 1549:
+					case 1550:
+					case 1551:
+					case 1552:
+					case 1553:
+					case 1554:
+						// Fight
+					case 471:
+					case 472:
+					case 473:
+					case 474:
+					case 477:
+					case 478:
+					case 479:
+					case 480:
+					case 481:
+					case 482:
+					case 483:
+					case 484:
+					case 485:
+					case 486:
+					case 487:
+					case 488:
+					case 489:
+					case 490:
+					case 491:
+					case 492:
+					case 493:
+					case 494:
+					case 495:
+					case 496:
+					case 497:
+					case 498:
+					case 499:
+					case 500:
+					case 501:
+					case 502:
+					case 503:
+					case 504:
+					case 505:
+					case 506:
+					case 507:
+					case 1135:
+					case 1136:
+					case 1137:
+					case 1138:
+					case 1139:
+					case 1140:
+					case 1141:
+					case 1142:
+					case 1143:
+					case 1144:
+					case 1145:
+					case 1146:
+					case 1147:
+					case 1148:
+					case 1149:
+					case 1150:
+					case 1151:
+						// Only remove action key if holding aim
+						if (d->wKeys & 128)
+						{
+							d->wKeys &= ~1;
+						}
+
+						// Remove fire key
+						d->wKeys &= ~4;
+
+						// Remove aim key
+						d->wKeys &= ~128;
+
+						break;
+					}
+				}
+				else if (d->byteWeapon == WEAPON_SPRAYCAN || d->byteWeapon == WEAPON_FIREEXTINGUISHER || d->byteWeapon == WEAPON_FLAMETHROWER)
+				{
+					if (d->wAnimIndex < 1160 || d->wAnimIndex > 1167)
+					{
+						// Only remove action key if holding aim
+						if (d->wKeys & 128)
+						{
+							d->wKeys &= ~1;
+						}
+
+						// Remove fire key
+						d->wKeys &= ~4;
+
+						// Remove aim key
+						d->wKeys &= ~128;
+					}
+				}
+				else if (d->byteWeapon == WEAPON_GRENADE)
+				{
+					if (d->wAnimIndex < 644 || d->wAnimIndex > 646)
+					{
+						d->wKeys &= ~1;
+					}
+				}
+			}
+
+			auto lastSyncData = &getLastSyncData<decltype(netGame)>(playerid);
+			if (syncDataFrozen[playerid])
+			{
+				memcpy(d, lastSyncData, sizeof(typename Structs::CSyncData));
+			}
+			else
+			{
+				memcpy(lastSyncData, d, sizeof(typename Structs::CSyncData));
+			}
+
+			if (blockKeySync[playerid])
+			{
+				d->wKeys = 0;
+			}
+
+			if (fakeHealth[playerid] != 255)
+			{
+				d->byteHealth = fakeHealth[playerid];
+			}
+
+			if (fakeArmour[playerid] != 255)
+			{
+				d->byteArmour = fakeArmour[playerid];
+			}
+
+			if (fakeQuat[playerid] != NULL)
+			{
+				// NOT AT ALL SURE WHICH ELEMENTS OF THIS ARRAY ARE WHAT. THIS CODE MIGHT BE COMPLETELY WRONG.
+				// SOMEONE WHO KNOWS WHAT THEY'RE DOING PLEASE CHECK THIS.
+				// 03/09/18 - Whitetiger
+				d->fQuaternion[0] = fakeQuat[playerid]->w; // angle
+				d->fQuaternion[1] = fakeQuat[playerid]->x; // x
+				d->fQuaternion[2] = fakeQuat[playerid]->y; // y
+				d->fQuaternion[3] = fakeQuat[playerid]->z; // z
+			}
+
+			if (d->byteWeapon == 44 || d->byteWeapon == 45)
+			{
+				d->wKeys &= ~4;
+			}
+			else if (d->byteWeapon == 4 && knifeSync == false)
+			{
+				d->wKeys &= ~128;
+			}
+
+			int anim = d->dwAnimationData;
+			BOOL animChanged = (lastAnim[playerid] != anim);
+
+			lastAnim[playerid] = anim;
+
+			lastWeapon[playerid] = d->byteWeapon;
+		}
+
+		if (packetId == ID_AIM_SYNC)
+		{
+			// Let's ensure the length is correct
+			if (p->length != (sizeof(typename Structs::CAimSyncData) + 1))
+			{
+				return nullptr;
+			}
+
+			auto *d = reinterpret_cast<typename Structs::CAimSyncData *>(&p->data[1]);
+
+			// Never had an issue with getting crashed here, but... better to check.
+			if (d->vecFront.IsNan() || d->vecPosition.IsNan())
+			{
+				return nullptr;
+			}
+
+			// Fix first-person up/down aim sync
+			if (lastWeapon[playerid] == 34 || lastWeapon[playerid] == 35 || lastWeapon[playerid] == 36 || lastWeapon[playerid] == 43)
+			{
+				d->fZAim = -d->vecFront.fZ;
+
+				if (d->fZAim > 1.0f)
+				{
+					d->fZAim = 1.0f;
+				}
+				else if (d->fZAim < -1.0f)
+				{
+					d->fZAim = -1.0f;
+				}
+			}
+
+			if (infiniteAmmo[playerid])
+			{
+				d->byteCameraZoom = 2;
+			}
+		}
+
+		if (packetId == ID_VEHICLE_SYNC)
+		{
+			// Let's ensure the length is correct
+			if (p->length != (sizeof(typename Structs::CVehicleSyncData) + 1))
+			{
+				return nullptr;
+			}
+
+			auto *d = reinterpret_cast<typename Structs::CVehicleSyncData *>(&p->data[1]);
+
+			// NaN = infinite loop. Don't really know why
+			if (d->vecPosition.IsNan() ||
+				//d->fQuaternion.IsNan() ||
+				d->vecVelocity.IsNan())
+			{
+				return nullptr;
+			}
+
+			if (d->bytePlayerWeapon > 46 || (d->bytePlayerWeapon > 18 && d->bytePlayerWeapon < 22))
+			{
+				d->bytePlayerWeapon = 0;
+			}
+
+			if (fakeHealth[playerid] != 255)
+			{
+				d->bytePlayerHealth = fakeHealth[playerid];
+			}
+
+			if (fakeArmour[playerid] != 255)
+			{
+				d->bytePlayerArmour = fakeArmour[playerid];
+			}
+		}
+
+		if (packetId == ID_PASSENGER_SYNC)
+		{
+			// Let's ensure the length is correct
+			if (p->length != (sizeof(typename Structs::CPassengerSyncData) + 1))
+			{
+				return nullptr;
+			}
+
+			auto *d = reinterpret_cast<typename Structs::CPassengerSyncData *>(&p->data[1]);
+
+			// Didn't have any issues with it, but better to prevent
+			if (d->vecPosition.IsNan())
+			{
+				return nullptr;
+			}
+
+			if (d->bytePlayerWeapon > 46 || (d->bytePlayerWeapon > 18 && d->bytePlayerWeapon < 22))
+			{
+				d->bytePlayerWeapon = 0;
+			}
+
+			if (fakeHealth[playerid] != 255)
+			{
+				d->bytePlayerHealth = fakeHealth[playerid];
+			}
+
+			if (fakeArmour[playerid] != 255)
+			{
+				d->bytePlayerArmour = fakeArmour[playerid];
+			}
+		}
+
 		return p;
-
-	WORD playerid = p->playerIndex;
-
-	if (IsPlayerUpdatePacket(packetId))
-	{
-		lastUpdateTick[playerid] = GetTickCount();
-	}
-
-	if (packetId == ID_PLAYER_SYNC)
-	{
-		// Let's ensure the length is correct, because if it's incomplete it goes in infinite loop. Ex: bs->Write((PCHAR)&OnFootData, sizeof(OnFootDataStruct) / 2);
-		if (p->length != (sizeof(CSyncData) + 1))
-		{
-			return nullptr;
-		}
-
-		CSyncData *d = (CSyncData *)(&p->data[1]);
-		
-		// NAN stuff = inf loop, no idea why.
-		// This prevents it though, so I didn't bother to look too deep into it.
-		if (d->vecPosition.IsNan() ||
-			//d->fQuaternion.IsNan() ||
-			d->vecSurfing.IsNan() ||
-			d->vecVelocity.IsNan())
-		{
-			return nullptr;
-		}
-
-		if (d->byteWeapon > 46 || (d->byteWeapon > 18 && d->byteWeapon < 22))
-		{
-			d->byteWeapon = 0;
-		}
-
-		// Because of detonator crasher - Sends AIM_KEY in this packet and cam mode IDs 7, 8, 34, 45, 46, 51 and 65 in ID_AIM_SYNC
-		if (d->byteWeapon == 40)
-		{
-			d->wKeys &= ~128;
-		}
-
-		if (disableSyncBugs)
-		{
-			// Prevent "ghost shooting" bugs
-			if ((d->byteWeapon >= WEAPON_COLT45 && d->byteWeapon <= WEAPON_SNIPER) || d->byteWeapon == WEAPON_MINIGUN)
-			{
-				switch (d->wAnimIndex)
-				{
-					// PED_RUN_*
-				case 1222:
-				case 1223:
-				case 1224:
-				case 1225:
-				case 1226:
-				case 1227:
-				case 1228:
-				case 1229:
-				case 1230:
-				case 1231:
-				case 1232:
-				case 1233:
-				case 1234:
-				case 1235:
-				case 1236:
-					// PED_SWAT_RUN
-				case 1249:
-					// PED_WOMAN_(RUN/WALK)_*
-				case 1275:
-				case 1276:
-				case 1277:
-				case 1278:
-				case 1279:
-				case 1280:
-				case 1281:
-				case 1282:
-				case 1283:
-				case 1284:
-				case 1285:
-				case 1286:
-				case 1287:
-					// FAT_FATRUN_ARMED
-				case 459:
-					// MUSCULAR_MUSCLERUN*
-				case 908:
-				case 909:
-					// PED_WEAPON_CROUCH
-				case 1274:
-					// PED_WALK_PLAYER
-				case 1266:
-					// PED_SHOT_PARTIAL(_B)
-				case 1241:
-				case 1242:
-					// Baseball bat
-				case 17:
-				case 18:
-				case 19:
-				case 20:
-				case 21:
-				case 22:
-				case 23:
-				case 24:
-				case 25:
-				case 26:
-				case 27:
-					// Knife
-				case 745:
-				case 746:
-				case 747:
-				case 748:
-				case 749:
-				case 750:
-				case 751:
-				case 752:
-				case 753:
-				case 754:
-				case 755:
-				case 756:
-				case 757:
-				case 758:
-				case 759:
-				case 760:
-					// Sword
-				case 1545:
-				case 1546:
-				case 1547:
-				case 1548:
-				case 1549:
-				case 1550:
-				case 1551:
-				case 1552:
-				case 1553:
-				case 1554:
-					// Fight
-				case 471:
-				case 472:
-				case 473:
-				case 474:
-				case 477:
-				case 478:
-				case 479:
-				case 480:
-				case 481:
-				case 482:
-				case 483:
-				case 484:
-				case 485:
-				case 486:
-				case 487:
-				case 488:
-				case 489:
-				case 490:
-				case 491:
-				case 492:
-				case 493:
-				case 494:
-				case 495:
-				case 496:
-				case 497:
-				case 498:
-				case 499:
-				case 500:
-				case 501:
-				case 502:
-				case 503:
-				case 504:
-				case 505:
-				case 506:
-				case 507:
-				case 1135:
-				case 1136:
-				case 1137:
-				case 1138:
-				case 1139:
-				case 1140:
-				case 1141:
-				case 1142:
-				case 1143:
-				case 1144:
-				case 1145:
-				case 1146:
-				case 1147:
-				case 1148:
-				case 1149:
-				case 1150:
-				case 1151:
-					// Only remove action key if holding aim
-					if (d->wKeys & 128)
-					{
-						d->wKeys &= ~1;
-					}
-
-					// Remove fire key
-					d->wKeys &= ~4;
-
-					// Remove aim key
-					d->wKeys &= ~128;
-
-					break;
-				}
-			}
-			else if (d->byteWeapon == WEAPON_SPRAYCAN || d->byteWeapon == WEAPON_FIREEXTINGUISHER || d->byteWeapon == WEAPON_FLAMETHROWER)
-			{
-				if (d->wAnimIndex < 1160 || d->wAnimIndex > 1167)
-				{
-					// Only remove action key if holding aim
-					if (d->wKeys & 128)
-					{
-						d->wKeys &= ~1;
-					}
-
-					// Remove fire key
-					d->wKeys &= ~4;
-
-					// Remove aim key
-					d->wKeys &= ~128;
-				}
-			}
-			else if (d->byteWeapon == WEAPON_GRENADE)
-			{
-				if (d->wAnimIndex < 644 || d->wAnimIndex > 646)
-				{
-					d->wKeys &= ~1;
-				}
-			}
-		}
-
-		if (syncDataFrozen[playerid])
-		{
-			memcpy(d, &lastSyncData[playerid], sizeof(CSyncData));
-		}
-		else
-		{
-			memcpy(&lastSyncData[playerid], d, sizeof(CSyncData));
-		}
-
-		if (blockKeySync[playerid])
-		{
-			d->wKeys = 0;
-		}
-
-		if (fakeHealth[playerid] != 255)
-		{
-			d->byteHealth = fakeHealth[playerid];
-		}
-
-		if (fakeArmour[playerid] != 255)
-		{
-			d->byteArmour = fakeArmour[playerid];
-		}
-
-		if (fakeQuat[playerid] != NULL)
-		{
-			// NOT AT ALL SURE WHICH ELEMENTS OF THIS ARRAY ARE WHAT. THIS CODE MIGHT BE COMPLETELY WRONG.
-			// SOMEONE WHO KNOWS WHAT THEY'RE DOING PLEASE CHECK THIS.
-			// 03/09/18 - Whitetiger
-			d->fQuaternion[0] = fakeQuat[playerid]->w; // angle
-			d->fQuaternion[1] = fakeQuat[playerid]->x; // x
-			d->fQuaternion[2] = fakeQuat[playerid]->y; // y
-			d->fQuaternion[3] = fakeQuat[playerid]->z; // z
-		}
-
-		if (d->byteWeapon == 44 || d->byteWeapon == 45)
-		{
-			d->wKeys &= ~4;
-		}
-		else if (d->byteWeapon == 4 && knifeSync == false)
-		{
-			d->wKeys &= ~128;
-		}
-
-		int anim = d->dwAnimationData;
-		BOOL animChanged = (lastAnim[playerid] != anim);
-
-		lastAnim[playerid] = anim;
-
-		lastWeapon[playerid] = d->byteWeapon;
-	}
-
-	if (packetId == ID_AIM_SYNC)
-	{
-		// Let's ensure the length is correct
-		if (p->length != (sizeof(CAimSyncData) + 1))
-		{
-			return nullptr;
-		}
-
-		CAimSyncData *d = (CAimSyncData *)(&p->data[1]);
-
-		// Never had an issue with getting crashed here, but... better to check.
-		if (d->vecFront.IsNan() || d->vecPosition.IsNan())
-		{
-			return nullptr;
-		}
-
-		// Fix first-person up/down aim sync
-		if (lastWeapon[playerid] == 34 || lastWeapon[playerid] == 35 || lastWeapon[playerid] == 36 || lastWeapon[playerid] == 43)
-		{
-			d->fZAim = -d->vecFront.fZ;
-
-			if (d->fZAim > 1.0f)
-			{
-				d->fZAim = 1.0f;
-			}
-			else if (d->fZAim < -1.0f)
-			{
-				d->fZAim = -1.0f;
-			}
-		}
-
-		if (infiniteAmmo[playerid])
-		{
-			d->byteCameraZoom = 2;
-		}
-	}
-
-	if (packetId == ID_VEHICLE_SYNC)
-	{
-		// Let's ensure the length is correct
-		if (p->length != (sizeof(CVehicleSyncData) + 1))
-		{
-			return nullptr;
-		}
-
-		CVehicleSyncData *d = (CVehicleSyncData *)(&p->data[1]);
-
-		// NaN = infinite loop. Don't really know why
-		if (d->vecPosition.IsNan() ||
-			//d->fQuaternion.IsNan() ||
-			d->vecVelocity.IsNan())
-		{
-			return nullptr;
-		}
-
-		if (d->bytePlayerWeapon > 46 || (d->bytePlayerWeapon > 18 && d->bytePlayerWeapon < 22))
-		{
-			d->bytePlayerWeapon = 0;
-		}
-
-		if (fakeHealth[playerid] != 255)
-		{
-			d->bytePlayerHealth = fakeHealth[playerid];
-		}
-
-		if (fakeArmour[playerid] != 255)
-		{
-			d->bytePlayerArmour = fakeArmour[playerid];
-		}
-	}
-
-	if (packetId == ID_PASSENGER_SYNC)
-	{
-		// Let's ensure the length is correct
-		if (p->length != (sizeof(CPassengerSyncData) + 1))
-		{
-			return nullptr;
-		}
-
-		CPassengerSyncData *d = (CPassengerSyncData *)(&p->data[1]);
-
-		// Didn't have any issues with it, but better to prevent
-		if (d->vecPosition.IsNan())
-		{
-			return nullptr;
-		}
-
-		if (d->bytePlayerWeapon > 46 || (d->bytePlayerWeapon > 18 && d->bytePlayerWeapon < 22))
-		{
-			d->bytePlayerWeapon = 0;
-		}
-
-		if (fakeHealth[playerid] != 255)
-		{
-			d->bytePlayerHealth = fakeHealth[playerid];
-		}
-
-		if (fakeArmour[playerid] != 255)
-		{
-			d->bytePlayerArmour = fakeArmour[playerid];
-		}
-	}
-
-	return p;
+	});
 }
 
 //----------------------------------------------------
