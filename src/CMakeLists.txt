@@ -31,5 +31,5 @@ if(MXE)
 	target_link_libraries(SKY -lpsapi)
 endif()
 
-set_property(TARGET SKY PROPERTY CXX_STANDARD 11)
+set_property(TARGET SKY PROPERTY CXX_STANDARD 14)
 set_property(TARGET SKY PROPERTY CXX_STANDARD_REQUIRED ON)
