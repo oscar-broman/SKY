@@ -16,8 +16,6 @@
 #include "Utils.h"
 #include <fstream>
 
-#include "subhook/subhook.h"
-
 #ifdef LINUX
 #include <cstring>
 typedef unsigned char *PCHAR;

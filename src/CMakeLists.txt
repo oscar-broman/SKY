@@ -25,8 +25,6 @@ add_samp_plugin(SKY
 	${PROJECT_SOURCE_DIR}/SKY.def
 )
 
-target_link_libraries(SKY subhook)
-
 if(MXE)
 	target_link_libraries(SKY -lpsapi)
 endif()

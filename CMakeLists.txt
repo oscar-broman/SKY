@@ -28,9 +28,4 @@ if(WIN32)
 	add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 endif()
 
-set(SUBHOOK_STATIC ON CACHE BOOL "Build as a static library")
-set(SUBHOOK_INSTALL OFF CACHE BOOL "Do not install any files")
-set(SUBHOOK_TESTS OFF CACHE BOOL "Exclude tests from build")
-
-add_subdirectory(lib/subhook)
 add_subdirectory(src)
