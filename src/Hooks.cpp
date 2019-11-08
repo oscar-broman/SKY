@@ -402,11 +402,11 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 			auto lastSyncData = &getLastSyncData<decltype(netGame)>(playerid);
 			if (syncDataFrozen[playerid])
 			{
-				memcpy(d, lastSyncData, sizeof(typename Structs::CSyncData));
+				d = lastSyncData;
 			}
 			else
 			{
-				memcpy(lastSyncData, d, sizeof(typename Structs::CSyncData));
+				lastSyncData = d;
 			}
 
 			if (blockKeySync[playerid])
@@ -568,6 +568,6 @@ void InstallPreHooks()
 
 	for (int i = 0; i < 1000; i++)
 	{
-		fakeQuat[i] = NULL;
+		fakeQuat[i] = 0;
 	}
 }
