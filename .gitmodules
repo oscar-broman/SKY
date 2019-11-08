@@ -1,6 +1,3 @@
-[submodule "lib/subhook"]
-	path = lib/subhook
-	url = https://github.com/Zeex/subhook.git
 [submodule "lib/cmake-modules"]
 	path = lib/cmake-modules
 	url = https://github.com/Zeex/cmake-modules.git
