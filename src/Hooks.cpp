@@ -41,6 +41,7 @@
 #include "Versions.h"
 #include "main.h"
 #include <cmath>
+#include <cstring>
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <limits>
@@ -201,6 +202,16 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 				d->vecVelocity.IsNan())
 			{
 				return nullptr;
+			}
+
+			auto lastSyncData = &getLastSyncData<Structs>(playerid);
+			if (syncDataFrozen[playerid])
+			{
+				d = lastSyncData;
+			}
+			else
+			{
+				lastSyncData = d;
 			}
 
 			if (d->byteWeapon > 46 || (d->byteWeapon > 18 && d->byteWeapon < 22))
@@ -399,16 +410,6 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 				}
 			}
 
-			auto lastSyncData = &getLastSyncData<decltype(netGame)>(playerid);
-			if (syncDataFrozen[playerid])
-			{
-				d = lastSyncData;
-			}
-			else
-			{
-				lastSyncData = d;
-			}
-
 			if (blockKeySync[playerid])
 			{
 				d->wKeys = 0;
@@ -563,8 +564,8 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 
 void InstallPreHooks()
 {
-	memset(&fakeHealth, 255, sizeof(fakeHealth));
-	memset(&fakeArmour, 255, sizeof(fakeArmour));
+	std::memset(&fakeHealth, 255, sizeof(fakeHealth));
+	std::memset(&fakeArmour, 255, sizeof(fakeArmour));
 
 	for (int i = 0; i < 1000; i++)
 	{

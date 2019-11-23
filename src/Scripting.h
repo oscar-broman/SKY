@@ -34,14 +34,13 @@
 #define SCRIPTING_H
 
 #include "main.h"
-#include "Addresses.h"
 
-#define CHECK_PARAMS(m, n) \
-	if (params[0] != (m * 4)) \
-	{ \
+#define CHECK_PARAMS(m, n)                                                                             \
+	if (params[0] != (m * 4))                                                                          \
+	{                                                                                                  \
 		logprintf("SKY: %s: Expecting %d parameter(s), but found %d", n, m, params[0] / sizeof(cell)); \
-		return 0; \
+		return 0;                                                                                      \
 	}
 
-int InitScripting(AMX *amx, int version);
+int InitScripting(AMX *amx);
 #endif
