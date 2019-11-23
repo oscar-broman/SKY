@@ -21,27 +21,26 @@ DWORD CAddress::FUNC_Logprintf_037_R2_1 = 0x080A91D0;
 DWORD CAddress::FUNC_Logprintf_03DL_R1 = 0x080B1CA0;
 #endif
 
-// Pointers
-DWORD CAddress::VAR_ppNetGame = 0;
-DWORD CAddress::VAR_ppConsole = 0;
-DWORD CAddress::VAR_ppRakServer = 0;
-
 DWORD CAddress::FUNC_CPlayer__SpawnForWorld = 0;
 
 void CAddress::Initialize(int iVersion)
 {
 #ifdef _WIN32
-	if(iVersion == SAMP_VERSION_03DL_R1) {
+	if (iVersion == SAMP_VERSION_03DL_R1)
+	{
 		FUNC_CPlayer__SpawnForWorld = FindPattern("\x56\x8B\xF1\x8B\x86\x3B\x26\x00\x00\x85\xC0\x0F\x84", "xxxxx????xxxx");
 	}
-	else {
+	else
+	{
 		FUNC_CPlayer__SpawnForWorld = 0x00487730;
 	}
 #else
-	if(iVersion == SAMP_VERSION_03DL_R1) {
+	if (iVersion == SAMP_VERSION_03DL_R1)
+	{
 		FUNC_CPlayer__SpawnForWorld = FindPattern("\x55\x89\xE5\x56\x53\x83\xEC\x00\x8B\x75\x00\xA1\x00\x00\x00\x00", "xxxxxxx?xx?x????");
 	}
-	else {
+	else
+	{
 		FUNC_CPlayer__SpawnForWorld = 0x080D7870;
 	}
 #endif

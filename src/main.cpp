@@ -25,6 +25,7 @@ typedef unsigned char *PCHAR;
 
 void **ppPluginData;
 extern void *pAMXFunctions;
+logprintf_t logprintf;
 
 // Internal server pointers
 CNetGame *pNetGame = 0;
@@ -47,13 +48,12 @@ PLUGIN_EXPORT unsigned int PLUGIN_CALL Supports()
 // The Load() function gets passed on exported functions from
 // the SA-MP Server, like the AMX Functions and logprintf().
 // Should return true if loading the plugin has succeeded.
-logprintf_t logprintf;
 
 PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData)
 {
 	ppPluginData = ppData;
-	pAMXFunctions = ppData[PLUGIN_DATA_AMX_EXPORTS];
-	logprintf = reinterpret_cast<logprintf_t>(ppData[PLUGIN_DATA_LOGPRINTF]);
+	pAMXFunctions = ppPluginData[PLUGIN_DATA_AMX_EXPORTS];
+	logprintf = reinterpret_cast<logprintf_t>(ppPluginData[PLUGIN_DATA_LOGPRINTF]);
 	iVersion = GetServerVersion();
 
 #ifndef _WIN32
@@ -86,10 +86,10 @@ PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx)
 	if (!bFirst)
 	{
 		bFirst = true;
-		CSAMPFunctions::Initialize(ppPluginData);
+		CSAMPFunctions::Initialize();
 	}
 
-	return InitScripting(amx, iVersion);
+	return InitScripting(amx);
 }
 
 //----------------------------------------------------------

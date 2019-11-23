@@ -1,27 +1,26 @@
-#include <unordered_map>
-
-#include "Addresses.h"
 #include "Functions.h"
+#include "Addresses.h"
 #include "Hooks.h"
 #include "Versions.h"
 #include "main.h"
+#include <raknet/NetworkTypes.h>
 
-RakNet__Send_t CSAMPFunctions::pfn__RakNet__Send = NULL;
-RakNet__Receive_t CSAMPFunctions::pfn__RakNet__Receive = NULL;
-RakNet__RPC_t CSAMPFunctions::pfn__RakNet__RPC = NULL;
-RakNet__GetPlayerIDFromIndex_t CSAMPFunctions::pfn__RakNet__GetPlayerIDFromIndex = NULL;
+RakNet__Send_t CSAMPFunctions::pfn__RakNet__Send = 0;
+RakNet__Receive_t CSAMPFunctions::pfn__RakNet__Receive = 0;
+RakNet__RPC_t CSAMPFunctions::pfn__RakNet__RPC = 0;
+RakNet__GetPlayerIDFromIndex_t CSAMPFunctions::pfn__RakNet__GetPlayerIDFromIndex = 0;
 
-void CSAMPFunctions::Initialize(void **pluginData)
+void CSAMPFunctions::Initialize()
 {
-	auto (*ptr)(void) = reinterpret_cast<void *(*)()>(pluginData[PLUGIN_DATA_NETGAME]);
+	auto (*ptr)(void) = reinterpret_cast<void *(*)()>(ppPluginData[PLUGIN_DATA_NETGAME]);
 	pNetGame = reinterpret_cast<CNetGame *>(ptr());
 
 	// Get pConsole
-	int (*pfn_GetConsole)(void) = (int (*)(void))pluginData[PLUGIN_DATA_CONSOLE];
+	int (*pfn_GetConsole)(void) = (int (*)(void))ppPluginData[PLUGIN_DATA_CONSOLE];
 	pConsole = (void *)pfn_GetConsole();
 
 	// Get pRakServer
-	int (*pfn_GetRakServer)(void) = (int (*)(void))pluginData[PLUGIN_DATA_RAKSERVER];
+	int (*pfn_GetRakServer)(void) = (int (*)(void))ppPluginData[PLUGIN_DATA_RAKSERVER];
 	pRakServer = (RakServer *)pfn_GetRakServer();
 
 	int *pRakServer_VTBL = ((int *)(*(void **)pRakServer));
@@ -37,13 +36,10 @@ void CSAMPFunctions::Initialize(void **pluginData)
 
 void CSAMPFunctions::SpawnPlayer(int playerid)
 {
-	CPlayer__SpawnForWorld_t SpawnForWorld = (CPlayer__SpawnForWorld_t)CAddress::FUNC_CPlayer__SpawnForWorld;
-
-	auto value = getNetGame([playerid](auto netGame, auto structs) -> void * {
-		return netGame->pPlayerPool->pPlayer[playerid];
+	getNetGame([playerid](auto netGame, auto structs) {
+		CPlayer__SpawnForWorld_t SpawnForWorld = (CPlayer__SpawnForWorld_t)CAddress::FUNC_CPlayer__SpawnForWorld;
+		SpawnForWorld(netGame->pPlayerPool->pPlayer[playerid]);
 	});
-
-	SpawnForWorld(value);
 }
 
 bool CSAMPFunctions::Send(RakNet::BitStream *parameters, PacketPriority priority, PacketReliability reliability, unsigned orderingChannel, PlayerID playerId, bool broadcast)

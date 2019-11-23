@@ -1,7 +1,5 @@
-#ifndef __YSF_MAINH
-#define __YSF_MAINH
+#pragma once
 
-#include "Addresses.h"
 // Fixes an annoying warning when building with MXE/MinGW "plugincommon.h"
 // will display a warning about "Not using a VC++ compiler" not being set,
 // since MXE is not windows.
@@ -14,6 +12,7 @@
 #include <plugincommon.h>
 #endif
 
+#include "Addresses.h"
 #include <amx/amx.h>
 
 class CNetGame;
@@ -28,11 +27,6 @@ extern int iVersion;
 typedef void (*logprintf_t)(const char *szFormat, ...);
 extern logprintf_t logprintf;
 
-// Defines
-#define CON_VARFLAG_DEBUG 1
-#define CON_VARFLAG_READONLY 2
-#define CON_VARFLAG_RULE 4
-
 #ifdef _WIN32
 #define OS_NAME "Windows"
 #else
@@ -40,15 +34,4 @@ extern logprintf_t logprintf;
 #endif
 
 #define PROJECT_NAME "SKY"
-#define PROJECT_VERSION "0.2"
-
-#define SAFE_DELETE(p)  \
-    {                   \
-        if (p)          \
-        {               \
-            delete (p); \
-            (p) = NULL; \
-        }               \
-    }
-
-#endif
+#define PROJECT_VERSION "2.1.0"
