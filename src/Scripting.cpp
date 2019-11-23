@@ -87,13 +87,15 @@ static cell AMX_NATIVE_CALL SetLastAnimationData(AMX *amx, cell *params)
 	CHECK_PARAMS(2, "SetLastAnimationData");
 
 	return getNetGame([params](auto netGame, auto structs) {
+		using Structs = decltype(structs);
+
 		int playerid = (int)params[1];
 		int data = (int)params[2];
 
 		if (playerid < 0 || playerid >= 1000)
 			return 0;
 
-		auto *d = &getLastSyncData<decltype(netGame)>(playerid);
+		auto *d = &getLastSyncData<Structs>(playerid);
 		d->dwAnimationData = data;
 
 		return 1;
@@ -104,6 +106,7 @@ static cell AMX_NATIVE_CALL SetLastAnimationData(AMX *amx, cell *params)
 static cell AMX_NATIVE_CALL SendLastSyncData(AMX *amx, cell *params)
 {
 	CHECK_PARAMS(3, "SendLastSyncData");
+	return 1;
 
 	return getNetGame([params](auto netGame, auto structs) {
 		using Structs = decltype(structs);
@@ -111,8 +114,7 @@ static cell AMX_NATIVE_CALL SendLastSyncData(AMX *amx, cell *params)
 		int playerid = (int)params[1];
 		int toplayerid = (int)params[2];
 		int animation = (int)params[3];
-		BYTE ps = ID_PLAYER_SYNC;
-		auto *d = &getLastSyncData<decltype(netGame)>(playerid);
+		auto *d = &getLastSyncData<Structs>(playerid);
 
 		RakNet::BitStream bs;
 		bs.Write((BYTE)ID_PLAYER_SYNC);
@@ -384,10 +386,12 @@ static cell AMX_NATIVE_CALL FreezeSyncData(AMX *amx, cell *params)
 	CHECK_PARAMS(2, "FreezeSyncData");
 
 	return getNetGame([params](auto netGame, auto structs) {
+		using Structs = decltype(structs);
+
 		int playerid = (int)params[1];
 		BOOL toggle = (BOOL)params[2];
 
-		auto *d = &getLastSyncData<decltype(netGame)>(playerid);
+		auto *d = &getLastSyncData<Structs>(playerid);
 		d->vecVelocity = CVector();
 		d->byteSpecialAction = 0;
 		d->wKeys = 0;
@@ -493,7 +497,7 @@ static AMX_NATIVE_INFO native_list[] = {
 	{"TextDrawSetStrForPlayer", TextDrawSetStrForPlayer},
 	{0, 0}};
 
-int InitScripting(AMX *amx, int iVersion)
+int InitScripting(AMX *amx)
 {
 	return amx_Register(amx, native_list, -1);
 }
