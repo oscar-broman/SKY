@@ -5,3 +5,5 @@ Dockerfile
 *.sdf
 CREDITS
 .gitignore
+out/
+.vscode/
