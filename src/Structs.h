@@ -335,7 +335,8 @@ public:
 	WORD wVehicleId; // 0x005E - 0x0060
 	BYTE byteSeatFlags : 7;
 	BYTE byteDriveBy : 1;
-	BYTE bytePlayerWeapon; // 0x0061 - 0x0062
+	BYTE bytePlayerWeapon: 6; // 0x0061 - 0x0062
+	BYTE byteAdditionalKeys: 2;
 	BYTE bytePlayerHealth; // 0x0062 - 0x0063
 	BYTE bytePlayerArmour; // 0x0063 - 0x0064
 	WORD wLRAnalog;		   // 0x0064 - 0x0066
