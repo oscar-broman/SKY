@@ -89,7 +89,7 @@ enum eSAMPVersion
 class CAddress
 {
 public:
-	static void Initialize(int iVersion);
+	static void Initialize(eSAMPVersion iVersion);
 
 	static DWORD FUNC_Logprintf_03Z;
 	static DWORD FUNC_Logprintf_03ZR2_2;

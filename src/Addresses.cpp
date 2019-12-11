@@ -23,7 +23,7 @@ DWORD CAddress::FUNC_Logprintf_03DL_R1 = 0x080B1CA0;
 
 DWORD CAddress::FUNC_CPlayer__SpawnForWorld = 0;
 
-void CAddress::Initialize(int iVersion)
+void CAddress::Initialize(eSAMPVersion iVersion)
 {
 #ifdef _WIN32
 	if (iVersion == SAMP_VERSION_03DL_R1)

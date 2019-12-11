@@ -32,7 +32,7 @@ CNetGame *pNetGame = 0;
 void *pConsole = 0;
 RakServer *pRakServer = 0;
 
-int iVersion = eSAMPVersion::SAMP_VERSION_UNKNOWN;
+eSAMPVersion iVersion = eSAMPVersion::SAMP_VERSION_UNKNOWN;
 
 //----------------------------------------------------------
 // The Support() function indicates what possibilities this
@@ -62,6 +62,7 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData)
 
 	CAddress::Initialize(iVersion);
 	InstallPreHooks();
+	ShowPluginInfo(iVersion);
 
 	return 1;
 }

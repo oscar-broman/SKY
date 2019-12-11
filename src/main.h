@@ -22,7 +22,7 @@ extern CNetGame *pNetGame;
 extern void *pConsole;
 extern RakServer *pRakServer;
 extern void **ppPluginData;
-extern int iVersion;
+extern eSAMPVersion iVersion;
 
 typedef void (*logprintf_t)(const char *szFormat, ...);
 extern logprintf_t logprintf;

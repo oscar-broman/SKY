@@ -8,4 +8,6 @@ int GetTickCount();
 void LoadTickCount();
 #endif
 
-int GetServerVersion();
+eSAMPVersion GetServerVersion();
+char* GetServerVersionToStr(eSAMPVersion version);
+void ShowPluginInfo(eSAMPVersion version);
