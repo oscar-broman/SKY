@@ -63,6 +63,7 @@ PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData)
 	CAddress::Initialize(iVersion);
 	InstallPreHooks();
 
+	logprintf("SKY: " PROJECT_VERSION " successfully loaded.");
 	return 1;
 }
 
