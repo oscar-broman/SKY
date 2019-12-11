@@ -12,7 +12,7 @@
 #include "main.h"
 
 #include "Addresses.h"
-#include <string>
+#include <string.h>
 
 // Linux GetTickCount
 #ifndef _WIN32
