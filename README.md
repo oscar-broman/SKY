@@ -38,7 +38,8 @@ then you can run the command below to build
 ```
 cd SKY
 mkdir build && cd build
-cmake.exe ../
+cmake -G "Visual Studio 15 2017" ../
+cmake --build . --config Release
 ```
 
 or you can open the source in Visual Studio, where it will autodetect that it uses CMake, and will
