@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 project(SKY)
 
-set(PLUGIN_VERSION "2.0.0")
+set(PLUGIN_VERSION "2.1.1")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/builds)
 set(CMAKE_INSTALL_PREFIX ${PROJECT_SOURCE_DIR}/builds)
 
