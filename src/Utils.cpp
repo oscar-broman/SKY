@@ -1,13 +1,3 @@
-/* =========================================
-
-		FCNPC - Fully Controllable NPC
-			----------------------
-
-	- File: Utils.cpp
-	- Author(s): OrMisicL
-
-  =========================================*/
-
 #include "Utils.h"
 #include "main.h"
 
@@ -75,7 +65,7 @@ eSAMPVersion GetServerVersion()
 
 char* GetServerVersionToStr(eSAMPVersion version)
 {
-	char versionString[64];
+	char* versionString = new char[64];
 
 	switch(version)
 	{
