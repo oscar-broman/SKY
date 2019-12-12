@@ -1,5 +1,0 @@
-FROM dockcross/windows-static-x86:latest
-COPY . /work
-RUN chmod +x /work/build.sh
-RUN cmake -DMXE=true -DCMAKE_BUILD_TYPE=Debug .
-ENTRYPOINT ["/work/build.sh"]

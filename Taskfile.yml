@@ -2,18 +2,26 @@ version: "2"
 
 tasks:
   build:
-    deps: [build:linux, build:windows]
+    cmds:
+      - task setup
+      - task build:linux
+      - task build:windows
+
+  setup:
+    cmds:
+      - rm -rf builds/
+      - mkdir -p builds/linux
+      - mkdir -p builds/windows
 
   build:linux:
     cmds:
-      - rm -rf builds/SKY.so
-      - mkdir -p builds
-      - docker build -f Dockerfile.linux -t oscar-broman/sky:linux .
+      - docker build --no-cache -f Dockerfile -t oscar-broman/sky:linux .
       - docker run --volume=$(pwd)/builds:/work/builds oscar-broman/sky:linux
 
   build:windows:
+    dir: builds/windows
     cmds:
-      - rm -rf builds/SKY.dll
-      - mkdir -p builds
-      - docker build -f Dockerfile.windows -t oscar-broman/sky:windows .
-      - docker run --volume=$(pwd)/builds:/work/builds oscar-broman/sky:windows
+      - cmake -G "Visual Studio 15 2017" ../..
+      - cmake --build . --config Release
+      - cpack
+      - mv release-windows.zip ../

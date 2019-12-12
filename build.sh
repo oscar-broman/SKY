@@ -1,4 +1,4 @@
 #!/bin/bash
 make
 cpack
-cp -R /work/release-* builds/
+mv /work/release-linux.tar.gz builds/
