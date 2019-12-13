@@ -76,6 +76,9 @@ static cell AMX_NATIVE_CALL SpawnPlayerForWorld(AMX *amx, cell *params)
 
 	int playerid = (int)params[1];
 
+	if(!IsPlayerConnected(playerid)) 
+		return 0;
+
 	CSAMPFunctions::SpawnPlayer(playerid);
 
 	return 1;
@@ -92,7 +95,7 @@ static cell AMX_NATIVE_CALL SetLastAnimationData(AMX *amx, cell *params)
 		int playerid = (int)params[1];
 		int data = (int)params[2];
 
-		if (playerid < 0 || playerid >= 1000)
+		if(!IsPlayerConnected(playerid)) 
 			return 0;
 
 		auto *d = &getLastSyncData<Structs>(playerid);
@@ -114,6 +117,10 @@ static cell AMX_NATIVE_CALL SendLastSyncData(AMX *amx, cell *params)
 		int playerid = (int)params[1];
 		int toplayerid = (int)params[2];
 		int animation = (int)params[3];
+
+		if(!IsPlayerConnected(playerid))
+			return 0;
+
 		auto *d = &getLastSyncData<Structs>(playerid);
 
 		RakNet::BitStream bs;
@@ -259,6 +266,9 @@ static cell AMX_NATIVE_CALL SetFakeArmour(AMX *amx, cell *params)
 	int playerid = (int)params[1];
 	BYTE armour = (BYTE)params[2];
 
+	if(!IsPlayerConnected(playerid))
+		return 0;
+
 	fakeArmour[playerid] = armour;
 
 	return 1;
@@ -272,6 +282,9 @@ static cell AMX_NATIVE_CALL SetFakeHealth(AMX *amx, cell *params)
 	int playerid = (int)params[1];
 	BYTE health = (BYTE)params[2];
 
+	if(!IsPlayerConnected(playerid))
+		return 0;	
+
 	fakeHealth[playerid] = health;
 
 	return 1;
@@ -283,6 +296,9 @@ static cell AMX_NATIVE_CALL SetFakeFacingAngle(AMX *amx, cell *params)
 	CHECK_PARAMS(2, "SetFakeFacingAngle");
 
 	int playerid = (int)params[1];
+
+	if(!IsPlayerConnected(playerid))
+		return 0;	
 
 	if ((int)params[2] == 0x7FFFFFFF)
 	{
@@ -326,6 +342,9 @@ static cell AMX_NATIVE_CALL SetInfiniteAmmoSync(AMX *amx, cell *params)
 	int playerid = (int)params[1];
 	BOOL toggle = (BOOL)params[2];
 
+	if(!IsPlayerConnected(playerid))
+		return 0;	
+
 	infiniteAmmo[playerid] = toggle;
 
 	return 1;
@@ -337,6 +356,9 @@ static cell AMX_NATIVE_CALL SetKeySyncBlocked(AMX *amx, cell *params)
 
 	int playerid = (int)params[1];
 	BOOL toggle = (BOOL)params[2];
+
+	if(!IsPlayerConnected(playerid))
+		return 0;	
 
 	blockKeySync[playerid] = toggle;
 
@@ -350,6 +372,9 @@ static cell AMX_NATIVE_CALL ClearAnimationsForPlayer(AMX *amx, cell *params)
 
 	int playerid = (int)params[1];
 	int forplayerid = (int)params[2];
+
+	if(!IsPlayerConnected(playerid))
+		return 0;	
 
 	RakNet::BitStream bs;
 	bs.Write((WORD)playerid);
@@ -366,6 +391,9 @@ static cell AMX_NATIVE_CALL SendDeath(AMX *amx, cell *params)
 
 	return getNetGame([params](auto netGame, auto structs) {
 		int playerid = (int)params[1];
+
+		if(!IsPlayerConnected(playerid))
+			return 0;		
 
 		auto *pPlayer = netGame->pPlayerPool->pPlayer[playerid];
 
@@ -390,6 +418,9 @@ static cell AMX_NATIVE_CALL FreezeSyncData(AMX *amx, cell *params)
 
 		int playerid = (int)params[1];
 		BOOL toggle = (BOOL)params[2];
+
+		if(!IsPlayerConnected(playerid))
+			return 0;		
 
 		auto *d = &getLastSyncData<Structs>(playerid);
 		d->vecVelocity = CVector();
@@ -435,9 +466,10 @@ static cell AMX_NATIVE_CALL PlayerTextDrawSetPosition(AMX *amx, cell *params)
 		int playerid = (int)params[1];
 		int textdrawid = (int)params[2];
 
-		if (textdrawid < 0 || textdrawid >= MAX_PLAYER_TEXT_DRAWS)
+		if(!IsPlayerConnected(playerid))
 			return 0;
-		if (playerid < 0 || playerid >= 1000)
+
+		if (textdrawid < 0 || textdrawid >= MAX_PLAYER_TEXT_DRAWS)
 			return 0;
 
 		if (!netGame->pPlayerPool->pPlayer[playerid])
@@ -464,9 +496,13 @@ static cell AMX_NATIVE_CALL TextDrawSetStrForPlayer(AMX *amx, cell *params)
 		return 0;
 
 	int playerid = (int)params[2];
+	if(!IsPlayerConnected(playerid))
+		return 0;
+			
 	char *text;
 	amx_StrParam(amx, params[3], text);
 	unsigned short len = (unsigned short)strlen(text);
+	
 
 	RakNet::BitStream bs;
 	bs.Write((WORD)textdrawid);

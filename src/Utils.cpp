@@ -1,5 +1,6 @@
 #include "Utils.h"
 #include "main.h"
+#include "Versions.h"
 
 #include "Addresses.h"
 #include <string.h>
@@ -129,4 +130,14 @@ void ShowPluginInfo(eSAMPVersion version)
 	logprintf("   ");	
 	logprintf(" ===============================");
 	logprintf("");	
+}
+
+bool IsPlayerConnected(int playerid)
+{
+	return getNetGame([playerid](auto netGame, auto structs) -> bool {
+		if(playerid < 0 || playerid >= 1000) 
+			return false;
+
+		return netGame->pPlayerPool->pPlayer[playerid] != 0;
+	});
 }

@@ -11,3 +11,4 @@ void LoadTickCount();
 eSAMPVersion GetServerVersion();
 char* GetServerVersionToStr(eSAMPVersion version);
 void ShowPluginInfo(eSAMPVersion version);
+bool IsPlayerConnected(int playerid);
