@@ -9,19 +9,18 @@ tasks:
 
   setup:
     cmds:
-      - rm -rf builds/
-      - mkdir -p builds/linux
-      - mkdir -p builds/windows
+      - rm -rf build/
+      - mkdir -p build/linux
+      - mkdir -p build/windows
 
   build:linux:
     cmds:
-      - docker build --no-cache -f Dockerfile -t oscar-broman/sky:linux .
-      - docker run --volume=$(pwd)/builds:/work/builds oscar-broman/sky:linux
+      - docker build --no-cache -t oscar-broman/sky:linux --build-arg build=Release .
+      - docker run --volume=$(pwd)/build:/work/build oscar-broman/sky:linux
 
   build:windows:
-    dir: builds/windows
+    dir: build/windows
     cmds:
       - cmake -G "Visual Studio 15 2017" ../..
       - cmake --build . --config Release
       - cpack
-      - mv release-windows.zip ../
