@@ -3,6 +3,15 @@
 #endif
 #define _INC_SKY
 
+// Sync Packets
+enum E_SYNC_TYPES
+{
+    E_PLAYER_SYNC = 0,
+    E_AIM_SYNC,
+    E_VEHICLE_SYNC,
+    E_PASSENGER_SYNC
+};
+
 // Make a player appear to spawn for all players but himself
 native SpawnPlayerForWorld(playerid);
 // Keep re-sending the last received sync data
@@ -21,7 +30,12 @@ native SendDeath(playerid);
 native SetLastAnimationData(playerid, data);
 // Send the last sync data
 // If an animation is specified, it will be similar to ApplyAnimation
+#pragma deprecated Please use SendLastSyncPacket instead
 native SendLastSyncData(playerid, toplayerid, animation = 0);
+// Send the last sync packet
+// If an type is specified it will sync that packet only
+// If an animation is specified, it will be similar to ApplyAnimation
+native SendLastSyncPacket(playerid, toplayerid, E_SYNC_TYPES:type, animation = 0);
 // Clear animations for another player only
 native ClearAnimationsForPlayer(playerid, forplayerid);
 // Disable infinity ammo bugs and other bugs (some bugs still work)

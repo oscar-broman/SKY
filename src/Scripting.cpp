@@ -109,7 +109,6 @@ static cell AMX_NATIVE_CALL SetLastAnimationData(AMX *amx, cell *params)
 static cell AMX_NATIVE_CALL SendLastSyncData(AMX *amx, cell *params)
 {
 	CHECK_PARAMS(3, "SendLastSyncData");
-	return 1;
 
 	return getNetGame([params](auto netGame, auto structs) {
 		using Structs = decltype(structs);
@@ -119,6 +118,9 @@ static cell AMX_NATIVE_CALL SendLastSyncData(AMX *amx, cell *params)
 		int animation = (int)params[3];
 
 		if(!IsPlayerConnected(playerid))
+			return 0;
+
+		if(!IsPlayerConnected(toplayerid))
 			return 0;
 
 		auto *d = &getLastSyncData<Structs>(playerid);
@@ -250,6 +252,55 @@ static cell AMX_NATIVE_CALL SendLastSyncData(AMX *amx, cell *params)
 		else
 		{
 			bs.Write(false);
+		}
+
+		CSAMPFunctions::Send(&bs, HIGH_PRIORITY, RELIABLE_SEQUENCED, 0, CSAMPFunctions::GetPlayerIDFromIndex(toplayerid), false);
+
+		return 1;
+	});
+}
+
+// native SendLastSyncPacket(playerid, toplayerid, type = 0, animation = 0)
+static cell AMX_NATIVE_CALL SendLastSyncPacket(AMX *amx, cell *params)
+{
+	CHECK_PARAMS(4, "SendLastSyncPacket");
+
+	return getNetGame([params](auto netGame, auto structs) {
+		using Structs = decltype(structs);
+
+		int playerid = static_cast<int>(params[1]);
+		int toplayerid = static_cast<int>(params[2]);
+		int type = static_cast<int>(params[3]);
+		int animation = static_cast<int>(params[4]);
+
+		if(!IsPlayerConnected(playerid))
+			return 0;
+
+		if(!IsPlayerConnected(toplayerid)) 
+			return 0;
+
+		RakNet::BitStream bs;
+
+		switch(type) 
+		{
+			case 0: // Player Sync
+				sendSyncData<Structs>(playerid, animation, &bs);
+				break;
+
+			case 1: // Aim Sync
+				sendAimSyncData<Structs>(playerid, &bs);
+				break;
+
+			case 2: // Vehicle Sync
+				sendVehicleSyncData<Structs>(playerid, &bs);
+				break;
+
+			case 3: // Passenger Sync
+				sendPassengerSyncData<Structs>(playerid, &bs);
+				break;
+
+			default:
+				return 0;
 		}
 
 		CSAMPFunctions::Send(&bs, HIGH_PRIORITY, RELIABLE_SEQUENCED, 0, CSAMPFunctions::GetPlayerIDFromIndex(toplayerid), false);
@@ -524,6 +575,7 @@ static AMX_NATIVE_INFO native_list[] = {
 	{"SendDeath", SendDeath},
 	{"SetLastAnimationData", SetLastAnimationData},
 	{"SendLastSyncData", SendLastSyncData},
+	{"SendLastSyncPacket", SendLastSyncPacket},
 	{"SetDisableSyncBugs", SetDisableSyncBugs},
 	{"ClearAnimationsForPlayer", ClearAnimationsForPlayer},
 	{"SetKeySyncBlocked", SetKeySyncBlocked},

@@ -469,6 +469,16 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 				return nullptr;
 			}
 
+			auto lastAimSyncData = &getLastAimSyncData<Structs>(playerid);
+			if (syncDataFrozen[playerid])
+			{
+				d = lastAimSyncData;
+			}
+			else
+			{
+				lastAimSyncData = d;
+			}			
+
 			// Fix first-person up/down aim sync
 			if (lastWeapon[playerid] == 34 || lastWeapon[playerid] == 35 || lastWeapon[playerid] == 36 || lastWeapon[playerid] == 43)
 			{
@@ -508,6 +518,16 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 				return nullptr;
 			}
 
+			auto lastVehicleSyncData = &getLastVehicleSyncData<Structs>(playerid);
+			if (syncDataFrozen[playerid])
+			{
+				d = lastVehicleSyncData;
+			}
+			else
+			{
+				lastVehicleSyncData = d;
+			}				
+
 			if (d->bytePlayerWeapon > 46 || (d->bytePlayerWeapon > 18 && d->bytePlayerWeapon < 22))
 			{
 				d->bytePlayerWeapon = 0;
@@ -539,6 +559,16 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 			{
 				return nullptr;
 			}
+
+			auto lastPassengerSyncData = &getLastPassengerSyncData<Structs>(playerid);
+			if (syncDataFrozen[playerid])
+			{
+				d = lastPassengerSyncData;
+			}
+			else
+			{
+				lastPassengerSyncData = d;
+			}				
 
 			if (d->bytePlayerWeapon > 46 || (d->bytePlayerWeapon > 18 && d->bytePlayerWeapon < 22))
 			{
