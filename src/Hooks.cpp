@@ -451,10 +451,8 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 			}
 
 			int anim = d->dwAnimationData;
-			BOOL animChanged = (lastAnim[playerid] != anim);
-
 			lastAnim[playerid] = anim;
-
+			
 			lastWeapon[playerid] = d->byteWeapon;
 		}
 
