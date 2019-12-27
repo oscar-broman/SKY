@@ -134,7 +134,7 @@ void ShowPluginInfo(eSAMPVersion version)
 
 bool IsPlayerConnected(int playerid)
 {
-	return getNetGame([playerid](auto netGame, auto structs) -> bool {
+	return Versions::getNetGame([playerid](auto netGame, auto structs) -> bool {
 		if(playerid < 0 || playerid >= 1000) 
 			return false;
 

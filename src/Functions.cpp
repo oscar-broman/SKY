@@ -36,7 +36,7 @@ void CSAMPFunctions::Initialize()
 
 void CSAMPFunctions::SpawnPlayer(int playerid)
 {
-	getNetGame([playerid](auto netGame, auto structs) {
+	Versions::getNetGame([playerid](auto netGame, auto structs) {
 		CPlayer__SpawnForWorld_t SpawnForWorld = (CPlayer__SpawnForWorld_t)CAddress::FUNC_CPlayer__SpawnForWorld;
 		SpawnForWorld(netGame->pPlayerPool->pPlayer[playerid]);
 	});

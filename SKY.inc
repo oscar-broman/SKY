@@ -9,13 +9,17 @@ enum E_SYNC_TYPES
     E_PLAYER_SYNC = 0,
     E_AIM_SYNC,
     E_VEHICLE_SYNC,
-    E_PASSENGER_SYNC
+    E_PASSENGER_SYNC,
+    E_SPECTATING_SYNC
 };
 
 // Make a player appear to spawn for all players but himself
 native SpawnPlayerForWorld(playerid);
 // Keep re-sending the last received sync data
+#pragma deprecated Please use FreezeSyncPacket instead
 native FreezeSyncData(playerid, bool:toggle);
+// Keep re-sending the last recieved sync packet of a certain type
+native FreezeSyncPacket(playerid, E_SYNC_TYPES:type = E_PLAYER_SYNC, bool:toggle);
 // Set the HP bar (warning: affects GetPlayerHealth)
 native SetFakeHealth(playerid, health);
 // Set the armour bar (warning: affects GetPlayerArmour)
@@ -33,9 +37,9 @@ native SetLastAnimationData(playerid, data);
 #pragma deprecated Please use SendLastSyncPacket instead
 native SendLastSyncData(playerid, toplayerid, animation = 0);
 // Send the last sync packet
-// If an type is specified it will sync that packet only
+// If a type is specified it will sync that packet only
 // If an animation is specified, it will be similar to ApplyAnimation
-native SendLastSyncPacket(playerid, toplayerid, E_SYNC_TYPES:type, animation = 0);
+native SendLastSyncPacket(playerid, toplayerid, E_SYNC_TYPES:type = E_PLAYER_SYNC, animation = 0);
 // Clear animations for another player only
 native ClearAnimationsForPlayer(playerid, forplayerid);
 // Disable infinity ammo bugs and other bugs (some bugs still work)

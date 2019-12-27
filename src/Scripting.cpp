@@ -89,7 +89,7 @@ static cell AMX_NATIVE_CALL SetLastAnimationData(AMX *amx, cell *params)
 {
 	CHECK_PARAMS(2, "SetLastAnimationData");
 
-	return getNetGame([params](auto netGame, auto structs) {
+	return Versions::getNetGame([params](auto netGame, auto structs) {
 		using Structs = decltype(structs);
 
 		int playerid = (int)params[1];
@@ -98,7 +98,7 @@ static cell AMX_NATIVE_CALL SetLastAnimationData(AMX *amx, cell *params)
 		if(!IsPlayerConnected(playerid)) 
 			return 0;
 
-		auto *d = &getLastSyncData<Structs>(playerid);
+		auto *d = &Versions::getLastSyncData<Structs>(playerid);
 		d->dwAnimationData = data;
 
 		return 1;
@@ -110,7 +110,7 @@ static cell AMX_NATIVE_CALL SendLastSyncData(AMX *amx, cell *params)
 {
 	CHECK_PARAMS(3, "SendLastSyncData");
 
-	return getNetGame([params](auto netGame, auto structs) {
+	return Versions::getNetGame([params](auto netGame, auto structs) {
 		using Structs = decltype(structs);
 
 		int playerid = (int)params[1];
@@ -123,136 +123,8 @@ static cell AMX_NATIVE_CALL SendLastSyncData(AMX *amx, cell *params)
 		if(!IsPlayerConnected(toplayerid))
 			return 0;
 
-		auto *d = &getLastSyncData<Structs>(playerid);
-
 		RakNet::BitStream bs;
-		bs.Write((BYTE)ID_PLAYER_SYNC);
-		bs.Write((WORD)playerid);
-
-		if (d->wUDAnalog)
-		{
-			bs.Write(true);
-			bs.Write((WORD)d->wUDAnalog);
-		}
-		else
-		{
-			bs.Write(false);
-		}
-
-		if (d->wLRAnalog)
-		{
-			bs.Write(true);
-			bs.Write((WORD)d->wLRAnalog);
-		}
-		else
-		{
-			bs.Write(false);
-		}
-
-		bs.Write((WORD)d->wKeys);
-
-		bs.Write(d->vecPosition.fX);
-		bs.Write(d->vecPosition.fY);
-		bs.Write(d->vecPosition.fZ);
-
-		if (fakeQuat[playerid] != NULL)
-		{
-			bs.Write((bool)(fakeQuat[playerid]->w < 0.0f));
-			bs.Write((bool)(fakeQuat[playerid]->x < 0.0f));
-			bs.Write((bool)(fakeQuat[playerid]->y < 0.0f));
-			bs.Write((bool)(fakeQuat[playerid]->z < 0.0f));
-			bs.Write((unsigned short)(fabs(fakeQuat[playerid]->x) * 65535.0));
-			bs.Write((unsigned short)(fabs(fakeQuat[playerid]->y) * 65535.0));
-			bs.Write((unsigned short)(fabs(fakeQuat[playerid]->z) * 65535.0));
-		}
-		else
-		{
-			bs.Write((bool)(d->fQuaternion[0] < 0.0f));
-			bs.Write((bool)(d->fQuaternion[1] < 0.0f));
-			bs.Write((bool)(d->fQuaternion[2] < 0.0f));
-			bs.Write((bool)(d->fQuaternion[3] < 0.0f));
-			bs.Write((unsigned short)(fabs(d->fQuaternion[1]) * 65535.0));
-			bs.Write((unsigned short)(fabs(d->fQuaternion[2]) * 65535.0));
-			bs.Write((unsigned short)(fabs(d->fQuaternion[3]) * 65535.0));
-		}
-
-		BYTE health, armour;
-
-		if (fakeHealth[playerid] != 255)
-		{
-			health = fakeHealth[playerid];
-		}
-		else
-		{
-			health = d->byteHealth;
-		}
-
-		if (fakeArmour[playerid] != 255)
-		{
-			armour = fakeArmour[playerid];
-		}
-		else
-		{
-			armour = d->byteArmour;
-		}
-
-		if (health >= 100)
-		{
-			health = 0xF;
-		}
-		else
-		{
-			health /= 7;
-		}
-
-		if (armour >= 100)
-		{
-			armour = 0xF;
-		}
-		else
-		{
-			armour /= 7;
-		}
-
-		bs.Write((BYTE)((health << 4) | (armour)));
-
-		bs.Write(d->byteWeapon);
-		bs.Write(d->byteSpecialAction);
-
-		// Make them appear standing still if paused
-		if (GetTickCount() - lastUpdateTick[playerid] > 2000)
-		{
-			bs.WriteVector(0.0f, 0.0f, 0.0f);
-		}
-		else
-		{
-			bs.WriteVector(d->vecVelocity.fX, d->vecVelocity.fY, d->vecVelocity.fZ);
-		}
-
-		if (d->wSurfingInfo)
-		{
-			bs.Write(true);
-
-			bs.Write(d->wSurfingInfo);
-			bs.Write(d->vecSurfing.fX);
-			bs.Write(d->vecSurfing.fY);
-			bs.Write(d->vecSurfing.fZ);
-		}
-		else
-		{
-			bs.Write(false);
-		}
-
-		// Animations are only sent when they are changed
-		if (animation)
-		{
-			bs.Write(true);
-			bs.Write(animation);
-		}
-		else
-		{
-			bs.Write(false);
-		}
+		Versions::sendSyncData<Structs>(playerid, animation, &bs);
 
 		CSAMPFunctions::Send(&bs, HIGH_PRIORITY, RELIABLE_SEQUENCED, 0, CSAMPFunctions::GetPlayerIDFromIndex(toplayerid), false);
 
@@ -260,12 +132,12 @@ static cell AMX_NATIVE_CALL SendLastSyncData(AMX *amx, cell *params)
 	});
 }
 
-// native SendLastSyncPacket(playerid, toplayerid, type = 0, animation = 0)
+// native SendLastSyncPacket(playerid, toplayerid, E_SYNC_TYPES:type = E_PLAYER_SYNC, animation = 0)
 static cell AMX_NATIVE_CALL SendLastSyncPacket(AMX *amx, cell *params)
 {
 	CHECK_PARAMS(4, "SendLastSyncPacket");
 
-	return getNetGame([params](auto netGame, auto structs) {
+	return Versions::getNetGame([params](auto netGame, auto structs) {
 		using Structs = decltype(structs);
 
 		int playerid = static_cast<int>(params[1]);
@@ -283,20 +155,24 @@ static cell AMX_NATIVE_CALL SendLastSyncPacket(AMX *amx, cell *params)
 
 		switch(type) 
 		{
-			case 0: // Player Sync
-				sendSyncData<Structs>(playerid, animation, &bs);
+			case Versions::SyncTypes::E_PLAYER_SYNC: // Player Sync
+				Versions::sendSyncData<Structs>(playerid, animation, &bs);
 				break;
 
-			case 1: // Aim Sync
-				sendAimSyncData<Structs>(playerid, &bs);
+			case Versions::SyncTypes::E_AIM_SYNC: // Aim Sync
+				Versions::sendAimSyncData<Structs>(playerid, &bs);
 				break;
 
-			case 2: // Vehicle Sync
-				sendVehicleSyncData<Structs>(playerid, &bs);
+			case Versions::SyncTypes::E_VEHICLE_SYNC: // Vehicle Sync
+				Versions::sendVehicleSyncData<Structs>(playerid, &bs);
 				break;
 
-			case 3: // Passenger Sync
-				sendPassengerSyncData<Structs>(playerid, &bs);
+			case Versions::SyncTypes::E_PASSENGER_SYNC: // Passenger Sync
+				Versions::sendPassengerSyncData<Structs>(playerid, &bs);
+				break;
+
+			case Versions::SyncTypes::E_SPECTATING_SYNC: // Spectate Sync
+				Versions::sendSpectatingSyncData<Structs>(playerid, &bs);
 				break;
 
 			default:
@@ -440,7 +316,7 @@ static cell AMX_NATIVE_CALL SendDeath(AMX *amx, cell *params)
 {
 	CHECK_PARAMS(1, "SendDeath");
 
-	return getNetGame([params](auto netGame, auto structs) {
+	return Versions::getNetGame([params](auto netGame, auto structs) {
 		int playerid = (int)params[1];
 
 		if(!IsPlayerConnected(playerid))
@@ -464,7 +340,7 @@ static cell AMX_NATIVE_CALL FreezeSyncData(AMX *amx, cell *params)
 {
 	CHECK_PARAMS(2, "FreezeSyncData");
 
-	return getNetGame([params](auto netGame, auto structs) {
+	return Versions::getNetGame([params](auto netGame, auto structs) {
 		using Structs = decltype(structs);
 
 		int playerid = (int)params[1];
@@ -473,7 +349,7 @@ static cell AMX_NATIVE_CALL FreezeSyncData(AMX *amx, cell *params)
 		if(!IsPlayerConnected(playerid))
 			return 0;		
 
-		auto *d = &getLastSyncData<Structs>(playerid);
+		auto *d = &Versions::getLastSyncData<Structs>(playerid);
 		d->vecVelocity = CVector();
 		d->byteSpecialAction = 0;
 		d->wKeys = 0;
@@ -486,12 +362,88 @@ static cell AMX_NATIVE_CALL FreezeSyncData(AMX *amx, cell *params)
 	});
 }
 
+// native FreezeSyncPacket(playerid, E_SYNC_TYPES:type = E_PLAYER_SYNC, bool:toggle)
+static cell AMX_NATIVE_CALL FreezeSyncPacket(AMX *amx, cell *params)
+{
+	CHECK_PARAMS(3, "FreezeSyncData");
+
+	return Versions::getNetGame([params](auto netGame, auto structs) {
+		using Structs = decltype(structs);
+
+		int playerid = static_cast<int>(params[1]);
+		int type = static_cast<int>(params[2]);
+		BOOL toggle = static_cast<BOOL>(params[3]);
+
+		if(!IsPlayerConnected(playerid))
+			return 0;		
+
+		switch(type)
+		{
+			case Versions::SyncTypes::E_PLAYER_SYNC: // Player Sync
+			{
+				auto *d = &Versions::getLastSyncData<Structs>(playerid);
+				d->vecVelocity = CVector();
+				d->byteSpecialAction = 0;
+				d->wKeys = 0;
+				d->wUDAnalog = 0;
+				d->wLRAnalog = 0;
+
+				syncDataFrozen[playerid] = toggle;
+				break;
+			}
+
+			case Versions::SyncTypes::E_AIM_SYNC: // Aim Sync
+			{
+				syncAimDataFrozen[playerid] = toggle;
+				break;				
+			}
+
+			case Versions::SyncTypes::E_VEHICLE_SYNC: // Vehicle Sync
+			{
+				auto *d = &Versions::getLastVehicleSyncData<Structs>(playerid);
+				d->vecVelocity = CVector();
+				d->wKeys = 0;
+				d->wUDAnalog = 0;
+				d->wLRAnalog = 0;
+
+				syncVehicleDataFrozen[playerid] = toggle;				
+				break;
+			}
+
+			case Versions::SyncTypes::E_PASSENGER_SYNC: // Passenger Sync
+			{
+				auto *d = &Versions::getLastPassengerSyncData<Structs>(playerid);
+				d->wKeys = 0;
+				d->wUDAnalog = 0;
+				d->wLRAnalog = 0;
+
+				syncPassengerDataFrozen[playerid] = toggle;					
+			}
+
+			case Versions::SyncTypes::E_SPECTATING_SYNC: // Spectate Sync
+			{
+				auto *d = &Versions::getLastSpectatingSyncData<Structs>(playerid);
+				d->wKeysOnSpectating = 0;
+				d->wUpDownKeysOnSpectating = 0;
+				d->wLeftRightKeysOnSpectating = 0;
+
+				syncSpectatingDataFrozen[playerid] = toggle;			
+			}
+
+			default:
+				return 0;
+		}
+
+		return 1;
+	});
+}
+
 // native TextDrawSetPosition(Text:text, Float:fX, Float:fY)
 static cell AMX_NATIVE_CALL TextDrawSetPosition(AMX *amx, cell *params)
 {
 	CHECK_PARAMS(3, "TextDrawSetPosition");
 
-	return getNetGame([params](auto netGame, auto structs) {
+	return Versions::getNetGame([params](auto netGame, auto structs) {
 		int textdrawid = (int)params[1];
 		if (textdrawid < 0 || textdrawid >= MAX_TEXT_DRAWS)
 			return 0;
@@ -513,7 +465,7 @@ static cell AMX_NATIVE_CALL PlayerTextDrawSetPosition(AMX *amx, cell *params)
 {
 	CHECK_PARAMS(4, "PlayerTextDrawSetPosition");
 
-	return getNetGame([params](auto netGame, auto structs) {
+	return Versions::getNetGame([params](auto netGame, auto structs) {
 		int playerid = (int)params[1];
 		int textdrawid = (int)params[2];
 
@@ -554,7 +506,6 @@ static cell AMX_NATIVE_CALL TextDrawSetStrForPlayer(AMX *amx, cell *params)
 	amx_StrParam(amx, params[3], text);
 	unsigned short len = (unsigned short)strlen(text);
 	
-
 	RakNet::BitStream bs;
 	bs.Write((WORD)textdrawid);
 	bs.Write((unsigned short)len);
@@ -571,6 +522,7 @@ static AMX_NATIVE_INFO native_list[] = {
 	{"SetFakeArmour", SetFakeArmour},
 	{"SetFakeFacingAngle", SetFakeFacingAngle},
 	{"FreezeSyncData", FreezeSyncData},
+	{"FreezeSyncPacket", FreezeSyncPacket},
 	{"SetKnifeSync", SetKnifeSync},
 	{"SendDeath", SendDeath},
 	{"SetLastAnimationData", SetLastAnimationData},

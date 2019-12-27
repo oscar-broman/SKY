@@ -144,12 +144,17 @@ static bool IsPlayerUpdatePacket(unsigned char packetId)
 }
 
 BYTE lastWeapon[1000] = {0};
-BOOL syncDataFrozen[1000] = {0};
 BYTE fakeHealth[1000] = {0};
 BYTE fakeArmour[1000] = {0};
 glm::quat *fakeQuat[1000];
 BOOL disableSyncBugs = true;
 BOOL infiniteAmmo[1000] = {0};
+
+BOOL syncDataFrozen[1000] = {0};
+BOOL syncAimDataFrozen[1000] = {0};
+BOOL syncVehicleDataFrozen[1000] = {0};
+BOOL syncPassengerDataFrozen[1000] = {0};
+BOOL syncSpectatingDataFrozen[1000] = {0};
 
 BYTE GetPacketID(Packet *p)
 {
@@ -168,7 +173,7 @@ BYTE GetPacketID(Packet *p)
 
 Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 {
-	return getNetGame([ppRakServer](auto netGame, auto structs) -> Packet * {
+	return Versions::getNetGame([ppRakServer](auto netGame, auto structs) -> Packet * {
 		using Structs = decltype(structs);
 
 		Packet *p = CSAMPFunctions::Receive(ppRakServer);
@@ -202,16 +207,6 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 				d->vecVelocity.IsNan())
 			{
 				return nullptr;
-			}
-
-			auto lastSyncData = &getLastSyncData<Structs>(playerid);
-			if (syncDataFrozen[playerid])
-			{
-				d = lastSyncData;
-			}
-			else
-			{
-				lastSyncData = d;
 			}
 
 			if (d->byteWeapon > 46 || (d->byteWeapon > 18 && d->byteWeapon < 22))
@@ -410,6 +405,16 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 				}
 			}
 
+			auto lastSyncData = &Versions::getLastSyncData<Structs>(playerid);
+			if (syncDataFrozen[playerid])
+			{
+				d = lastSyncData;
+			}
+			else
+			{
+				lastSyncData = d;
+			}			
+
 			if (blockKeySync[playerid])
 			{
 				d->wKeys = 0;
@@ -469,8 +474,8 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 				return nullptr;
 			}
 
-			auto lastAimSyncData = &getLastAimSyncData<Structs>(playerid);
-			if (syncDataFrozen[playerid])
+			auto lastAimSyncData = &Versions::getLastAimSyncData<Structs>(playerid);
+			if (syncAimDataFrozen[playerid])
 			{
 				d = lastAimSyncData;
 			}
@@ -518,8 +523,8 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 				return nullptr;
 			}
 
-			auto lastVehicleSyncData = &getLastVehicleSyncData<Structs>(playerid);
-			if (syncDataFrozen[playerid])
+			auto lastVehicleSyncData = &Versions::getLastVehicleSyncData<Structs>(playerid);
+			if (syncVehicleDataFrozen[playerid])
 			{
 				d = lastVehicleSyncData;
 			}
@@ -560,8 +565,8 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 				return nullptr;
 			}
 
-			auto lastPassengerSyncData = &getLastPassengerSyncData<Structs>(playerid);
-			if (syncDataFrozen[playerid])
+			auto lastPassengerSyncData = &Versions::getLastPassengerSyncData<Structs>(playerid);
+			if (syncPassengerDataFrozen[playerid])
 			{
 				d = lastPassengerSyncData;
 			}
@@ -584,6 +589,33 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 			{
 				d->bytePlayerArmour = fakeArmour[playerid];
 			}
+		}
+
+		if(packetId == ID_SPECTATOR_SYNC)
+		{
+			// Let's ensure the length is correct
+			if (p->length != (sizeof(typename Structs::CSpectatingSyncData) + 1))
+			{
+				return nullptr;
+			}
+
+			auto *d = reinterpret_cast<typename Structs::CSpectatingSyncData *>(&p->data[1]);
+
+			// Didn't have any issues with it, but better to prevent
+			if (d->vecPosition.IsNan())
+			{
+				return nullptr;
+			}
+
+			auto lastSpectatingSyncData = &Versions::getLastSpectatingSyncData<Structs>(playerid);
+			if (syncSpectatingDataFrozen[playerid])
+			{
+				d = lastSpectatingSyncData;
+			}
+			else
+			{
+				lastSpectatingSyncData = d;
+			}				
 		}
 
 		return p;

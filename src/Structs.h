@@ -317,7 +317,7 @@ public:
 	BYTE bytePlayerHealth;	 // 0x0053 - 0x0054
 	BYTE bytePlayerArmour;	 // 0x0054 - 0x0055
 	BYTE bytePlayerWeapon : 6; // 0x0055 - 0x0056
-	BYTE unk_2 : 2;			   // 0x0055 - 0x0056
+	BYTE byteAdditionalKeys : 2;			   // 0x0055 - 0x0056
 	BYTE byteSirenState;	   // 0x0056 - 0x0057
 	BYTE byteGearState;		   // 0x0057 -	0x0058
 	WORD wTrailerID;		   // 0x0058 - 0x005A
@@ -356,8 +356,8 @@ public:
 	float fQuaternion[4]; // 0x0088 - 0x008C
 	BYTE byteHealth;	  // 0x0098 - 0x0099
 	BYTE byteArmour;	  // 0x0099 - 0x009A
-	BYTE byteWeapon : 6;  // 0x009A - 0x009B
-	BYTE _unk_ : 2;
+	BYTE byteWeapon : 6;  // 0x009A
+	BYTE byteAdditionalKeys : 2; // 0x009B
 	BYTE byteSpecialAction; // 0x009B - 0x009C
 	CVector vecVelocity;	// 0x009C - 0x00A8
 	CVector vecSurfing;		// 0x00A8 - 0x00B4
