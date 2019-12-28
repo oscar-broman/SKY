@@ -38,6 +38,8 @@
 #include "RPCs.h"
 #include "Utils.h"
 #include "Versions.h"
+#include "Player.h"
+#include "Global.h"
 #include "main.h"
 #include <cmath>
 #include <glm/glm.hpp>
@@ -153,25 +155,30 @@ static cell AMX_NATIVE_CALL SendLastSyncPacket(AMX *amx, cell *params)
 
 		RakNet::BitStream bs;
 
+		if(type == Global::SyncTypes::E_LAST_SYNC)
+		{
+			type = Player::lastSyncPacket[playerid];
+		}
+
 		switch(type) 
 		{
-			case Versions::SyncTypes::E_PLAYER_SYNC: // Player Sync
+			case Global::SyncTypes::E_PLAYER_SYNC: // Player Sync
 				Versions::sendSyncData<Structs>(playerid, animation, &bs);
 				break;
 
-			case Versions::SyncTypes::E_AIM_SYNC: // Aim Sync
+			case Global::SyncTypes::E_AIM_SYNC: // Aim Sync
 				Versions::sendAimSyncData<Structs>(playerid, &bs);
 				break;
 
-			case Versions::SyncTypes::E_VEHICLE_SYNC: // Vehicle Sync
+			case Global::SyncTypes::E_VEHICLE_SYNC: // Vehicle Sync
 				Versions::sendVehicleSyncData<Structs>(playerid, &bs);
 				break;
 
-			case Versions::SyncTypes::E_PASSENGER_SYNC: // Passenger Sync
+			case Global::SyncTypes::E_PASSENGER_SYNC: // Passenger Sync
 				Versions::sendPassengerSyncData<Structs>(playerid, &bs);
 				break;
 
-			case Versions::SyncTypes::E_SPECTATING_SYNC: // Spectate Sync
+			case Global::SyncTypes::E_SPECTATING_SYNC: // Spectate Sync
 				Versions::sendSpectatingSyncData<Structs>(playerid, &bs);
 				break;
 
@@ -196,7 +203,7 @@ static cell AMX_NATIVE_CALL SetFakeArmour(AMX *amx, cell *params)
 	if(!IsPlayerConnected(playerid))
 		return 0;
 
-	fakeArmour[playerid] = armour;
+	Player::fakeArmour[playerid] = armour;
 
 	return 1;
 }
@@ -212,7 +219,7 @@ static cell AMX_NATIVE_CALL SetFakeHealth(AMX *amx, cell *params)
 	if(!IsPlayerConnected(playerid))
 		return 0;	
 
-	fakeHealth[playerid] = health;
+	Player::fakeHealth[playerid] = health;
 
 	return 1;
 }
@@ -229,13 +236,13 @@ static cell AMX_NATIVE_CALL SetFakeFacingAngle(AMX *amx, cell *params)
 
 	if ((int)params[2] == 0x7FFFFFFF)
 	{
-		fakeQuat[playerid] = NULL;
+		Player::fakeQuat[playerid] = NULL;
 	}
 	else
 	{
 		glm::vec3 vec = glm::vec3(0.0f, 0.0f, 360.0f - amx_ctof(params[2]));
 
-		fakeQuat[playerid] = new glm::quat(vec * DEG_TO_RAD);
+		Player::fakeQuat[playerid] = new glm::quat(vec * DEG_TO_RAD);
 	}
 
 	return 1;
@@ -246,7 +253,7 @@ static cell AMX_NATIVE_CALL SetKnifeSync(AMX *amx, cell *params)
 {
 	CHECK_PARAMS(1, "SetKnifeSync");
 
-	knifeSync = (BOOL)params[1];
+	Global::knifeSync = (BOOL)params[1];
 
 	return 1;
 }
@@ -256,7 +263,7 @@ static cell AMX_NATIVE_CALL SetDisableSyncBugs(AMX *amx, cell *params)
 {
 	CHECK_PARAMS(1, "SetDisableSyncBugs");
 
-	disableSyncBugs = (BOOL)params[1];
+	Global::disableSyncBugs = (BOOL)params[1];
 
 	return 1;
 }
@@ -272,7 +279,7 @@ static cell AMX_NATIVE_CALL SetInfiniteAmmoSync(AMX *amx, cell *params)
 	if(!IsPlayerConnected(playerid))
 		return 0;	
 
-	infiniteAmmo[playerid] = toggle;
+	Player::infiniteAmmo[playerid] = toggle;
 
 	return 1;
 }
@@ -287,7 +294,7 @@ static cell AMX_NATIVE_CALL SetKeySyncBlocked(AMX *amx, cell *params)
 	if(!IsPlayerConnected(playerid))
 		return 0;	
 
-	blockKeySync[playerid] = toggle;
+	Player::blockKeySync[playerid] = toggle;
 
 	return 1;
 }
@@ -301,7 +308,10 @@ static cell AMX_NATIVE_CALL ClearAnimationsForPlayer(AMX *amx, cell *params)
 	int forplayerid = (int)params[2];
 
 	if(!IsPlayerConnected(playerid))
-		return 0;	
+		return 0;
+
+	if(!IsPlayerConnected(forplayerid)) 
+		return 0;
 
 	RakNet::BitStream bs;
 	bs.Write((WORD)playerid);
@@ -356,7 +366,7 @@ static cell AMX_NATIVE_CALL FreezeSyncData(AMX *amx, cell *params)
 		d->wUDAnalog = 0;
 		d->wLRAnalog = 0;
 
-		syncDataFrozen[playerid] = toggle;
+		Player::syncDataFrozen[playerid] = toggle;
 
 		return 1;
 	});
@@ -375,11 +385,16 @@ static cell AMX_NATIVE_CALL FreezeSyncPacket(AMX *amx, cell *params)
 		BOOL toggle = static_cast<BOOL>(params[3]);
 
 		if(!IsPlayerConnected(playerid))
-			return 0;		
+			return 0;
+
+		if(type == Global::SyncTypes::E_LAST_SYNC)
+		{
+			type = Player::lastSyncPacket[playerid];
+		}
 
 		switch(type)
 		{
-			case Versions::SyncTypes::E_PLAYER_SYNC: // Player Sync
+			case Global::SyncTypes::E_PLAYER_SYNC: // Player Sync
 			{
 				auto *d = &Versions::getLastSyncData<Structs>(playerid);
 				d->vecVelocity = CVector();
@@ -388,17 +403,17 @@ static cell AMX_NATIVE_CALL FreezeSyncPacket(AMX *amx, cell *params)
 				d->wUDAnalog = 0;
 				d->wLRAnalog = 0;
 
-				syncDataFrozen[playerid] = toggle;
+				Player::syncDataFrozen[playerid] = toggle;
 				break;
 			}
 
-			case Versions::SyncTypes::E_AIM_SYNC: // Aim Sync
+			case Global::SyncTypes::E_AIM_SYNC: // Aim Sync
 			{
-				syncAimDataFrozen[playerid] = toggle;
+				Player::syncAimDataFrozen[playerid] = toggle;
 				break;				
 			}
 
-			case Versions::SyncTypes::E_VEHICLE_SYNC: // Vehicle Sync
+			case Global::SyncTypes::E_VEHICLE_SYNC: // Vehicle Sync
 			{
 				auto *d = &Versions::getLastVehicleSyncData<Structs>(playerid);
 				d->vecVelocity = CVector();
@@ -406,28 +421,28 @@ static cell AMX_NATIVE_CALL FreezeSyncPacket(AMX *amx, cell *params)
 				d->wUDAnalog = 0;
 				d->wLRAnalog = 0;
 
-				syncVehicleDataFrozen[playerid] = toggle;				
+				Player::syncVehicleDataFrozen[playerid] = toggle;				
 				break;
 			}
 
-			case Versions::SyncTypes::E_PASSENGER_SYNC: // Passenger Sync
+			case Global::SyncTypes::E_PASSENGER_SYNC: // Passenger Sync
 			{
 				auto *d = &Versions::getLastPassengerSyncData<Structs>(playerid);
 				d->wKeys = 0;
 				d->wUDAnalog = 0;
 				d->wLRAnalog = 0;
 
-				syncPassengerDataFrozen[playerid] = toggle;					
+				Player::syncPassengerDataFrozen[playerid] = toggle;					
 			}
 
-			case Versions::SyncTypes::E_SPECTATING_SYNC: // Spectate Sync
+			case Global::SyncTypes::E_SPECTATING_SYNC: // Spectate Sync
 			{
 				auto *d = &Versions::getLastSpectatingSyncData<Structs>(playerid);
 				d->wKeysOnSpectating = 0;
 				d->wUpDownKeysOnSpectating = 0;
 				d->wLeftRightKeysOnSpectating = 0;
 
-				syncSpectatingDataFrozen[playerid] = toggle;			
+				Player::syncSpectatingDataFrozen[playerid] = toggle;			
 			}
 
 			default:

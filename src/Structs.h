@@ -32,7 +32,11 @@
 
 /* -------------------------------------------------------- */
 #if defined MAX_OBJECTS
-#undef MAX_OBJECTS
+	#undef MAX_OBJECTS
+#endif
+
+#if defined MAX_PLAYERS
+	#undef MAX_PLAYERS
 #endif
 
 // Defines from SAMPGDK

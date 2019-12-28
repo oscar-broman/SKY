@@ -39,6 +39,7 @@
 #include "Scripting.h"
 #include "Utils.h"
 #include "Versions.h"
+#include "Player.h"
 #include "main.h"
 #include <cmath>
 #include <cstring>
@@ -73,11 +74,6 @@
 using std::isfinite;
 
 extern void *pAMXFunctions;
-
-BOOL knifeSync = true;
-int lastAnim[1000] = {0};
-DWORD lastUpdateTick[1000] = {0};
-BOOL blockKeySync[1000] = {0};
 
 // Y_Less - original YSF
 bool Unlock(void *address, size_t len)
@@ -143,19 +139,6 @@ static bool IsPlayerUpdatePacket(unsigned char packetId)
 		packetId == ID_TRAILER_SYNC);
 }
 
-BYTE lastWeapon[1000] = {0};
-BYTE fakeHealth[1000] = {0};
-BYTE fakeArmour[1000] = {0};
-glm::quat *fakeQuat[1000];
-BOOL disableSyncBugs = true;
-BOOL infiniteAmmo[1000] = {0};
-
-BOOL syncDataFrozen[1000] = {0};
-BOOL syncAimDataFrozen[1000] = {0};
-BOOL syncVehicleDataFrozen[1000] = {0};
-BOOL syncPassengerDataFrozen[1000] = {0};
-BOOL syncSpectatingDataFrozen[1000] = {0};
-
 BYTE GetPacketID(Packet *p)
 {
 	if (p == 0)
@@ -186,7 +169,7 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 
 		if (IsPlayerUpdatePacket(packetId))
 		{
-			lastUpdateTick[playerid] = GetTickCount();
+			Player::lastUpdateTick[playerid] = GetTickCount();
 		}
 
 		if (packetId == ID_PLAYER_SYNC)
@@ -220,7 +203,7 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 				d->wKeys &= ~128;
 			}
 
-			if (disableSyncBugs)
+			if (Global::disableSyncBugs)
 			{
 				// Prevent "ghost shooting" bugs
 				if ((d->byteWeapon >= WEAPON_COLT45 && d->byteWeapon <= WEAPON_SNIPER) || d->byteWeapon == WEAPON_MINIGUN)
@@ -406,54 +389,54 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 			}
 
 			auto lastSyncData = &Versions::getLastSyncData<Structs>(playerid);
-			if (syncDataFrozen[playerid])
+			if (Player::syncDataFrozen[playerid])
 			{
-				d = lastSyncData;
+				std::memcpy(d, lastSyncData, sizeof(typename Structs::CSyncData));
 			}
 			else
 			{
-				lastSyncData = d;
+				std::memcpy(lastSyncData, d, sizeof(typename Structs::CSyncData));
 			}			
 
-			if (blockKeySync[playerid])
+			if (Player::blockKeySync[playerid])
 			{
 				d->wKeys = 0;
 			}
 
-			if (fakeHealth[playerid] != 255)
+			if (Player::fakeHealth[playerid] != 255)
 			{
-				d->byteHealth = fakeHealth[playerid];
+				d->byteHealth = Player::fakeHealth[playerid];
 			}
 
-			if (fakeArmour[playerid] != 255)
+			if (Player::fakeArmour[playerid] != 255)
 			{
-				d->byteArmour = fakeArmour[playerid];
+				d->byteArmour = Player::fakeArmour[playerid];
 			}
 
-			if (fakeQuat[playerid] != NULL)
+			if (Player::fakeQuat[playerid] != NULL)
 			{
 				// NOT AT ALL SURE WHICH ELEMENTS OF THIS ARRAY ARE WHAT. THIS CODE MIGHT BE COMPLETELY WRONG.
 				// SOMEONE WHO KNOWS WHAT THEY'RE DOING PLEASE CHECK THIS.
 				// 03/09/18 - Whitetiger
-				d->fQuaternion[0] = fakeQuat[playerid]->w; // angle
-				d->fQuaternion[1] = fakeQuat[playerid]->x; // x
-				d->fQuaternion[2] = fakeQuat[playerid]->y; // y
-				d->fQuaternion[3] = fakeQuat[playerid]->z; // z
+				d->fQuaternion[0] = Player::fakeQuat[playerid]->w; // angle
+				d->fQuaternion[1] = Player::fakeQuat[playerid]->x; // x
+				d->fQuaternion[2] = Player::fakeQuat[playerid]->y; // y
+				d->fQuaternion[3] = Player::fakeQuat[playerid]->z; // z
 			}
 
 			if (d->byteWeapon == 44 || d->byteWeapon == 45)
 			{
 				d->wKeys &= ~4;
 			}
-			else if (d->byteWeapon == 4 && knifeSync == false)
+			else if (d->byteWeapon == 4 && Global::knifeSync == false)
 			{
 				d->wKeys &= ~128;
 			}
 
 			int anim = d->dwAnimationData;
-			lastAnim[playerid] = anim;
-			
-			lastWeapon[playerid] = d->byteWeapon;
+		
+			Player::lastWeapon[playerid] = d->byteWeapon;
+			Player::lastSyncPacket[playerid] = Global::SyncTypes::E_PLAYER_SYNC;
 		}
 
 		if (packetId == ID_AIM_SYNC)
@@ -473,17 +456,20 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 			}
 
 			auto lastAimSyncData = &Versions::getLastAimSyncData<Structs>(playerid);
-			if (syncAimDataFrozen[playerid])
+			if (Player::syncAimDataFrozen[playerid])
 			{
-				d = lastAimSyncData;
+				std::memcpy(d, lastAimSyncData, sizeof(typename Structs::CAimSyncData));
 			}
 			else
 			{
-				lastAimSyncData = d;
+				std::memcpy(lastAimSyncData, d, sizeof(typename Structs::CAimSyncData));
 			}			
 
 			// Fix first-person up/down aim sync
-			if (lastWeapon[playerid] == 34 || lastWeapon[playerid] == 35 || lastWeapon[playerid] == 36 || lastWeapon[playerid] == 43)
+			if (Player::lastWeapon[playerid] == 34 
+			|| Player::lastWeapon[playerid] == 35 
+			|| Player::lastWeapon[playerid] == 36 
+			|| Player::lastWeapon[playerid] == 43)
 			{
 				d->fZAim = -d->vecFront.fZ;
 
@@ -497,10 +483,12 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 				}
 			}
 
-			if (infiniteAmmo[playerid])
+			if (Player::infiniteAmmo[playerid])
 			{
 				d->byteCameraZoom = 2;
 			}
+
+			Player::lastSyncPacket[playerid] = Global::SyncTypes::E_AIM_SYNC;
 		}
 
 		if (packetId == ID_VEHICLE_SYNC)
@@ -522,13 +510,13 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 			}
 
 			auto lastVehicleSyncData = &Versions::getLastVehicleSyncData<Structs>(playerid);
-			if (syncVehicleDataFrozen[playerid])
+			if (Player::syncVehicleDataFrozen[playerid])
 			{
-				d = lastVehicleSyncData;
+				std::memcpy(d, lastVehicleSyncData, sizeof(typename Structs::CVehicleSyncData));
 			}
 			else
 			{
-				lastVehicleSyncData = d;
+				std::memcpy(lastVehicleSyncData, d, sizeof(typename Structs::CVehicleSyncData));
 			}				
 
 			if (d->bytePlayerWeapon > 46 || (d->bytePlayerWeapon > 18 && d->bytePlayerWeapon < 22))
@@ -536,15 +524,17 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 				d->bytePlayerWeapon = 0;
 			}
 
-			if (fakeHealth[playerid] != 255)
+			if (Player::fakeHealth[playerid] != 255)
 			{
-				d->bytePlayerHealth = fakeHealth[playerid];
+				d->bytePlayerHealth = Player::fakeHealth[playerid];
 			}
 
-			if (fakeArmour[playerid] != 255)
+			if (Player::fakeArmour[playerid] != 255)
 			{
-				d->bytePlayerArmour = fakeArmour[playerid];
+				d->bytePlayerArmour = Player::fakeArmour[playerid];
 			}
+
+			Player::lastSyncPacket[playerid] = Global::SyncTypes::E_VEHICLE_SYNC;
 		}
 
 		if (packetId == ID_PASSENGER_SYNC)
@@ -564,13 +554,13 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 			}
 
 			auto lastPassengerSyncData = &Versions::getLastPassengerSyncData<Structs>(playerid);
-			if (syncPassengerDataFrozen[playerid])
+			if (Player::syncPassengerDataFrozen[playerid])
 			{
-				d = lastPassengerSyncData;
+				std::memcpy(d, lastPassengerSyncData, sizeof(typename Structs::CPassengerSyncData));
 			}
 			else
 			{
-				lastPassengerSyncData = d;
+				std::memcpy(lastPassengerSyncData, d, sizeof(typename Structs::CPassengerSyncData));
 			}				
 
 			if (d->bytePlayerWeapon > 46 || (d->bytePlayerWeapon > 18 && d->bytePlayerWeapon < 22))
@@ -578,15 +568,17 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 				d->bytePlayerWeapon = 0;
 			}
 
-			if (fakeHealth[playerid] != 255)
+			if (Player::fakeHealth[playerid] != 255)
 			{
-				d->bytePlayerHealth = fakeHealth[playerid];
+				d->bytePlayerHealth = Player::fakeHealth[playerid];
 			}
 
-			if (fakeArmour[playerid] != 255)
+			if (Player::fakeArmour[playerid] != 255)
 			{
-				d->bytePlayerArmour = fakeArmour[playerid];
+				d->bytePlayerArmour = Player::fakeArmour[playerid];
 			}
+
+			Player::lastSyncPacket[playerid] = Global::SyncTypes::E_PASSENGER_SYNC;
 		}
 
 		if(packetId == ID_SPECTATOR_SYNC)
@@ -606,14 +598,16 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 			}
 
 			auto lastSpectatingSyncData = &Versions::getLastSpectatingSyncData<Structs>(playerid);
-			if (syncSpectatingDataFrozen[playerid])
+			if (Player::syncSpectatingDataFrozen[playerid])
 			{
-				d = lastSpectatingSyncData;
+				std::memcpy(d, lastSpectatingSyncData, sizeof(typename Structs::CSpectatingSyncData));
 			}
 			else
 			{
-				lastSpectatingSyncData = d;
-			}				
+				std::memcpy(lastSpectatingSyncData, d, sizeof(typename Structs::CSpectatingSyncData));
+			}	
+
+			Player::lastSyncPacket[playerid] = Global::SyncTypes::E_SPECTATING_SYNC;			
 		}
 
 		return p;
@@ -624,11 +618,11 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 
 void InstallPreHooks()
 {
-	std::memset(&fakeHealth, 255, sizeof(fakeHealth));
-	std::memset(&fakeArmour, 255, sizeof(fakeArmour));
+	std::memset(&Player::fakeHealth, 255, sizeof(Player::fakeHealth));
+	std::memset(&Player::fakeArmour, 255, sizeof(Player::fakeArmour));
 
 	for (int i = 0; i < 1000; i++)
 	{
-		fakeQuat[i] = 0;
+		Player::fakeQuat[i] = 0;
 	}
 }

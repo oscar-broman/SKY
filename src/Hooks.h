@@ -24,20 +24,4 @@ void InstallPreHooks();
 
 BYTE GetPacketID(Packet *p);
 
-extern BYTE lastWeapon[1000];
-extern BYTE fakeHealth[1000];
-extern BYTE fakeArmour[1000];
-extern BOOL knifeSync;
-extern glm::quat *fakeQuat[1000];
-extern DWORD lastUpdateTick[1000];
-extern BOOL disableSyncBugs;
-extern BOOL blockKeySync[1000];
-extern BOOL infiniteAmmo[1000];
-
-extern BOOL syncDataFrozen[1000];
-extern BOOL syncAimDataFrozen[1000];
-extern BOOL syncVehicleDataFrozen[1000];
-extern BOOL syncPassengerDataFrozen[1000];
-extern BOOL syncSpectatingDataFrozen[1000];
-
 #endif

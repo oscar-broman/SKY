@@ -1,4 +1,3 @@
-
 typedef unsigned char       uchar;
 typedef unsigned short      ushort;
 typedef unsigned int        uint;
@@ -13,8 +12,3 @@ typedef float               FLOAT;
 #ifndef MAX_PATH
 #define MAX_PATH            260
 #endif
-/*
-#ifndef PCHAR
-typedef unsigned char *PCHAR;
-#endif
-*/

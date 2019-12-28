@@ -12,6 +12,7 @@
 #include "main.h"
 #include "RPCs.h"
 #include "Hooks.h"
+#include "Player.h"
 #include <amx/amx.h>
 #include <plugincommon.h>
 #include <raknet/BitStream.h>
@@ -36,17 +37,8 @@ namespace Versions
     #include "Structs.h"
     };
 
-    enum SyncTypes
-    {
-        E_PLAYER_SYNC = 0,
-        E_AIM_SYNC,
-        E_VEHICLE_SYNC,
-        E_PASSENGER_SYNC,
-        E_SPECTATING_SYNC
-    };
-
     // Returns a function with an instance of netGame and a struct
-    // which is either with_dl or without_dl
+    // which is either samp_037 or samp_03dl
     template <class Func>
     auto getNetGame(Func func)
     {
@@ -137,15 +129,15 @@ namespace Versions
         bs->Write(d->vecPosition.fY);
         bs->Write(d->vecPosition.fZ);
 
-        if (fakeQuat[playerid] != NULL)
+        if (Player::fakeQuat[playerid] != NULL)
         {
-            bs->Write((bool)(fakeQuat[playerid]->w < 0.0f));
-            bs->Write((bool)(fakeQuat[playerid]->x < 0.0f));
-            bs->Write((bool)(fakeQuat[playerid]->y < 0.0f));
-            bs->Write((bool)(fakeQuat[playerid]->z < 0.0f));
-            bs->Write((unsigned short)(fabs(fakeQuat[playerid]->x) * 65535.0));
-            bs->Write((unsigned short)(fabs(fakeQuat[playerid]->y) * 65535.0));
-            bs->Write((unsigned short)(fabs(fakeQuat[playerid]->z) * 65535.0));
+            bs->Write((bool)(Player::fakeQuat[playerid]->w < 0.0f));
+            bs->Write((bool)(Player::fakeQuat[playerid]->x < 0.0f));
+            bs->Write((bool)(Player::fakeQuat[playerid]->y < 0.0f));
+            bs->Write((bool)(Player::fakeQuat[playerid]->z < 0.0f));
+            bs->Write((unsigned short)(fabs(Player::fakeQuat[playerid]->x) * 65535.0));
+            bs->Write((unsigned short)(fabs(Player::fakeQuat[playerid]->y) * 65535.0));
+            bs->Write((unsigned short)(fabs(Player::fakeQuat[playerid]->z) * 65535.0));
         }
         else
         {
@@ -160,18 +152,18 @@ namespace Versions
 
         BYTE health, armour;
 
-        if (fakeHealth[playerid] != 255)
+        if (Player::fakeHealth[playerid] != 255)
         {
-            health = fakeHealth[playerid];
+            health = Player::fakeHealth[playerid];
         }
         else
         {
             health = d->byteHealth;
         }
 
-        if (fakeArmour[playerid] != 255)
+        if (Player::fakeArmour[playerid] != 255)
         {
-            armour = fakeArmour[playerid];
+            armour = Player::fakeArmour[playerid];
         }
         else
         {
@@ -203,7 +195,7 @@ namespace Versions
         bs->Write(d->byteSpecialAction);
 
         // Make them appear standing still if paused
-        if (GetTickCount() - lastUpdateTick[playerid] > 2000)
+        if (GetTickCount() - Player::lastUpdateTick[playerid] > 2000)
         {
             bs->WriteVector(0.0f, 0.0f, 0.0f);
         }
@@ -258,7 +250,10 @@ namespace Versions
         bs->Write(d->vecPosition.fZ);
 
         // Fix first-person up/down aim sync
-        if (lastWeapon[playerid] == 34 || lastWeapon[playerid] == 35 || lastWeapon[playerid] == 36 || lastWeapon[playerid] == 43)
+        if (Player::lastWeapon[playerid] == 34 
+        || Player::lastWeapon[playerid] == 35 
+        || Player::lastWeapon[playerid] == 36 
+        || Player::lastWeapon[playerid] == 43)
         {
             d->fZAim = -d->vecFront.fZ;
 
@@ -274,7 +269,7 @@ namespace Versions
 
         bs->Write(d->fZAim);
 
-        if (infiniteAmmo[playerid])
+        if (Player::infiniteAmmo[playerid])
         {
             d->byteCameraZoom = 2;
         }
@@ -316,15 +311,15 @@ namespace Versions
 
         bs->Write((WORD)d->wKeys);
 
-        if (fakeQuat[playerid] != NULL)
+        if (Player::fakeQuat[playerid] != NULL)
         {
-            bs->Write((bool)(fakeQuat[playerid]->w < 0.0f));
-            bs->Write((bool)(fakeQuat[playerid]->x < 0.0f));
-            bs->Write((bool)(fakeQuat[playerid]->y < 0.0f));
-            bs->Write((bool)(fakeQuat[playerid]->z < 0.0f));
-            bs->Write((unsigned short)(fabs(fakeQuat[playerid]->x) * 65535.0));
-            bs->Write((unsigned short)(fabs(fakeQuat[playerid]->y) * 65535.0));
-            bs->Write((unsigned short)(fabs(fakeQuat[playerid]->z) * 65535.0));
+            bs->Write((bool)(Player::fakeQuat[playerid]->w < 0.0f));
+            bs->Write((bool)(Player::fakeQuat[playerid]->x < 0.0f));
+            bs->Write((bool)(Player::fakeQuat[playerid]->y < 0.0f));
+            bs->Write((bool)(Player::fakeQuat[playerid]->z < 0.0f));
+            bs->Write((unsigned short)(fabs(Player::fakeQuat[playerid]->x) * 65535.0));
+            bs->Write((unsigned short)(fabs(Player::fakeQuat[playerid]->y) * 65535.0));
+            bs->Write((unsigned short)(fabs(Player::fakeQuat[playerid]->z) * 65535.0));
         }
         else
         {
@@ -342,18 +337,18 @@ namespace Versions
         bs->Write(d->fHealth);
 
         BYTE health, armour;
-        if (fakeHealth[playerid] != 255)
+        if (Player::fakeHealth[playerid] != 255)
         {
-            health = fakeHealth[playerid];
+            health = Player::fakeHealth[playerid];
         }
         else
         {
             health = d->bytePlayerHealth;
         }
 
-        if (fakeArmour[playerid] != 255)
+        if (Player::fakeArmour[playerid] != 255)
         {
-            armour = fakeArmour[playerid];
+            armour = Player::fakeArmour[playerid];
         }
         else
         {
@@ -439,18 +434,18 @@ namespace Versions
         bs->WriteBits((unsigned char *)d->bytePlayerWeapon, 6);
 
         BYTE health, armour;
-        if (fakeHealth[playerid] != 255)
+        if (Player::fakeHealth[playerid] != 255)
         {
-            health = fakeHealth[playerid];
+            health = Player::fakeHealth[playerid];
         }
         else
         {
             health = d->bytePlayerHealth;
         }
 
-        if (fakeArmour[playerid] != 255)
+        if (Player::fakeArmour[playerid] != 255)
         {
-            armour = fakeArmour[playerid];
+            armour = Player::fakeArmour[playerid];
         }
         else
         {
