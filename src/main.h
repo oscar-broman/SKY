@@ -23,4 +23,4 @@ extern logprintf_t logprintf;
 #endif
 
 #define PROJECT_NAME "SKY"
-#define PROJECT_VERSION "2.1.1"
+#define PROJECT_VERSION "2.2.0"
