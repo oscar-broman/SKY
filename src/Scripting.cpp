@@ -365,7 +365,7 @@ static cell AMX_NATIVE_CALL FreezeSyncData(AMX *amx, cell *params)
 // native FreezeSyncPacket(playerid, E_SYNC_TYPES:type = E_PLAYER_SYNC, bool:toggle)
 static cell AMX_NATIVE_CALL FreezeSyncPacket(AMX *amx, cell *params)
 {
-	CHECK_PARAMS(3, "FreezeSyncData");
+	CHECK_PARAMS(3, "FreezeSyncPacket");
 
 	return Versions::getNetGame([params](auto netGame, auto structs) {
 		using Structs = decltype(structs);

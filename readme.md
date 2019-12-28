@@ -38,15 +38,14 @@ then you can run the command below to build
 ```
 cd SKY
 mkdir build && cd build
-cmake.exe ../
+cmake -G "Visual Studio 15 2017" ../
+cmake --build . --config Release
 ```
 
 or you can open the source in Visual Studio, where it will autodetect that it uses CMake, and will
 build a cache ready to be built
 
 ## Credits
-
-# Contributors
 
 - Slice (SKY Creator)
 - Kurta999 (Previous YSF Maintainer)
@@ -57,3 +56,4 @@ build a cache ready to be built
 - Alanskz/J0sh (Packet/Network/Sync Patches)
 - NickDodd25 (Code Cleanup)
 - JustMichael/ADRFranklin (Maintainer)
+
