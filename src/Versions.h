@@ -190,8 +190,8 @@ namespace Versions
 
         bs->Write((BYTE)((health << 4) | (armour)));
 
-        bs->WriteBits((unsigned char *)d->byteWeapon, 6);
-        bs->WriteBits((unsigned char *)d->byteAdditionalKeys, 2);
+        bs->Write(d->byteWeapon);
+        bs->Write(d->byteAdditionalKeys);
         bs->Write(d->byteSpecialAction);
 
         // Make them appear standing still if paused
@@ -375,8 +375,8 @@ namespace Versions
 
         bs->Write((BYTE)((health << 4) | (armour)));
 
-        bs->WriteBits((unsigned char *)d->byteAdditionalKeys, 2);
-        bs->WriteBits((unsigned char *)d->bytePlayerWeapon, 6);
+        bs->Write(d->bytePlayerWeapon);
+        bs->Write(d->byteAdditionalKeys);
 
         if(d->byteSirenState)
         {
