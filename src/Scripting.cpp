@@ -157,7 +157,7 @@ static cell AMX_NATIVE_CALL SendLastSyncPacket(AMX *amx, cell *params)
 
 		if(type == Global::SyncTypes::E_LAST_SYNC)
 		{
-			type = Player::lastSyncPacket[playerid];
+			type = static_cast<int>(Player::lastSyncPacket[playerid]);
 		}
 
 		switch(type) 
@@ -389,7 +389,7 @@ static cell AMX_NATIVE_CALL FreezeSyncPacket(AMX *amx, cell *params)
 
 		if(type == Global::SyncTypes::E_LAST_SYNC)
 		{
-			type = Player::lastSyncPacket[playerid];
+			type = static_cast<int>(Player::lastSyncPacket[playerid]);			
 		}
 
 		switch(type)
