@@ -4,7 +4,7 @@
 
 cmake_minimum_required(VERSION 3.10)
 project(SKY)
-set(PLUGIN_VERSION "2.2.0")
+set(PLUGIN_VERSION "2.2.1")
 
 ###
 # BUILD OUTPUT
