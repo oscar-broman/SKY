@@ -18,6 +18,9 @@ list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/lib/cmake-modules")
 include_directories(${PROJECT_SOURCE_DIR}/lib)
 
 if(MSVC)
+	set(CMAKE_CXX_STANDARD 17)
+	set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 	foreach(OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES})
 		string(TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG)
 		set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
@@ -30,15 +33,18 @@ endif()
 
 if(UNIX)
 	# force 32bit compilation and hide non-exported symbols
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-stack-protector -O3 -g -fPIC -w -fpermissive -m32 -fvisibility=hidden")
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fno-stack-protector -O3 -g -fPIC -w -fpermissive -m32 -fvisibility=hidden")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32 -std=gnu++17 -fno-stack-protector -O3 -g -fPIC -w -fpermissive -fvisibility=hidden")
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m32")
 	set_property(GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS OFF)
 	add_link_options(
 		"-static-libgcc"
 		"-static-libstdc++"
 	)	
 elseif(WIN32)
-	add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+	add_definitions(
+		-D_CRT_SECURE_NO_WARNINGS
+		-DWIN32_LEAN_AND_MEAN
+	)
 endif()
 
 ###
