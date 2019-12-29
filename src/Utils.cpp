@@ -119,7 +119,7 @@ void ShowPluginInfo(eSAMPVersion version)
 	logprintf("");
 	logprintf(" ===============================");
 	logprintf("   ");	
-	logprintf("   ## " PROJECT_NAME " - " PROJECT_VERSION " ## ");
+	logprintf("   < " PROJECT_NAME " - " PROJECT_VERSION " >");
 	logprintf("   ");	
 	logprintf("   (c) 2008 - Present | YSF Maintainers");	
 	logprintf("   (c) 2015 | Oscar \"Slice\" Broman");
