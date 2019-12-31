@@ -157,6 +157,7 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 {
 	return Versions::getNetGame([ppRakServer](auto netGame, auto structs) -> Packet * {
 		using Structs = decltype(structs);
+		using SyncTypes = Global::SyncTypes;
 
 		Packet *p = CSAMPFunctions::Receive(ppRakServer);
 
@@ -387,8 +388,8 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 				}
 			}
 
-			auto lastSyncData = &Versions::getLastSyncData<Structs>(playerid);
-			if (Player::syncDataFrozen[playerid])
+			auto lastSyncData = &Player::getLastSyncData<Structs>(playerid);
+			if (Player::GetSyncFrozenState(playerid, SyncTypes::E_PLAYER_SYNC))
 			{
 				std::memcpy(d, lastSyncData, sizeof(typename Structs::CSyncData));
 			}
@@ -454,8 +455,8 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 				return nullptr;
 			}
 
-			auto lastAimSyncData = &Versions::getLastAimSyncData<Structs>(playerid);
-			if (Player::syncAimDataFrozen[playerid])
+			auto lastAimSyncData = &Player::getLastAimSyncData<Structs>(playerid);
+			if (Player::GetSyncFrozenState(playerid, SyncTypes::E_AIM_SYNC))
 			{
 				std::memcpy(d, lastAimSyncData, sizeof(typename Structs::CAimSyncData));
 			}
@@ -508,8 +509,8 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 				return nullptr;
 			}
 
-			auto lastVehicleSyncData = &Versions::getLastVehicleSyncData<Structs>(playerid);
-			if (Player::syncVehicleDataFrozen[playerid])
+			auto lastVehicleSyncData = &Player::getLastVehicleSyncData<Structs>(playerid);
+			if (Player::GetSyncFrozenState(playerid, SyncTypes::E_VEHICLE_SYNC))
 			{
 				std::memcpy(d, lastVehicleSyncData, sizeof(typename Structs::CVehicleSyncData));
 			}
@@ -552,8 +553,8 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 				return nullptr;
 			}
 
-			auto lastPassengerSyncData = &Versions::getLastPassengerSyncData<Structs>(playerid);
-			if (Player::syncPassengerDataFrozen[playerid])
+			auto lastPassengerSyncData = &Player::getLastPassengerSyncData<Structs>(playerid);
+			if (Player::GetSyncFrozenState(playerid, SyncTypes::E_PASSENGER_SYNC))
 			{
 				std::memcpy(d, lastPassengerSyncData, sizeof(typename Structs::CPassengerSyncData));
 			}
@@ -596,8 +597,8 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 				return nullptr;
 			}
 
-			auto lastSpectatingSyncData = &Versions::getLastSpectatingSyncData<Structs>(playerid);
-			if (Player::syncSpectatingDataFrozen[playerid])
+			auto lastSpectatingSyncData = &Player::getLastSpectatingSyncData<Structs>(playerid);
+			if (Player::GetSyncFrozenState(playerid, SyncTypes::E_SPECTATING_SYNC))
 			{
 				std::memcpy(d, lastSpectatingSyncData, sizeof(typename Structs::CSpectatingSyncData));
 			}

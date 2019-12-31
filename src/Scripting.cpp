@@ -94,13 +94,13 @@ static cell AMX_NATIVE_CALL SetLastAnimationData(AMX *amx, cell *params)
 		using Structs = decltype(structs);
 
 		int playerid = (int)params[1];
-		int data = (int)params[2];
+		int animation = (int)params[2];
 
 		if(!IsPlayerConnected(playerid)) 
 			return 0;
 
-		auto *d = &Versions::getLastSyncData<Structs>(playerid);
-		d->dwAnimationData = data;
+		auto *d = &Player::getLastSyncData<Structs>(playerid);
+		d->dwAnimationData = animation;
 
 		return 1;
 	});
@@ -351,6 +351,7 @@ static cell AMX_NATIVE_CALL FreezeSyncData(AMX *amx, cell *params)
 
 	return Versions::getNetGame([params](auto netGame, auto structs) {
 		using Structs = decltype(structs);
+		using SyncTypes = Global::SyncTypes;
 
 		int playerid = (int)params[1];
 		BOOL toggle = (BOOL)params[2];
@@ -358,14 +359,14 @@ static cell AMX_NATIVE_CALL FreezeSyncData(AMX *amx, cell *params)
 		if(!IsPlayerConnected(playerid))
 			return 0;		
 
-		auto *d = &Versions::getLastSyncData<Structs>(playerid);
+		auto *d = &Player::getLastSyncData<Structs>(playerid);
 		d->vecVelocity = CVector();
 		d->byteSpecialAction = 0;
 		d->wKeys = 0;
 		d->wUDAnalog = 0;
 		d->wLRAnalog = 0;
 
-		Player::syncDataFrozen[playerid] = toggle;
+		Player::SetSyncFrozenState(playerid, SyncTypes::E_PLAYER_SYNC, toggle);
 
 		return 1;
 	});
@@ -378,6 +379,7 @@ static cell AMX_NATIVE_CALL FreezeSyncPacket(AMX *amx, cell *params)
 
 	return Versions::getNetGame([params](auto netGame, auto structs) {
 		using Structs = decltype(structs);
+		using SyncTypes = Global::SyncTypes;
 
 		int playerid = static_cast<int>(params[1]);
 		int type = static_cast<int>(params[2]);
@@ -386,62 +388,64 @@ static cell AMX_NATIVE_CALL FreezeSyncPacket(AMX *amx, cell *params)
 		if(!IsPlayerConnected(playerid))
 			return 0;
 
-		if(type == Global::SyncTypes::E_LAST_SYNC)
+		if(type == SyncTypes::E_LAST_SYNC)
 		{
 			type = static_cast<int>(Player::lastSyncPacket[playerid]);			
 		}
 
 		switch(type)
 		{
-			case Global::SyncTypes::E_PLAYER_SYNC: // Player Sync
+			case SyncTypes::E_PLAYER_SYNC: // Player Sync
 			{
-				auto *d = &Versions::getLastSyncData<Structs>(playerid);
+				auto *d = &Player::getLastSyncData<Structs>(playerid);
 				d->vecVelocity = CVector();
 				d->byteSpecialAction = 0;
 				d->wKeys = 0;
 				d->wUDAnalog = 0;
 				d->wLRAnalog = 0;
 
-				Player::syncDataFrozen[playerid] = toggle;
+				Player::SetSyncFrozenState(playerid, SyncTypes::E_PLAYER_SYNC, toggle);
 				break;
 			}
 
-			case Global::SyncTypes::E_AIM_SYNC: // Aim Sync
+			case SyncTypes::E_AIM_SYNC: // Aim Sync
 			{
 				Player::syncAimDataFrozen[playerid] = toggle;
 				break;				
 			}
 
-			case Global::SyncTypes::E_VEHICLE_SYNC: // Vehicle Sync
+			case SyncTypes::E_VEHICLE_SYNC: // Vehicle Sync
 			{
-				auto *d = &Versions::getLastVehicleSyncData<Structs>(playerid);
+				auto *d = &Player::getLastVehicleSyncData<Structs>(playerid);
 				d->vecVelocity = CVector();
 				d->wKeys = 0;
 				d->wUDAnalog = 0;
 				d->wLRAnalog = 0;
 
-				Player::syncVehicleDataFrozen[playerid] = toggle;				
+				Player::SetSyncFrozenState(playerid, SyncTypes::E_VEHICLE_SYNC, toggle);				
 				break;
 			}
 
-			case Global::SyncTypes::E_PASSENGER_SYNC: // Passenger Sync
+			case SyncTypes::E_PASSENGER_SYNC: // Passenger Sync
 			{
-				auto *d = &Versions::getLastPassengerSyncData<Structs>(playerid);
+				auto *d = &Player::getLastPassengerSyncData<Structs>(playerid);
 				d->wKeys = 0;
 				d->wUDAnalog = 0;
 				d->wLRAnalog = 0;
 
-				Player::syncPassengerDataFrozen[playerid] = toggle;					
+				Player::SetSyncFrozenState(playerid, SyncTypes::E_PASSENGER_SYNC, toggle);
+				break;				
 			}
 
-			case Global::SyncTypes::E_SPECTATING_SYNC: // Spectate Sync
+			case SyncTypes::E_SPECTATING_SYNC: // Spectate Sync
 			{
-				auto *d = &Versions::getLastSpectatingSyncData<Structs>(playerid);
+				auto *d = &Player::getLastSpectatingSyncData<Structs>(playerid);
 				d->wKeysOnSpectating = 0;
 				d->wUpDownKeysOnSpectating = 0;
 				d->wLeftRightKeysOnSpectating = 0;
 
-				Player::syncSpectatingDataFrozen[playerid] = toggle;			
+				Player::SetSyncFrozenState(playerid, SyncTypes::E_SPECTATING_SYNC, toggle);
+				break;			
 			}
 
 			default:

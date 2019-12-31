@@ -52,53 +52,27 @@ namespace Versions
             static samp_037::CNetGame *netGame = reinterpret_cast<samp_037::CNetGame *>(pNetGame);
             return func(netGame, samp_037());
         }
-    }
+    }   
 
-    // Returns the last sync data stored for the struct CSyncData
-    template <typename Struct>
-    auto &getLastSyncData(int playerid)
-    {
-        static typename Struct::CSyncData data[MAX_PLAYERS];
-        return data[playerid];
-    }
-
-    // Returns the last sync data stored for the struct CAimSyncData
-    template <typename Struct>
-    auto &getLastAimSyncData(int playerid)
-    {
-        static typename Struct::CAimSyncData data[MAX_PLAYERS];
-        return data[playerid];
-    }
-
-    // Returns the last sync data stored for the struct CVehicleSyncData
-    template <typename Struct>
-    auto &getLastVehicleSyncData(int playerid)
-    {
-        static typename Struct::CVehicleSyncData data[MAX_PLAYERS];
-        return data[playerid];
-    }
-
-    // Returns the last sync data stored for the struct CPassengerSyncData
-    template <typename Struct>
-    auto &getLastPassengerSyncData(int playerid)
-    {
-        static typename Struct::CPassengerSyncData data[MAX_PLAYERS];
-        return data[playerid];
-    }
-
-    // Returns the last sync data stored for the struct CSpectatingSyncData
-    template <typename Struct>
-    auto &getLastSpectatingSyncData(int playerid)
-    {
-        static typename Struct::CSpectatingSyncData data[MAX_PLAYERS];
-        return data[playerid];
-    }    
+    // auto getNetGame2()
+    // {
+    //     if (iVersion == eSAMPVersion::SAMP_VERSION_03DL_R1)
+    //     {
+    //         static samp_03dl::CNetGame *netGame = reinterpret_cast<samp_03dl::CNetGame *>(pNetGame);
+    //         return {netGame, samp_03dl()};
+    //     }
+    //     else
+    //     {
+    //         static samp_037::CNetGame *netGame = reinterpret_cast<samp_037::CNetGame *>(pNetGame);
+    //         return func(netGame, samp_037());
+    //     }
+    // }    
 
     // Writes a CSyncData struct to a bitstream instance
     template <typename Struct>
     void sendSyncData(int playerid, int animation, RakNet::BitStream *bs)
     {
-        auto *d = &getLastSyncData<Struct>(playerid);
+        auto *d = &Player::getLastSyncData<Struct>(playerid);
 
         bs->Write((BYTE)ID_PLAYER_SYNC);
         bs->Write((WORD)playerid);
@@ -190,8 +164,7 @@ namespace Versions
 
         bs->Write((BYTE)((health << 4) | (armour)));
 
-        bs->Write(d->byteWeapon);
-        bs->Write(d->byteAdditionalKeys);
+        bs->Write((BYTE)((d->byteAdditionalKeys << 6) | (d->byteWeapon)));
         bs->Write(d->byteSpecialAction);
 
         // Make them appear standing still if paused
@@ -209,9 +182,7 @@ namespace Versions
             bs->Write(true);
 
             bs->Write(d->wSurfingInfo);
-            bs->Write(d->vecSurfing.fX);
-            bs->Write(d->vecSurfing.fY);
-            bs->Write(d->vecSurfing.fZ);
+            bs->WriteVector(d->vecSurfing.fX, d->vecSurfing.fY, d->vecSurfing.fZ);
         }
         else
         {
@@ -219,10 +190,11 @@ namespace Versions
         }
 
         // Animations are only sent when they are changed
-        if (animation)
+        if (animation )
         {
             bs->Write(true);
-            bs->Write((DWORD)d->dwAnimationData);
+            bs->Write((DWORD)d->wAnimIndex);
+            bs->Write((DWORD)d->wAnimFlags);
         }
         else
         {
@@ -234,7 +206,7 @@ namespace Versions
     template <typename Struct>
     void sendAimSyncData(int playerid, RakNet::BitStream *bs)
     {
-        auto *d = &getLastAimSyncData<Struct>(playerid);
+        auto *d = &Player::getLastAimSyncData<Struct>(playerid);
 
         bs->Write((BYTE)ID_AIM_SYNC);
         bs->Write((WORD)playerid);
@@ -283,7 +255,7 @@ namespace Versions
     template <typename Struct>
     void sendVehicleSyncData(int playerid, RakNet::BitStream *bs)
     {
-        auto *d = &getLastVehicleSyncData<Struct>(playerid);
+        auto *d = &Player::getLastVehicleSyncData<Struct>(playerid);
 
         bs->Write((BYTE)ID_VEHICLE_SYNC);
         bs->Write((WORD)playerid);
@@ -375,8 +347,7 @@ namespace Versions
 
         bs->Write((BYTE)((health << 4) | (armour)));
 
-        bs->Write(d->bytePlayerWeapon);
-        bs->Write(d->byteAdditionalKeys);
+        bs->Write((BYTE)(d->bytePlayerWeapon << 2) | (d->byteAdditionalKeys));
 
         if(d->byteSirenState)
         {
@@ -421,7 +392,7 @@ namespace Versions
     template <typename Struct>
     void sendPassengerSyncData(int playerid, RakNet::BitStream *bs)
     {
-        auto *d = &getLastPassengerSyncData<Struct>(playerid);
+        auto *d = &Player::getLastPassengerSyncData<Struct>(playerid);
 
         bs->Write((BYTE)ID_PASSENGER_SYNC);
         bs->Write((WORD)playerid);
@@ -501,7 +472,7 @@ namespace Versions
     template <typename Struct>
     void sendSpectatingSyncData(int playerid, RakNet::BitStream *bs)
     {
-        auto *d = &getLastSpectatingSyncData<Struct>(playerid);
+        auto *d = &Player::getLastSpectatingSyncData<Struct>(playerid);
 
         bs->Write((BYTE)ID_SPECTATOR_SYNC);
         bs->Write((WORD)playerid);
