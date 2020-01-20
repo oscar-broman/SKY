@@ -12,7 +12,8 @@ namespace Global
         E_VEHICLE_SYNC,
         E_PASSENGER_SYNC,
         E_SPECTATING_SYNC,
-        E_LAST_SYNC
+        E_LAST_SYNC,
+        E_ALL_SYNC
     };    
 
     extern BOOL disableSyncBugs;

@@ -389,7 +389,8 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 			}
 
 			auto lastSyncData = &Player::getLastSyncData<Structs>(playerid);
-			if (Player::GetSyncFrozenState(playerid, SyncTypes::E_PLAYER_SYNC))
+			if (Player::GetSyncFrozenState(playerid, SyncTypes::E_PLAYER_SYNC)
+			|| Player::GetSyncFrozenState(playerid, SyncTypes::E_ALL_SYNC))
 			{
 				std::memcpy(d, lastSyncData, sizeof(typename Structs::CSyncData));
 			}
@@ -456,7 +457,8 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 			}
 
 			auto lastAimSyncData = &Player::getLastAimSyncData<Structs>(playerid);
-			if (Player::GetSyncFrozenState(playerid, SyncTypes::E_AIM_SYNC))
+			if (Player::GetSyncFrozenState(playerid, SyncTypes::E_AIM_SYNC)
+			|| Player::GetSyncFrozenState(playerid, SyncTypes::E_ALL_SYNC))
 			{
 				std::memcpy(d, lastAimSyncData, sizeof(typename Structs::CAimSyncData));
 			}
@@ -510,7 +512,8 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 			}
 
 			auto lastVehicleSyncData = &Player::getLastVehicleSyncData<Structs>(playerid);
-			if (Player::GetSyncFrozenState(playerid, SyncTypes::E_VEHICLE_SYNC))
+			if (Player::GetSyncFrozenState(playerid, SyncTypes::E_VEHICLE_SYNC)
+			|| Player::GetSyncFrozenState(playerid, SyncTypes::E_ALL_SYNC))
 			{
 				std::memcpy(d, lastVehicleSyncData, sizeof(typename Structs::CVehicleSyncData));
 			}
@@ -554,7 +557,8 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 			}
 
 			auto lastPassengerSyncData = &Player::getLastPassengerSyncData<Structs>(playerid);
-			if (Player::GetSyncFrozenState(playerid, SyncTypes::E_PASSENGER_SYNC))
+			if (Player::GetSyncFrozenState(playerid, SyncTypes::E_PASSENGER_SYNC)
+			|| Player::GetSyncFrozenState(playerid, SyncTypes::E_ALL_SYNC))
 			{
 				std::memcpy(d, lastPassengerSyncData, sizeof(typename Structs::CPassengerSyncData));
 			}
@@ -598,7 +602,8 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 			}
 
 			auto lastSpectatingSyncData = &Player::getLastSpectatingSyncData<Structs>(playerid);
-			if (Player::GetSyncFrozenState(playerid, SyncTypes::E_SPECTATING_SYNC))
+			if (Player::GetSyncFrozenState(playerid, SyncTypes::E_SPECTATING_SYNC)
+			|| Player::GetSyncFrozenState(playerid, SyncTypes::E_ALL_SYNC))
 			{
 				std::memcpy(d, lastSpectatingSyncData, sizeof(typename Structs::CSpectatingSyncData));
 			}

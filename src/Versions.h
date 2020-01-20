@@ -19,22 +19,21 @@
 #include <raknet/NetworkTypes.h>
 
 #if !defined PAD
-#define PAD(a, b) char a[b]
+    #define PAD(a, b) char a[b]
 #endif
 
 namespace Versions
 {
-    // Struct data for SAMP 0.3.7
+
     struct samp_037
     {
-    #include "Structs.h"
+        #include "Structs.h"
     };
 
-    // Struct data for SAMP 0.3.DL
     struct samp_03dl
     {
-    #define SAMP_03DL
-    #include "Structs.h"
+        #define SAMP_03DL
+        #include "Structs.h"
     };
 
     // Returns a function with an instance of netGame and a struct
@@ -52,21 +51,7 @@ namespace Versions
             static samp_037::CNetGame *netGame = reinterpret_cast<samp_037::CNetGame *>(pNetGame);
             return func(netGame, samp_037());
         }
-    }   
-
-    // auto getNetGame2()
-    // {
-    //     if (iVersion == eSAMPVersion::SAMP_VERSION_03DL_R1)
-    //     {
-    //         static samp_03dl::CNetGame *netGame = reinterpret_cast<samp_03dl::CNetGame *>(pNetGame);
-    //         return {netGame, samp_03dl()};
-    //     }
-    //     else
-    //     {
-    //         static samp_037::CNetGame *netGame = reinterpret_cast<samp_037::CNetGame *>(pNetGame);
-    //         return func(netGame, samp_037());
-    //     }
-    // }    
+    }  
 
     // Writes a CSyncData struct to a bitstream instance
     template <typename Struct>

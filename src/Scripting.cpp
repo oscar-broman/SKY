@@ -140,6 +140,7 @@ static cell AMX_NATIVE_CALL SendLastSyncPacket(AMX *amx, cell *params)
 
 	return Versions::getNetGame([params](auto netGame, auto structs) {
 		using Structs = decltype(structs);
+		using SyncTypes = Global::SyncTypes;
 
 		int playerid = static_cast<int>(params[1]);
 		int toplayerid = static_cast<int>(params[2]);
@@ -154,30 +155,30 @@ static cell AMX_NATIVE_CALL SendLastSyncPacket(AMX *amx, cell *params)
 
 		RakNet::BitStream bs;
 
-		if(type == Global::SyncTypes::E_LAST_SYNC)
+		if(type == SyncTypes::E_LAST_SYNC)
 		{
 			type = static_cast<int>(Player::lastSyncPacket[playerid]);
 		}
 
 		switch(type) 
 		{
-			case Global::SyncTypes::E_PLAYER_SYNC: // Player Sync
+			case SyncTypes::E_PLAYER_SYNC: // Player Sync
 				Versions::sendSyncData<Structs>(playerid, animation, &bs);
 				break;
 
-			case Global::SyncTypes::E_AIM_SYNC: // Aim Sync
+			case SyncTypes::E_AIM_SYNC: // Aim Sync
 				Versions::sendAimSyncData<Structs>(playerid, &bs);
 				break;
 
-			case Global::SyncTypes::E_VEHICLE_SYNC: // Vehicle Sync
+			case SyncTypes::E_VEHICLE_SYNC: // Vehicle Sync
 				Versions::sendVehicleSyncData<Structs>(playerid, &bs);
 				break;
 
-			case Global::SyncTypes::E_PASSENGER_SYNC: // Passenger Sync
+			case SyncTypes::E_PASSENGER_SYNC: // Passenger Sync
 				Versions::sendPassengerSyncData<Structs>(playerid, &bs);
 				break;
 
-			case Global::SyncTypes::E_SPECTATING_SYNC: // Spectate Sync
+			case SyncTypes::E_SPECTATING_SYNC: // Spectate Sync
 				Versions::sendSpectatingSyncData<Structs>(playerid, &bs);
 				break;
 
@@ -446,6 +447,12 @@ static cell AMX_NATIVE_CALL FreezeSyncPacket(AMX *amx, cell *params)
 
 				Player::SetSyncFrozenState(playerid, SyncTypes::E_SPECTATING_SYNC, toggle);
 				break;			
+			}
+
+			case SyncTypes::E_ALL_SYNC: // All Syncs
+			{
+				Player::SetSyncFrozenState(playerid, SyncTypes::E_ALL_SYNC, toggle);
+				break;
 			}
 
 			default:

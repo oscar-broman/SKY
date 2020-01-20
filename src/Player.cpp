@@ -15,6 +15,7 @@ namespace Player
     BOOL syncVehicleDataFrozen[1000] = {0}; // Stores the frozen state for Vehicle Sync
     BOOL syncPassengerDataFrozen[1000] = {0}; // Stores the frozen state for Passenger Sync
     BOOL syncSpectatingDataFrozen[1000] = {0}; // Stores the frozen state for Spectating Sync
+    BOOL syncAllDataFrozen[1000] = {0};
 
     extern SyncTypes lastSyncPacket[1000] = {SyncTypes::E_PLAYER_SYNC}; // Stores the last packets type
 
@@ -42,6 +43,10 @@ namespace Player
             case SyncTypes::E_SPECTATING_SYNC:
                 syncSpectatingDataFrozen[playerid] = toggle;
                 break;
+
+            case SyncTypes::E_ALL_SYNC:
+                syncAllDataFrozen[playerid] = toggle;
+                break;
         }
     }
 
@@ -63,7 +68,10 @@ namespace Player
                 return syncPassengerDataFrozen[playerid];
 
             case SyncTypes::E_SPECTATING_SYNC:
-                return syncSpectatingDataFrozen[playerid];            
+                return syncSpectatingDataFrozen[playerid];
+
+            case SyncTypes::E_ALL_SYNC:
+                return syncAllDataFrozen[playerid];
         }
 
         return -1;        

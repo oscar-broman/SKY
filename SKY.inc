@@ -11,7 +11,8 @@ enum E_SYNC_TYPES
     E_VEHICLE_SYNC,
     E_PASSENGER_SYNC,
     E_SPECTATING_SYNC,
-    E_LAST_SYNC
+    E_LAST_SYNC,
+    E_ALL_SYNC
 };
 
 // Make a player appear to spawn for all players but himself
