@@ -234,9 +234,14 @@ static cell AMX_NATIVE_CALL SetFakeFacingAngle(AMX *amx, cell *params)
 	if(!IsPlayerConnected(playerid))
 		return 0;	
 
+	if (Player::fakeQuat[playerid])
+	{
+		delete Player::fakeQuat[playerid];
+	}
+
 	if ((int)params[2] == 0x7FFFFFFF)
 	{
-		Player::fakeQuat[playerid] = NULL;
+		Player::fakeQuat[playerid] = nullptr;
 	}
 	else
 	{
