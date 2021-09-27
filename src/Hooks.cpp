@@ -625,9 +625,5 @@ void InstallPreHooks()
 {
 	std::memset(&Player::fakeHealth, 255, sizeof(Player::fakeHealth));
 	std::memset(&Player::fakeArmour, 255, sizeof(Player::fakeArmour));
-
-	for (int i = 0; i < 1000; i++)
-	{
-		Player::fakeQuat[i] = 0;
-	}
+	std::memset(&Player::fakeQuat[0], NULL, sizeof(Player::fakeQuat));
 }
