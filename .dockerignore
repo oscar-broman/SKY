@@ -1,9 +1,0 @@
-Dockerfile
-.dockerignore
-*.sln
-*.inc
-*.sdf
-CREDITS
-.gitignore
-out/
-.vscode/
