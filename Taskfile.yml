@@ -14,9 +14,11 @@ tasks:
       - mkdir -p build/windows
 
   build:linux:
+    dir: build/linux
     cmds:
-      - docker build --no-cache -t oscar-broman/sky:linux --build-arg build=Release .
-      - docker run --volume=$(pwd)/build:/work/build oscar-broman/sky:linux
+      - cmake ../..
+      - cmake --build . --config Release
+      - cpack
 
   build:windows:
     dir: build/windows
