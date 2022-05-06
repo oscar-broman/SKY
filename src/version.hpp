@@ -4,6 +4,17 @@
 #include <sstream>
 #include "main.hpp"
 
+#ifdef _WIN32
+#define OS_NAME "Windows"
+#else
+#define OS_NAME "Linux"
+#endif
+
+#define PROJECT_NAME "SKY"
+#define PROJECT_MAJOR 2
+#define PROJECT_MINOR 3
+#define PROJECT_PATCH 0
+
 inline void ShowPluginInfo()
 {
     SkyComponent::Log(LogLevel::Message, "");

@@ -33,7 +33,6 @@
 #include "scripting.hpp"
 
 #include "main.hpp"
-#include "utils.hpp"
 #include "player.hpp"
 #include "global.hpp"
 

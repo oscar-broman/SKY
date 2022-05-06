@@ -6,11 +6,7 @@
 //----------------------------------------------------------
 
 #include "main.hpp"
-
-#include "scripting.hpp"
-#include "utils.hpp"
-
-extern void *pAMXFunctions;
+#include "version.hpp"
 
 SemanticVersion SkyComponent::componentVersion() const
 {
@@ -31,19 +27,12 @@ void SkyComponent::onLoad(ICore *c)
 	}
 
 	// packet handlers
-	PlayerSync ps;
-	AimSync as;
-	VehicleSync vs;
-	PassengerSync pas;
-	SpectatorSync ss;
-	TrailerSync ts;
-
-	c->addPerPacketInEventHandler<NetCode::Packet::PlayerFootSync::PacketID>(&ps);
-	c->addPerPacketInEventHandler<NetCode::Packet::PlayerAimSync::PacketID>(&as);
-	c->addPerPacketInEventHandler<NetCode::Packet::PlayerVehicleSync::PacketID>(&vs);
-	c->addPerPacketInEventHandler<NetCode::Packet::PlayerPassengerSync::PacketID>(&pas);
-	c->addPerPacketInEventHandler<NetCode::Packet::PlayerSpectatorSync::PacketID>(&ss);
-	c->addPerPacketInEventHandler<NetCode::Packet::PlayerTrailerSync::PacketID>(&ts);
+	core_->addPerPacketInEventHandler<NetCode::Packet::PlayerFootSync::PacketID>(&player_sync_);
+	core_->addPerPacketInEventHandler<NetCode::Packet::PlayerAimSync::PacketID>(&aim_sync_);
+	core_->addPerPacketInEventHandler<NetCode::Packet::PlayerVehicleSync::PacketID>(&vehicle_sync_);
+	core_->addPerPacketInEventHandler<NetCode::Packet::PlayerPassengerSync::PacketID>(&passenger_sync_);
+	core_->addPerPacketInEventHandler<NetCode::Packet::PlayerSpectatorSync::PacketID>(&spectator_sync_);
+	core_->addPerPacketInEventHandler<NetCode::Packet::PlayerTrailerSync::PacketID>(&trailer_sync_);
 
 	// show version
 	ShowPluginInfo();
@@ -75,8 +64,6 @@ void SkyComponent::onInit(IComponentList *components)
 
 	pawn_component_->getEventDispatcher().addEventHandler(this);
 	players_->getEventDispatcher().addEventHandler(this);
-
-	pAMXFunctions = (void *)&pawn_component_->getAmxFunctions();
 }
 
 void SkyComponent::onAmxLoad(void *amx)
@@ -91,7 +78,6 @@ void SkyComponent::onFree(IComponent *component)
 	if (component == pawn_component_ || component == this)
 	{
 		pawn_component_ = nullptr;
-		pAMXFunctions = nullptr;
 	}
 }
 
@@ -104,6 +90,14 @@ void SkyComponent::free()
 		pawn_component_->getEventDispatcher().removeEventHandler(this);
 		players_->getEventDispatcher().removeEventHandler(this);
 	}
+
+	// packet handlers
+	core_->removePerPacketInEventHandler<NetCode::Packet::PlayerFootSync::PacketID>(&player_sync_);
+	core_->removePerPacketInEventHandler<NetCode::Packet::PlayerAimSync::PacketID>(&aim_sync_);
+	core_->removePerPacketInEventHandler<NetCode::Packet::PlayerVehicleSync::PacketID>(&vehicle_sync_);
+	core_->removePerPacketInEventHandler<NetCode::Packet::PlayerPassengerSync::PacketID>(&passenger_sync_);
+	core_->removePerPacketInEventHandler<NetCode::Packet::PlayerSpectatorSync::PacketID>(&spectator_sync_);
+	core_->removePerPacketInEventHandler<NetCode::Packet::PlayerTrailerSync::PacketID>(&trailer_sync_);
 
 	delete this;
 }
