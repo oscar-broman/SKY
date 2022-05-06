@@ -9,3 +9,11 @@ lint:
     - prettier@2.5.1
     - shellcheck@0.8.0
     - shfmt@3.4.0
+    - clang-format@13.0.0
+  threshold:
+    - linters: [clang-tidy]
+      level: high
+  ignore:
+    - linters: [ALL]
+      paths:
+        - src/Shared/**
