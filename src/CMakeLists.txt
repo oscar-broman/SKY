@@ -20,6 +20,9 @@ add_samp_plugin(SKY
 	network.cpp
 	player.cpp
 	scripting.cpp
+	Shared/bitstream.cpp
+	Shared/Encoding/huffman_tree.cpp
+	Shared/Encoding/str_compress.cpp
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE OMP-SDK)

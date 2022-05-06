@@ -63,6 +63,6 @@ namespace Player
             break;
         }
 
-        return -1;
+        return false;
     }
 };
