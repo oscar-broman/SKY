@@ -1,5 +1,6 @@
-version: "2"
+version: "3"
 
+dotenv: [".env"]
 tasks:
   build:
     cmds:
@@ -16,7 +17,7 @@ tasks:
   build:linux:
     dir: build/linux
     cmds:
-      - cmake ../..
+      - cmake ../.. -DCMAKE_BUILD_TYPE=Release
       - cmake --build . --config Release
       - cpack
 
@@ -26,3 +27,20 @@ tasks:
       - cmake ../.. -A Win32
       - cmake --build . --config Release
       - cpack
+
+  release:
+    cmds:
+      - task: release:linux
+      - task: release:windows
+
+  release:linux:
+    cmds:
+      - mkdir -p ./pkg
+      - cmd: mv build/linux/*.tar.gz ./pkg
+        ignore_error: true
+
+  release:windows:
+    cmds:
+      - mkdir -p ./pkg
+      - cmd: mv build/linux/*.zip ./pkg
+        ignore_error: true

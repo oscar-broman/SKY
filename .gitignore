@@ -33,6 +33,10 @@ Debug/
 builds/
 build/
 out/
+pkg/
 
 # VScode
 .vs/
+
+# Environment
+.env

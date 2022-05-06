@@ -5,99 +5,136 @@
 //
 //----------------------------------------------------------
 
-#include "main.h"
+#include "main.hpp"
 
-#include "Addresses.h"
-#include "Hooks.h"
-#include "RPCs.h"
+#include "scripting.hpp"
+#include "utils.hpp"
 
-#include "Functions.h"
-#include "Scripting.h"
-#include "Utils.h"
-#include <fstream>
-
-#ifdef LINUX
-#include <cstring>
-typedef unsigned char *PCHAR;
-#endif
-
-//----------------------------------------------------------
-
-void **ppPluginData;
 extern void *pAMXFunctions;
-logprintf_t logprintf;
 
-// Internal server pointers
-CNetGame *pNetGame = 0;
-void *pConsole = 0;
-RakServer *pRakServer = 0;
-
-eSAMPVersion iVersion = eSAMPVersion::SAMP_VERSION_UNKNOWN;
-
-//----------------------------------------------------------
-// The Support() function indicates what possibilities this
-// plugin has. The SUPPORTS_VERSION flag is required to check
-// for compatibility with the server.
-
-PLUGIN_EXPORT unsigned int PLUGIN_CALL Supports()
+SemanticVersion SkyComponent::componentVersion() const
 {
-	return SUPPORTS_VERSION | SUPPORTS_AMX_NATIVES;
+	return SemanticVersion(PROJECT_MAJOR, PROJECT_MINOR, PROJECT_PATCH, 0);
 }
 
-//----------------------------------------------------------
-// The Load() function gets passed on exported functions from
-// the SA-MP Server, like the AMX Functions and logprintf().
-// Should return true if loading the plugin has succeeded.
-
-PLUGIN_EXPORT bool PLUGIN_CALL Load(void **ppData)
+void SkyComponent::onLoad(ICore *c)
 {
-	ppPluginData = ppData;
-	pAMXFunctions = ppPluginData[PLUGIN_DATA_AMX_EXPORTS];
-	logprintf = reinterpret_cast<logprintf_t>(ppPluginData[PLUGIN_DATA_LOGPRINTF]);
-	iVersion = GetServerVersion();
+	core_ = c;
+	players_ = &c->getPlayers();
 
-#ifndef _WIN32
-	LoadTickCount();
-#endif
+	getCore() = c;
 
-	CAddress::Initialize(iVersion);
-	InstallPreHooks();
-	ShowPluginInfo(iVersion);
-
-	return 1;
-}
-
-//----------------------------------------------------------
-// The Unload() function is called when the server shuts down,
-// meaning this plugin gets shut down with it.
-
-PLUGIN_EXPORT void PLUGIN_CALL Unload()
-{
-}
-
-//----------------------------------------------------------
-// The AmxLoad() function gets called when a new gamemode or
-// filterscript gets loaded with the server. In here we register
-// the native functions we like to add to the scripts.
-
-PLUGIN_EXPORT int PLUGIN_CALL AmxLoad(AMX *amx)
-{
-	static bool bFirst = false;
-
-	if (!bFirst)
+	// make sure bitstream versions match core
+	if (NetworkBitStream::Version != c->getNetworkBitStreamVersion())
 	{
-		bFirst = true;
-		CSAMPFunctions::Initialize();
+		core_->logLn(LogLevel::Error, "Bitstream mismatch from SDK/Core");
 	}
 
-	return InitScripting(amx);
+	// packet handlers
+	PlayerSync ps;
+	AimSync as;
+	VehicleSync vs;
+	PassengerSync pas;
+	SpectatorSync ss;
+	TrailerSync ts;
+
+	c->addPerPacketInEventHandler<NetCode::Packet::PlayerFootSync::PacketID>(&ps);
+	c->addPerPacketInEventHandler<NetCode::Packet::PlayerAimSync::PacketID>(&as);
+	c->addPerPacketInEventHandler<NetCode::Packet::PlayerVehicleSync::PacketID>(&vs);
+	c->addPerPacketInEventHandler<NetCode::Packet::PlayerPassengerSync::PacketID>(&pas);
+	c->addPerPacketInEventHandler<NetCode::Packet::PlayerSpectatorSync::PacketID>(&ss);
+	c->addPerPacketInEventHandler<NetCode::Packet::PlayerTrailerSync::PacketID>(&ts);
+
+	// show version
+	ShowPluginInfo();
 }
 
-//----------------------------------------------------------
-// When a gamemode is over or a filterscript gets unloaded, this
-// function gets called. No special actions needed in here.
-
-PLUGIN_EXPORT int PLUGIN_CALL AmxUnload(AMX *amx)
+void SkyComponent::onInit(IComponentList *components)
 {
-	return AMX_ERR_NONE;
+	StringView name = componentName();
+
+	pawn_component_ = components->queryComponent<IPawnComponent>();
+	if (!pawn_component_)
+	{
+		core_->logLn(LogLevel::Error,
+					 "Error loading component %.*s: Pawn component not loaded",
+					 name.length(), name.data());
+
+		return;
+	}
+
+	textdraw_component_ = components->queryComponent<ITextDrawsComponent>();
+	if (!textdraw_component_)
+	{
+		core_->logLn(LogLevel::Error,
+					 "Error loading component %.*s: Textdraw component not loaded",
+					 name.length(), name.data());
+
+		return;
+	}
+
+	pawn_component_->getEventDispatcher().addEventHandler(this);
+	players_->getEventDispatcher().addEventHandler(this);
+
+	pAMXFunctions = (void *)&pawn_component_->getAmxFunctions();
+}
+
+void SkyComponent::onAmxLoad(void *amx)
+{
+	InitScripting((AMX *)amx);
+};
+
+void SkyComponent::onAmxUnload(void *amx){};
+
+void SkyComponent::onFree(IComponent *component)
+{
+	if (component == pawn_component_ || component == this)
+	{
+		pawn_component_ = nullptr;
+		pAMXFunctions = nullptr;
+	}
+}
+
+void SkyComponent::reset() {}
+
+void SkyComponent::free()
+{
+	if (pawn_component_)
+	{
+		pawn_component_->getEventDispatcher().removeEventHandler(this);
+		players_->getEventDispatcher().removeEventHandler(this);
+	}
+
+	delete this;
+}
+
+void SkyComponent::Log(LogLevel level, const char *fmt, ...)
+{
+	auto core = getCore();
+	if (!core)
+	{
+		return;
+	}
+
+	va_list args{};
+	va_start(args, fmt);
+	core->vlogLn(level, fmt, args);
+	va_end(args);
+}
+
+ITextDrawsComponent *&SkyComponent::getTextDraws()
+{
+	static ITextDrawsComponent *textdraws{};
+	return textdraws;
+}
+
+ICore *&SkyComponent::getCore()
+{
+	static ICore *core{};
+	return core;
+}
+
+COMPONENT_ENTRY_POINT()
+{
+	return new SkyComponent();
 }
