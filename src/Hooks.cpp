@@ -146,10 +146,9 @@ BYTE GetPacketID(Packet *p)
     if ((unsigned char)p->data[0] == ID_TIMESTAMP)
     {
         if (p->length <= sizeof(unsigned char) + sizeof(unsigned long))
-		{
-			return 255;
-		}         
-        return (unsigned char)p->data[sizeof(unsigned char) + sizeof(unsigned long)];
+			return 255;   
+        
+		return (unsigned char)p->data[sizeof(unsigned char) + sizeof(unsigned long)];
     }
     else
         return (unsigned char)p->data[0];
