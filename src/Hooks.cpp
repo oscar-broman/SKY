@@ -147,7 +147,6 @@ BYTE GetPacketID(Packet *p)
     {
         if (p->length <= sizeof(unsigned char) + sizeof(unsigned long))
 		{
-			logprintf("Invalid Packet Length");  //here
 			return 255;
 		}         
         return (unsigned char)p->data[sizeof(unsigned char) + sizeof(unsigned long)];
