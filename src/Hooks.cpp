@@ -140,16 +140,20 @@ static bool IsPlayerUpdatePacket(unsigned char packetId)
 
 BYTE GetPacketID(Packet *p)
 {
-	if (p == 0)
-		return 255;
+    if (p == nullptr)
+        return 255;
 
-	if ((unsigned char)p->data[0] == ID_TIMESTAMP)
-	{
-		assert(p->length > sizeof(unsigned char) + sizeof(unsigned long));
-		return (unsigned char)p->data[sizeof(unsigned char) + sizeof(unsigned long)];
-	}
-	else
-		return (unsigned char)p->data[0];
+    if ((unsigned char)p->data[0] == ID_TIMESTAMP)
+    {
+        if (p->length <= sizeof(unsigned char) + sizeof(unsigned long))
+		{
+			logprintf("Invalid Packet Length");  //here
+			return 255;
+		}         
+        return (unsigned char)p->data[sizeof(unsigned char) + sizeof(unsigned long)];
+    }
+    else
+        return (unsigned char)p->data[0];
 }
 //----------------------------------------------------
 
