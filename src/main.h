@@ -3,6 +3,7 @@
 #include <plugincommon.h>
 #include "Addresses.h"
 #include <amx/amx.h>
+#include <cstdio>
 
 class CNetGame;
 class RakServer;
