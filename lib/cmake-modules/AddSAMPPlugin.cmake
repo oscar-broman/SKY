@@ -6,6 +6,11 @@ function(add_samp_plugin name)
   if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
     set_property(TARGET ${name} APPEND_STRING PROPERTY COMPILE_FLAGS " -m32")
     set_property(TARGET ${name} APPEND_STRING PROPERTY LINK_FLAGS    " -m32")
+    
+    # Add static linking for Linux builds
+    if(UNIX AND NOT WIN32 AND NOT APPLE)
+      set_property(TARGET ${name} APPEND_STRING PROPERTY LINK_FLAGS " -static-libgcc -static-libstdc++")
+    endif()
   endif()
 
   if(CMAKE_COMPILER_IS_GNUCXX)

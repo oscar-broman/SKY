@@ -36,10 +36,14 @@ if(UNIX)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -m32 -std=gnu++17 -fno-stack-protector -O3 -g -fPIC -w -fpermissive -fvisibility=hidden")
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m32")
 	set_property(GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS OFF)
+	
+	# Static linking of runtime libraries to avoid glibc version dependencies
+	# Note: We only statically link libgcc and libstdc++, not the entire binary
 	add_link_options(
 		"-static-libgcc"
 		"-static-libstdc++"
-	)	
+		"-Wl,--no-undefined"
+	)
 elseif(WIN32)
 	add_definitions(
 		-D_CRT_SECURE_NO_WARNINGS
