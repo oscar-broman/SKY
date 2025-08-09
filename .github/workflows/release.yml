@@ -1,0 +1,114 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  release:
+    types: [published]
+
+jobs:
+  build-and-release:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: linux
+            artifact_path: build/SKY.so
+            package_path: build/release-linux.tar.gz
+            upload_name: SKY-linux.so
+          - os: windows-latest
+            platform: windows
+            artifact_path: build/Release/SKY.dll
+            package_path: build/release-windows.zip
+            upload_name: SKY-windows.dll
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: recursive
+    
+    - name: Install dependencies (Linux)
+      if: matrix.platform == 'linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y gcc-multilib g++-multilib cmake build-essential
+    
+    - name: Setup MSVC (Windows)
+      if: matrix.platform == 'windows'
+      uses: microsoft/setup-msbuild@v2
+    
+    - name: Configure CMake (Linux)
+      if: matrix.platform == 'linux'
+      run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+    
+    - name: Configure CMake (Windows)
+      if: matrix.platform == 'windows'
+      run: cmake -B build -DCMAKE_BUILD_TYPE=Release -A Win32
+    
+    - name: Build
+      run: cmake --build build --config Release
+    
+    - name: Package
+      run: |
+        cd build
+        cpack
+    
+    - name: Upload binary to release
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ github.event.release.upload_url }}
+        asset_path: ${{ matrix.artifact_path }}
+        asset_name: ${{ matrix.upload_name }}
+        asset_content_type: application/octet-stream
+    
+    - name: Upload package to release
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ github.event.release.upload_url }}
+        asset_path: ${{ matrix.package_path }}
+        asset_name: SKY-${{ matrix.platform }}-release.${{ matrix.platform == 'windows' && 'zip' || 'tar.gz' }}
+        asset_content_type: ${{ matrix.platform == 'windows' && 'application/zip' || 'application/gzip' }}
+
+  create-release:
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build-and-release
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Extract version from tag
+      id: get_version
+      run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+    
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.get_version.outputs.VERSION }}
+        release_name: SKY Plugin ${{ steps.get_version.outputs.VERSION }}
+        body: |
+          ## SKY Plugin Release ${{ steps.get_version.outputs.VERSION }}
+          
+          ### Downloads
+          - **Windows**: `SKY-windows.dll` - Copy to your SA-MP server's `plugins` folder
+          - **Linux**: `SKY-linux.so` - Copy to your SA-MP server's `plugins` folder
+          
+          ### Installation
+          1. Download the appropriate binary for your server platform
+          2. Copy the file to your SA-MP server's `plugins` folder
+          3. Add `SKY` to the `plugins` line in your `server.cfg`
+          4. Include `SKY.inc` in your gamemode/filterscript
+          
+          ### Changes
+          See the commit history for detailed changes in this release.
+        draft: false
+        prerelease: false
