@@ -7,7 +7,7 @@
 #include "Global.h"
 
 #ifndef MAX_PLAYERS
-    #define MAX_PLAYERS 1000
+#define MAX_PLAYERS 1000
 #endif
 
 namespace Player
@@ -16,7 +16,7 @@ namespace Player
 
     extern BYTE lastWeapon[MAX_PLAYERS];
     extern BYTE fakeHealth[MAX_PLAYERS];
-    extern BYTE fakeArmour[MAX_PLAYERS];    
+    extern BYTE fakeArmour[MAX_PLAYERS];
     extern glm::quat *fakeQuat[MAX_PLAYERS];
     extern DWORD lastUpdateTick[MAX_PLAYERS];
     extern BOOL blockKeySync[MAX_PLAYERS];
@@ -30,8 +30,27 @@ namespace Player
 
     extern Global::SyncTypes lastSyncPacket[MAX_PLAYERS];
 
+    struct PacketRateLimit
+    {
+        DWORD lastPacketTime;
+        WORD packetCount;
+        WORD maxPacketsPerWindow;
+        DWORD timeWindowMs;
+    };
+
+    extern PacketRateLimit playerSyncRateLimit[MAX_PLAYERS];
+    extern PacketRateLimit vehicleSyncRateLimit[MAX_PLAYERS];
+    extern PacketRateLimit aimSyncRateLimit[MAX_PLAYERS];
+    extern PacketRateLimit passengerSyncRateLimit[MAX_PLAYERS];
+    extern PacketRateLimit spectatorSyncRateLimit[MAX_PLAYERS];
+    extern PacketRateLimit unoccupiedSyncRateLimit[MAX_PLAYERS];
+    extern PacketRateLimit trailerSyncRateLimit[MAX_PLAYERS];
+
     extern void SetSyncFrozenState(int playerid, SyncTypes type, bool toggle);
     extern BOOL GetSyncFrozenState(int playerid, SyncTypes type);
+    extern bool CheckPacketRateLimit(int playerid, unsigned char packetId);
+    extern void InitializeRateLimits(int playerid);
+    extern void ResetRateLimits(int playerid);
 
     // Returns the last sync data stored for the struct CSyncData
     template <typename Struct>
@@ -71,7 +90,7 @@ namespace Player
     {
         static typename Struct::CSpectatingSyncData data[MAX_PLAYERS];
         return data[playerid];
-    }            
+    }
 };
 
 #endif

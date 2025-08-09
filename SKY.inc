@@ -22,6 +22,12 @@ native SpawnPlayerForWorld(playerid);
 native FreezeSyncData(playerid, bool:toggle);
 // Keep re-sending the last recieved sync packet of a certain type
 native FreezeSyncPacket(playerid, E_SYNC_TYPES:type = E_PLAYER_SYNC, bool:toggle);
+// Set rate limiting for specific packet types (maxPackets per timeWindowMs)
+native SetPacketRateLimit(E_SYNC_TYPES:type, maxPackets, timeWindowMs);
+// Get current rate limit settings for a packet type
+native GetPacketRateLimit(E_SYNC_TYPES:type, &maxPackets, &timeWindowMs);
+// Reset rate limits to defaults (playerid = -1 for all players)
+native ResetPacketRateLimits(playerid = -1);
 // Set the HP bar (warning: affects GetPlayerHealth)
 native SetFakeHealth(playerid, health);
 // Set the armour bar (warning: affects GetPlayerArmour)

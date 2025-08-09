@@ -48,7 +48,7 @@
 #include <limits>
 
 #ifdef _WIN32
-//#define VC_EXTRALEAN
+// #define VC_EXTRALEAN
 #include <psapi.h>
 #include <windows.h>
 #else
@@ -140,24 +140,25 @@ static bool IsPlayerUpdatePacket(unsigned char packetId)
 
 BYTE GetPacketID(Packet *p)
 {
-    if (p == nullptr)
-        return 255;
+	if (p == nullptr)
+		return 255;
 
-    if ((unsigned char)p->data[0] == ID_TIMESTAMP)
-    {
-        if (p->length <= sizeof(unsigned char) + sizeof(unsigned long))
-			return 255;   
-        
+	if ((unsigned char)p->data[0] == ID_TIMESTAMP)
+	{
+		if (p->length <= sizeof(unsigned char) + sizeof(unsigned long))
+			return 255;
+
 		return (unsigned char)p->data[sizeof(unsigned char) + sizeof(unsigned long)];
-    }
-    else
-        return (unsigned char)p->data[0];
+	}
+	else
+		return (unsigned char)p->data[0];
 }
 //----------------------------------------------------
 
 Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 {
-	return Versions::getNetGame([ppRakServer](auto netGame, auto structs) -> Packet * {
+	return Versions::getNetGame([ppRakServer](auto netGame, auto structs) -> Packet *
+								{
 		using Structs = decltype(structs);
 		using SyncTypes = Global::SyncTypes;
 
@@ -175,6 +176,12 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 
 		if (IsPlayerUpdatePacket(packetId))
 		{
+			if (!Player::CheckPacketRateLimit(playerid, packetId))
+			{
+				// Rate limit exceeded, drop packet silently
+				return nullptr;
+			}
+
 			Player::lastUpdateTick[playerid] = GetTickCount();
 		}
 
@@ -633,8 +640,7 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 			Player::lastSyncPacket[playerid] = Global::SyncTypes::E_SPECTATING_SYNC;			
 		}
 
-		return p;
-	});
+		return p; });
 }
 
 //----------------------------------------------------
@@ -644,4 +650,10 @@ void InstallPreHooks()
 	std::memset(&Player::fakeHealth, 255, sizeof(Player::fakeHealth));
 	std::memset(&Player::fakeArmour, 255, sizeof(Player::fakeArmour));
 	std::memset(&Player::fakeQuat[0], NULL, sizeof(Player::fakeQuat));
+
+	// Initialize rate limits for all players
+	for (int i = 0; i < MAX_PLAYERS; i++)
+	{
+		Player::InitializeRateLimits(i);
+	}
 }
