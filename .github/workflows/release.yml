@@ -13,7 +13,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: ubuntu-20.04
+          - os: ubuntu-22.04
             platform: linux
             package_path: build/release-linux.tar.gz
             upload_name: release-linux.tar.gz
