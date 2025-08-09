@@ -1,26 +1,22 @@
 version: "3"
-
 tasks:
-  build:
-    cmds:
-      - task setup
-      - task build:linux
-      - task build:windows
-
-  setup:
-    cmds:
-      - rm -rf build/
-      - mkdir -p build/linux
-      - mkdir -p build/windows
+  default:
+    deps: [build:linux, build:windows]
 
   build:linux:
+    dir: build
+    platforms: [linux]
     cmds:
-      - docker build --no-cache -t oscar-broman/sky:linux --build-arg build=Release .
-      - docker run --volume=$(pwd)/build:/work/build oscar-broman/sky:linux
+      - mkdir -p build
+      - cmake ..
+      - cmake --build . --config Release
+      - make -j 8
 
   build:windows:
-    dir: build/windows
+    dir: build
+    platforms: [windows]
     cmds:
-      - cmake ../.. -A Win32
+      - mkdir -p build
+      - cmake .. -A Win32
       - cmake --build . --config Release
-      - cpack
+      - make -j 8

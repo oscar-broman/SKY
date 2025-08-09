@@ -168,6 +168,10 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 			return p;
 
 		WORD playerid = p->playerIndex;
+		if (playerid >= MAX_PLAYERS || playerid < 0)
+		{
+			return nullptr;
+		}
 
 		if (IsPlayerUpdatePacket(packetId))
 		{
@@ -505,6 +509,11 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 
 			auto *d = reinterpret_cast<typename Structs::CVehicleSyncData *>(&p->data[1]);
 
+			if (d->wVehicleId >= MAX_VEHICLES || d->wVehicleId < 0)
+			{
+				return nullptr;
+			}
+
 			// NaN = infinite loop. Don't really know why
 			if (d->vecPosition.IsNan() ||
 				//d->fQuaternion.IsNan() ||
@@ -551,6 +560,11 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 			}
 
 			auto *d = reinterpret_cast<typename Structs::CPassengerSyncData *>(&p->data[1]);
+
+			if (d->wVehicleId >= MAX_VEHICLES || d->wVehicleId < 0)
+			{
+				return nullptr;
+			}
 
 			// Didn't have any issues with it, but better to prevent
 			if (d->vecPosition.IsNan())
