@@ -37,7 +37,6 @@ jobs:
         name: linux-build
         path: |
           build/SKY.so
-          build/release-linux.tar.gz
         retention-days: 7
 
   build-windows:
@@ -68,7 +67,6 @@ jobs:
         name: windows-build
         path: |
           build/Release/SKY.dll
-          build/release-windows.zip
         retention-days: 7
 
   build-status:

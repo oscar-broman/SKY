@@ -15,14 +15,12 @@ jobs:
         include:
           - os: ubuntu-latest
             platform: linux
-            artifact_path: build/SKY.so
             package_path: build/release-linux.tar.gz
-            upload_name: SKY-linux.so
+            upload_name: release-linux.tar.gz
           - os: windows-latest
             platform: windows
-            artifact_path: build/Release/SKY.dll
             package_path: build/release-windows.zip
-            upload_name: SKY-windows.dll
+            upload_name: release-windows.zip
     
     steps:
     - uses: actions/checkout@v4
@@ -54,17 +52,7 @@ jobs:
       run: |
         cd build
         cpack
-    
-    - name: Upload binary to release
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ github.event.release.upload_url }}
-        asset_path: ${{ matrix.artifact_path }}
-        asset_name: ${{ matrix.upload_name }}
-        asset_content_type: application/octet-stream
-    
+  
     - name: Upload package to release
       uses: actions/upload-release-asset@v1
       env:
