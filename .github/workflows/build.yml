@@ -9,6 +9,7 @@ on:
 jobs:
   build-linux:
     runs-on: ubuntu-latest
+    container: ubuntu:18.04
     
     steps:
     - uses: actions/checkout@v4
@@ -17,8 +18,8 @@ jobs:
     
     - name: Install dependencies
       run: |
-        sudo apt-get update
-        sudo apt-get install -y gcc-multilib g++-multilib cmake build-essential
+        apt-get update
+        apt-get install -y gcc-multilib g++-multilib cmake build-essential git
     
     - name: Configure CMake
       run: cmake -B build -DCMAKE_BUILD_TYPE=Release
