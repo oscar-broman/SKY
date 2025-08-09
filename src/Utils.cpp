@@ -1,13 +1,16 @@
 #include "Utils.h"
 #include "main.h"
+
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 #include "Versions.h"
 
 #include "Addresses.h"
 #include <string.h>
 
-#ifdef _WIN32
-#include <windows.h>
-#else
+#ifndef _WIN32
 #include "sys/time.h"
 #endif
 
