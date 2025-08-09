@@ -2,7 +2,7 @@
 #include "RPCs.h"
 
 #ifdef _WIN32
-#include <windows.h>  // For GetTickCount() on Windows
+#include <windows.h>
 #endif
 #include "Utils.h"
 
@@ -40,26 +40,26 @@ namespace Player
 
         DWORD currentTime = GetTickCount();
 
-        // Player sync: 20 packets per second (normal movement/actions)
-        playerSyncRateLimit[playerid] = {currentTime, 0, 20, 1000};
+        // Player sync: 40 packets per second (normal movement/actions)
+        playerSyncRateLimit[playerid] = {currentTime, 0, 40, 1000};
 
-        // Vehicle sync: 15 packets per second (vehicle movement)
-        vehicleSyncRateLimit[playerid] = {currentTime, 0, 15, 1000};
+        // Vehicle sync: 35 packets per second (vehicle movement)
+        vehicleSyncRateLimit[playerid] = {currentTime, 0, 35, 1000};
 
-        // Aim sync: 30 packets per second (aiming can be frequent during combat)
-        aimSyncRateLimit[playerid] = {currentTime, 0, 30, 1000};
+        // Aim sync: 50 packets per second (aiming can be frequent during combat)
+        aimSyncRateLimit[playerid] = {currentTime, 0, 50, 1000};
 
-        // Passenger sync: 10 packets per second (passenger actions)
-        passengerSyncRateLimit[playerid] = {currentTime, 0, 10, 1000};
+        // Passenger sync: 25 packets per second (passenger actions)
+        passengerSyncRateLimit[playerid] = {currentTime, 0, 25, 1000};
 
-        // Spectator sync: 10 packets per second (spectating movement)
-        spectatorSyncRateLimit[playerid] = {currentTime, 0, 10, 1000};
+        // Spectator sync: 20 packets per second (spectating movement)
+        spectatorSyncRateLimit[playerid] = {currentTime, 0, 20, 1000};
 
-        // Unoccupied sync: 5 packets per second (unoccupied vehicle updates)
-        unoccupiedSyncRateLimit[playerid] = {currentTime, 0, 5, 1000};
+        // Unoccupied sync: 15 packets per second (unoccupied vehicle updates)
+        unoccupiedSyncRateLimit[playerid] = {currentTime, 0, 15, 1000};
 
-        // Trailer sync: 5 packets per second (trailer updates)
-        trailerSyncRateLimit[playerid] = {currentTime, 0, 5, 1000};
+        // Trailer sync: 15 packets per second (trailer updates)
+        trailerSyncRateLimit[playerid] = {currentTime, 0, 15, 1000};
     }
 
     void ResetRateLimits(int playerid)
