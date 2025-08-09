@@ -5,10 +5,15 @@
 #include "Addresses.h"
 #include <string.h>
 
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include "sys/time.h"
+#endif
+
 // Linux GetTickCount
 #ifndef _WIN32
 
-#include "sys/time.h"
 timeval startTime;
 timeval currentTime;
 

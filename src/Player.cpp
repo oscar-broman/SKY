@@ -1,5 +1,9 @@
 #include "Player.h"
 #include "RPCs.h"
+
+#ifdef _WIN32
+#include <windows.h>  // For GetTickCount() on Windows
+#endif
 #include "Utils.h"
 
 namespace Player

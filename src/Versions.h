@@ -6,6 +6,7 @@
 
 #include "CVector.h"
 #include "CVector2D.h"
+#include "Utils.h"
 #include <map>
 
 #include "CTypes.h"
