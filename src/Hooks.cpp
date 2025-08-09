@@ -190,10 +190,9 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 
 			// NAN stuff = inf loop, no idea why.
 			// This prevents it though, so I didn't bother to look too deep into it.
-			if (d->vecPosition.IsNan() ||
-				//d->fQuaternion.IsNan() ||
-				d->vecSurfing.IsNan() ||
-				d->vecVelocity.IsNan())
+			if (!ValidatePosition(d->vecPosition) ||
+				!ValidatePosition(d->vecSurfing) ||
+				!ValidatePosition(d->vecVelocity))
 			{
 				return nullptr;
 			}
@@ -457,7 +456,8 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 			auto *d = reinterpret_cast<typename Structs::CAimSyncData *>(&p->data[1]);
 
 			// Never had an issue with getting crashed here, but... better to check.
-			if (d->vecFront.IsNan() || d->vecPosition.IsNan())
+			if (!ValidatePosition(d->vecFront) || 
+				!ValidatePosition(d->vecPosition))
 			{
 				return nullptr;
 			}
@@ -515,9 +515,8 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 			}
 
 			// NaN = infinite loop. Don't really know why
-			if (d->vecPosition.IsNan() ||
-				//d->fQuaternion.IsNan() ||
-				d->vecVelocity.IsNan())
+			if (!ValidatePosition(d->vecPosition) ||
+				!ValidatePosition(d->vecVelocity))
 			{
 				return nullptr;
 			}
@@ -567,7 +566,7 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 			}
 
 			// Didn't have any issues with it, but better to prevent
-			if (d->vecPosition.IsNan())
+			if (!ValidatePosition(d->vecPosition))
 			{
 				return nullptr;
 			}
@@ -612,7 +611,7 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 			auto *d = reinterpret_cast<typename Structs::CSpectatingSyncData *>(&p->data[1]);
 
 			// Didn't have any issues with it, but better to prevent
-			if (d->vecPosition.IsNan())
+			if (!ValidatePosition(d->vecPosition))
 			{
 				return nullptr;
 			}

@@ -141,3 +141,22 @@ bool IsPlayerConnected(int playerid)
 		return netGame->pPlayerPool->pPlayer[playerid] != 0;
 	});
 }
+
+bool ValidatePosition(const CVector& position) {
+    // Check for NaN and infinity
+    if (!std::isfinite(position.fX) || !std::isfinite(position.fY) || !std::isfinite(position.fZ)) {
+        return false;
+    }
+    
+    // Check reasonable world bounds (San Andreas map boundaries)
+    const float MAX_COORD = 4000.0f;
+    const float MIN_COORD = -4000.0f;
+    
+    if (position.fX < MIN_COORD || position.fX > MAX_COORD ||
+        position.fY < MIN_COORD || position.fY > MAX_COORD ||
+        position.fZ < -100.0f || position.fZ > 2000.0f) { // Z has different bounds
+        return false;
+    }
+    
+    return true;
+}
