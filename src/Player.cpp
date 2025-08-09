@@ -2,22 +2,22 @@
 
 namespace Player
 {    
-    BYTE lastWeapon[1000] = {0};
-    BYTE fakeHealth[1000] = {0};
-    BYTE fakeArmour[1000] = {0};    
-    glm::quat *fakeQuat[1000];
-    DWORD lastUpdateTick[1000] = {0};
-    BOOL blockKeySync[1000] = {0};
-    BOOL infiniteAmmo[1000] = {0};
+    BYTE lastWeapon[MAX_PLAYERS] = {0};
+    BYTE fakeHealth[MAX_PLAYERS] = {0};
+    BYTE fakeArmour[MAX_PLAYERS] = {0};    
+    glm::quat *fakeQuat[MAX_PLAYERS] = {0};
+    DWORD lastUpdateTick[MAX_PLAYERS] = {0};
+    BOOL blockKeySync[MAX_PLAYERS] = {0};
+    BOOL infiniteAmmo[MAX_PLAYERS] = {0};
 
-    BOOL syncOnFootDataFrozen[1000] = {0}; // Stores the frozen state for OnFoot Sync
-    BOOL syncAimDataFrozen[1000] = {0}; // Stores the frozen state for Aim Sync
-    BOOL syncVehicleDataFrozen[1000] = {0}; // Stores the frozen state for Vehicle Sync
-    BOOL syncPassengerDataFrozen[1000] = {0}; // Stores the frozen state for Passenger Sync
-    BOOL syncSpectatingDataFrozen[1000] = {0}; // Stores the frozen state for Spectating Sync
-    BOOL syncAllDataFrozen[1000] = {0};
+    BOOL syncOnFootDataFrozen[MAX_PLAYERS] = {0}; // Stores the frozen state for OnFoot Sync
+    BOOL syncAimDataFrozen[MAX_PLAYERS] = {0}; // Stores the frozen state for Aim Sync
+    BOOL syncVehicleDataFrozen[MAX_PLAYERS] = {0}; // Stores the frozen state for Vehicle Sync
+    BOOL syncPassengerDataFrozen[MAX_PLAYERS] = {0}; // Stores the frozen state for Passenger Sync
+    BOOL syncSpectatingDataFrozen[MAX_PLAYERS] = {0}; // Stores the frozen state for Spectating Sync
+    BOOL syncAllDataFrozen[MAX_PLAYERS] = {0};
 
-    extern SyncTypes lastSyncPacket[1000] = {SyncTypes::E_PLAYER_SYNC}; // Stores the last packets type
+    extern SyncTypes lastSyncPacket[MAX_PLAYERS] = {SyncTypes::E_PLAYER_SYNC}; // Stores the last packets type
 
     // Set the state of the sync data
     void SetSyncFrozenState(int playerid, SyncTypes type, bool toggle)
