@@ -168,7 +168,7 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 			return p;
 
 		WORD playerid = p->playerIndex;
-		if (playerid >= MAX_PLAYERS || playerid < 0)
+		if (!ValidatePlayerID(playerid))
 		{
 			return nullptr;
 		}
@@ -197,8 +197,9 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 				return nullptr;
 			}
 
-			if (d->byteWeapon > 46 || (d->byteWeapon > 18 && d->byteWeapon < 22))
+			if (!ValidateWeaponID(d->byteWeapon))
 			{
+				// If the weapon ID is invalid, set it to 0 (unarmed)
 				d->byteWeapon = 0;
 			}
 
@@ -509,7 +510,7 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 
 			auto *d = reinterpret_cast<typename Structs::CVehicleSyncData *>(&p->data[1]);
 
-			if (d->wVehicleId >= MAX_VEHICLES || d->wVehicleId < 0)
+			if (!ValidateVehicleID(d->wVehicleId))
 			{
 				return nullptr;
 			}
@@ -532,8 +533,9 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 				std::memcpy(lastVehicleSyncData, d, sizeof(typename Structs::CVehicleSyncData));
 			}				
 
-			if (d->bytePlayerWeapon > 46 || (d->bytePlayerWeapon > 18 && d->bytePlayerWeapon < 22))
+			if (!ValidateWeaponID(d->bytePlayerWeapon))
 			{
+				// If the weapon ID is invalid, set it to 0 (unarmed)
 				d->bytePlayerWeapon = 0;
 			}
 
@@ -560,7 +562,7 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 
 			auto *d = reinterpret_cast<typename Structs::CPassengerSyncData *>(&p->data[1]);
 
-			if (d->wVehicleId >= MAX_VEHICLES || d->wVehicleId < 0)
+			if (!ValidateVehicleID(d->wVehicleId))
 			{
 				return nullptr;
 			}
@@ -582,8 +584,9 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 				std::memcpy(lastPassengerSyncData, d, sizeof(typename Structs::CPassengerSyncData));
 			}				
 
-			if (d->bytePlayerWeapon > 46 || (d->bytePlayerWeapon > 18 && d->bytePlayerWeapon < 22))
+			if (!ValidateWeaponID(d->bytePlayerWeapon))
 			{
+				// If the weapon ID is invalid, set it to 0 (unarmed)
 				d->bytePlayerWeapon = 0;
 			}
 
@@ -625,7 +628,7 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 			else
 			{
 				std::memcpy(lastSpectatingSyncData, d, sizeof(typename Structs::CSpectatingSyncData));
-			}	
+			}
 
 			Player::lastSyncPacket[playerid] = Global::SyncTypes::E_SPECTATING_SYNC;			
 		}

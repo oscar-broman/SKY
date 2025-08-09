@@ -160,3 +160,38 @@ bool ValidatePosition(const CVector& position) {
     
     return true;
 }
+
+bool ValidatePlayerID(int playerid) {
+    if (playerid < 0 || playerid >= 1000) {
+        return false;
+    }
+    
+    return true;
+}
+
+bool ValidateWeaponID(int weaponid) {
+    // Weapon IDs range from 0 to 46
+    // 0 = Fist/Unarmed
+    // 1-18 = Melee weapons and thrown weapons
+    // 22-46 = Firearms and special weapons
+    // 19, 20, 21 are invalid weapon IDs
+    if (weaponid < 0 || weaponid > 46) {
+        return false;
+    }
+    
+    // Check for invalid weapon IDs in the valid range
+    if (weaponid >= 19 && weaponid <= 21) {
+        return false;
+    }
+    
+    return true;
+}
+
+bool ValidateVehicleID(int vehicleid) {
+	// Vehicle IDs range from 0 to 1999
+	if (vehicleid < 0 || vehicleid >= 2000) {
+		return false;
+	}
+	
+	return true;
+}
