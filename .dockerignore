@@ -7,3 +7,11 @@ CREDITS
 .gitignore
 out/
 .vscode/
+
+# Docker build files (keep them out of build context)
+build-docker.sh
+dev-docker.sh
+docker-build-README.md
+
+# Docker volumes and containers
+.docker/
