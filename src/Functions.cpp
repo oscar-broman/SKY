@@ -3,7 +3,6 @@
 #include "Hooks.h"
 #include "Versions.h"
 #include "main.h"
-#include "net.h"
 #include <raknet/NetworkTypes.h>
 #include <cstdio>
 
@@ -100,15 +99,15 @@ void CSAMPFunctions::TimeoutPlayer(int playerId, unsigned int timeoutMs)
 		return;
 	}
 
-	struct in_addr addr;
-	addr.s_addr = target.binaryAddress;
-	char *playerIP = inet_ntoa(addr);
+	unsigned int ip = target.binaryAddress;
+	char playerIP[16];
+	sprintf(playerIP, "%u.%u.%u.%u",
+		ip & 0xFF,
+		(ip >> 8) & 0xFF,
+		(ip >> 16) & 0xFF,
+		(ip >> 24) & 0xFF);
 
-	if (playerIP != nullptr) {
-		// Add player's IP to ban list temporarily - this will disconnect them immediately
-		// and prevent reconnection for the specified duration
-		AddToBanList(playerIP, timeoutMs);
+	AddToBanList(playerIP, timeoutMs);
 
-		printf("[SKY] Player %d (IP: %s) timed out for %u ms\n", playerId, playerIP, timeoutMs);
-	}
+	printf("[SKY] Player %d (IP: %s) timed out for %u ms\n", playerId, playerIP, timeoutMs);
 }
