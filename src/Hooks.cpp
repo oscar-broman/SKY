@@ -591,7 +591,7 @@ static void TimeoutPlayerForSuspiciousActivity(WORD playerId, const char* reason
     // Timeout the player for 1 minute (60000ms)
     CSAMPFunctions::TimeoutPlayer(playerId, 60000);
 
-    printf("[TIMEOUT] Player %d has been timed out for 1 minute. Reason: %s", playerId, reason);
+    printf("[TIMEOUT] Player %d has been timed out for 1 minute. Reason: %s\n", playerId, reason);
 }
 
 static int invalidPacketCount[MAX_PLAYERS] = {0};
