@@ -45,6 +45,7 @@
 #include <cmath>
 #include <cstring>
 #include <limits>
+#include <cstdio>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
@@ -585,6 +586,30 @@ static bool ProcessSpectatorSync(Packet *packet, WORD playerId)
 	return true;
 }
 
+static void TimeoutPlayerForSuspiciousActivity(WORD playerId, const char* reason)
+{
+    // Timeout the player for 3 seconds (3000ms)
+    CSAMPFunctions::TimeoutPlayer(playerId, 3000);
+
+    printf("[TIMEOUT] Player %d has been timed out for 3 seconds. Reason: %s", playerId, reason);
+}
+
+static int invalidPacketCount[MAX_PLAYERS] = {0};
+
+static void HandleInvalidPacket(WORD playerId, const char* packetType)
+{
+    invalidPacketCount[playerId]++;
+
+    if (invalidPacketCount[playerId] >= 5) {
+        // Too many invalid packets, timeout the player
+        char reason[256];
+        sprintf(reason, "Too many invalid %s packets (%d)", packetType, invalidPacketCount[playerId]);
+        TimeoutPlayerForSuspiciousActivity(playerId, reason);
+
+        invalidPacketCount[playerId] = 0;
+    }
+}
+
 Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
 {
 	return Versions::getNetGame([ppRakServer](auto netGame, auto structs) -> Packet *
@@ -604,7 +629,9 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
         }
 
         if (!Player::CheckPacketRateLimit(playerId)) {
-            return nullptr; // Rate limit exceeded, drop packet silently
+            // Instead of just dropping packets, timeout the player for excessive packet spam
+            TimeoutPlayerForSuspiciousActivity(playerId, "Packet rate limit exceeded");
+            return nullptr;
         }
 
         Player::lastUpdateTick[playerId] = GetTickCount();
@@ -612,30 +639,35 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
         switch (packetId) {
             case ID_PLAYER_SYNC:
                 if (!ProcessPlayerSync<Structs>(packet, playerId)) {
+                    HandleInvalidPacket(playerId, "PLAYER_SYNC");
                     return nullptr;
                 }
                 break;
 
             case ID_AIM_SYNC:
                 if (!ProcessAimSync<Structs>(packet, playerId)) {
+                    HandleInvalidPacket(playerId, "AIM_SYNC");
                     return nullptr;
                 }
                 break;
 
             case ID_VEHICLE_SYNC:
                 if (!ProcessVehicleSync<Structs>(packet, playerId)) {
+                    HandleInvalidPacket(playerId, "VEHICLE_SYNC");
                     return nullptr;
                 }
                 break;
 
             case ID_PASSENGER_SYNC:
                 if (!ProcessPassengerSync<Structs>(packet, playerId)) {
+					HandleInvalidPacket(playerId, "PASSENGER_SYNC");
                     return nullptr;
                 }
                 break;
 
             case ID_SPECTATOR_SYNC:
                 if (!ProcessSpectatorSync<Structs>(packet, playerId)) {
+                    HandleInvalidPacket(playerId, "SPECTATOR_SYNC");
                     return nullptr;
                 }
                 break;
@@ -648,21 +680,22 @@ Packet *THISCALL CHookRakServer::Receive(void *ppRakServer)
         return packet; });
 }
 
-//----------------------------------------------------
-
-/**
- * @brief Initialize hook system and player data
- */
 void InstallPreHooks()
 {
-	// Initialize fake stat arrays
 	std::memset(&Player::fakeHealth, 255, sizeof(Player::fakeHealth));
 	std::memset(&Player::fakeArmour, 255, sizeof(Player::fakeArmour));
 	std::memset(&Player::fakeQuat[0], NULL, sizeof(Player::fakeQuat));
 
-	// Initialize rate limits for all players
 	for (int playerId = 0; playerId < MAX_PLAYERS; playerId++)
 	{
 		Player::InitializeRateLimits(playerId);
+		invalidPacketCount[playerId] = 0;
+	}
+}
+
+void ResetPlayerInvalidPacketCount(WORD playerId)
+{
+	if (playerId >= 0 && playerId < MAX_PLAYERS) {
+		invalidPacketCount[playerId] = 0;
 	}
 }

@@ -66,6 +66,10 @@ typedef bool(THISCALL *RakNet__Send_t)(void *ppRakServer, RakNet::BitStream *par
 typedef Packet *(THISCALL *RakNet__Receive_t)(void *ppRakServer);
 typedef bool(THISCALL *RakNet__RPC_t)(void *ppRakServer, int *uniqueID, RakNet::BitStream *parameters, PacketPriority priority, PacketReliability reliability, unsigned orderingChannel, PlayerID playerId, bool broadcast, bool shiftTimestamp);
 typedef PlayerID(THISCALL *RakNet__GetPlayerIDFromIndex_t)(void *ppRakServer, int index);
+typedef int(THISCALL *RakNet__GetIndexFromPlayerID_t)(void *ppRakServer, PlayerID playerId);
+typedef void(THISCALL *RakNet__AddToBanList_t)(void *ppRakServer, const char *IP, unsigned int milliseconds);
+typedef void(THISCALL *RakNet__RemoveFromBanList_t)(void *ppRakServer, const char *IP);
+typedef void(THISCALL *RakNet__SetTimeoutTime_t)(void *ppRakServer, unsigned int timeMS, const PlayerID target);
 
 class CHookRakServer
 {
@@ -84,12 +88,21 @@ public:
 	static Packet *Receive(void *ppRakServer);
 	static bool RPC(int *uniqueID, RakNet::BitStream *parameters, PacketPriority priority, PacketReliability reliability, unsigned orderingChannel, PlayerID playerId, bool broadcast, bool shiftTimestamp);
 	static PlayerID GetPlayerIDFromIndex(int index);
+	static int GetIndexFromPlayerID(PlayerID playerId);
+	static void AddToBanList(const char *IP, unsigned int milliseconds = 0);
+	static void RemoveFromBanList(const char *IP);
+	static void SetTimeoutTime(unsigned int timeMS, const PlayerID target);
+	static void TimeoutPlayer(int playerId, unsigned int timeoutMs = 100);
 
 	// RakServer
 	DEFINE_FUNCTION_POINTER(RakNet__Send);
 	DEFINE_FUNCTION_POINTER(RakNet__Receive);
 	DEFINE_FUNCTION_POINTER(RakNet__RPC);
 	DEFINE_FUNCTION_POINTER(RakNet__GetPlayerIDFromIndex);
+	DEFINE_FUNCTION_POINTER(RakNet__GetIndexFromPlayerID);
+	DEFINE_FUNCTION_POINTER(RakNet__AddToBanList);
+	DEFINE_FUNCTION_POINTER(RakNet__RemoveFromBanList);
+	DEFINE_FUNCTION_POINTER(RakNet__SetTimeoutTime);
 };
 
 #endif
