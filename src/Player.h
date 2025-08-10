@@ -38,17 +38,11 @@ namespace Player
         DWORD timeWindowMs;
     };
 
-    extern PacketRateLimit playerSyncRateLimit[MAX_PLAYERS];
-    extern PacketRateLimit vehicleSyncRateLimit[MAX_PLAYERS];
-    extern PacketRateLimit aimSyncRateLimit[MAX_PLAYERS];
-    extern PacketRateLimit passengerSyncRateLimit[MAX_PLAYERS];
-    extern PacketRateLimit spectatorSyncRateLimit[MAX_PLAYERS];
-    extern PacketRateLimit unoccupiedSyncRateLimit[MAX_PLAYERS];
-    extern PacketRateLimit trailerSyncRateLimit[MAX_PLAYERS];
+    extern PacketRateLimit packetRateLimit[MAX_PLAYERS];  // Rate limiter for all packets
 
     extern void SetSyncFrozenState(int playerid, SyncTypes type, bool toggle);
     extern BOOL GetSyncFrozenState(int playerid, SyncTypes type);
-    extern bool CheckPacketRateLimit(int playerid, unsigned char packetId);
+    extern bool CheckPacketRateLimit(int playerid);
     extern void InitializeRateLimits(int playerid);
     extern void ResetRateLimits(int playerid);
 

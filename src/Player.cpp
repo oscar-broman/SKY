@@ -25,13 +25,7 @@ namespace Player
 
     extern SyncTypes lastSyncPacket[MAX_PLAYERS] = {SyncTypes::E_PLAYER_SYNC}; // Stores the last packets type
 
-    PacketRateLimit playerSyncRateLimit[MAX_PLAYERS];     // 20 packets per 1000ms (normal gameplay)
-    PacketRateLimit vehicleSyncRateLimit[MAX_PLAYERS];    // 15 packets per 1000ms (vehicle movement)
-    PacketRateLimit aimSyncRateLimit[MAX_PLAYERS];        // 30 packets per 1000ms (aiming can be frequent)
-    PacketRateLimit passengerSyncRateLimit[MAX_PLAYERS];  // 10 packets per 1000ms (passenger updates)
-    PacketRateLimit spectatorSyncRateLimit[MAX_PLAYERS];  // 10 packets per 1000ms (spectating)
-    PacketRateLimit unoccupiedSyncRateLimit[MAX_PLAYERS]; // 5 packets per 1000ms (unoccupied vehicles)
-    PacketRateLimit trailerSyncRateLimit[MAX_PLAYERS];    // 5 packets per 1000ms (trailer sync)
+    PacketRateLimit packetRateLimit[MAX_PLAYERS];  // Rate limiter for all packets
 
     void InitializeRateLimits(int playerid)
     {
@@ -40,26 +34,8 @@ namespace Player
 
         DWORD currentTime = GetTickCount();
 
-        // Player sync: 40 packets per second (normal movement/actions)
-        playerSyncRateLimit[playerid] = {currentTime, 0, 40, 1000};
-
-        // Vehicle sync: 35 packets per second (vehicle movement)
-        vehicleSyncRateLimit[playerid] = {currentTime, 0, 35, 1000};
-
-        // Aim sync: 50 packets per second (aiming can be frequent during combat)
-        aimSyncRateLimit[playerid] = {currentTime, 0, 50, 1000};
-
-        // Passenger sync: 25 packets per second (passenger actions)
-        passengerSyncRateLimit[playerid] = {currentTime, 0, 25, 1000};
-
-        // Spectator sync: 20 packets per second (spectating movement)
-        spectatorSyncRateLimit[playerid] = {currentTime, 0, 20, 1000};
-
-        // Unoccupied sync: 15 packets per second (unoccupied vehicle updates)
-        unoccupiedSyncRateLimit[playerid] = {currentTime, 0, 15, 1000};
-
-        // Trailer sync: 15 packets per second (trailer updates)
-        trailerSyncRateLimit[playerid] = {currentTime, 0, 15, 1000};
+        // Packet rate limiter: 200 packets per second (allows normal gameplay while preventing floods)
+        packetRateLimit[playerid] = {currentTime, 0, 200, 1000};
     }
 
     void ResetRateLimits(int playerid)
@@ -67,44 +43,12 @@ namespace Player
         InitializeRateLimits(playerid);
     }
 
-    bool CheckPacketRateLimit(int playerid, unsigned char packetId)
+    bool CheckPacketRateLimit(int playerid)
     {
         if (playerid < 0 || playerid >= MAX_PLAYERS)
             return false;
 
-        PacketRateLimit *rateLimit = nullptr;
-
-        switch (packetId)
-        {
-        case ID_PLAYER_SYNC:
-            rateLimit = &playerSyncRateLimit[playerid];
-            break;
-        case ID_VEHICLE_SYNC:
-            rateLimit = &vehicleSyncRateLimit[playerid];
-            break;
-        case ID_AIM_SYNC:
-            rateLimit = &aimSyncRateLimit[playerid];
-            break;
-        case ID_PASSENGER_SYNC:
-            rateLimit = &passengerSyncRateLimit[playerid];
-            break;
-        case ID_SPECTATOR_SYNC:
-            rateLimit = &spectatorSyncRateLimit[playerid];
-            break;
-        case ID_UNOCCUPIED_SYNC:
-            rateLimit = &unoccupiedSyncRateLimit[playerid];
-            break;
-        case ID_TRAILER_SYNC:
-            rateLimit = &trailerSyncRateLimit[playerid];
-            break;
-        default:
-            // Unknown packet type, allow through
-            return true;
-        }
-
-        if (rateLimit == nullptr)
-            return true;
-
+        PacketRateLimit *rateLimit = &packetRateLimit[playerid];
         DWORD currentTime = GetTickCount();
 
         if (currentTime - rateLimit->lastPacketTime >= rateLimit->timeWindowMs)

@@ -546,14 +546,13 @@ static cell AMX_NATIVE_CALL TextDrawSetStrForPlayer(AMX *amx, cell *params)
 	return 1;
 }
 
-// native SetPacketRateLimit(E_SYNC_TYPES:type, maxPackets, timeWindowMs)
+// native SetPacketRateLimit(maxPackets, timeWindowMs)
 static cell AMX_NATIVE_CALL SetPacketRateLimit(AMX *amx, cell *params)
 {
-	CHECK_PARAMS(3, "SetPacketRateLimit");
+	CHECK_PARAMS(2, "SetPacketRateLimit");
 
-	int type = static_cast<int>(params[1]);
-	WORD maxPackets = static_cast<WORD>(params[2]);
-	DWORD timeWindowMs = static_cast<DWORD>(params[3]);
+	WORD maxPackets = static_cast<WORD>(params[1]);
+	DWORD timeWindowMs = static_cast<DWORD>(params[2]);
 
 	if (maxPackets <= 0 || maxPackets > 1000)
 		return 0;
@@ -561,107 +560,41 @@ static cell AMX_NATIVE_CALL SetPacketRateLimit(AMX *amx, cell *params)
 	if (timeWindowMs < 100 || timeWindowMs > 60000)
 		return 0;
 
+	// Apply to all players
 	for (int playerid = 0; playerid < MAX_PLAYERS; playerid++)
 	{
-		Player::PacketRateLimit *rateLimit = nullptr;
-
-		switch (type)
-		{
-		case Global::SyncTypes::E_PLAYER_SYNC:
-			rateLimit = &Player::playerSyncRateLimit[playerid];
-			break;
-		case Global::SyncTypes::E_VEHICLE_SYNC:
-			rateLimit = &Player::vehicleSyncRateLimit[playerid];
-			break;
-		case Global::SyncTypes::E_AIM_SYNC:
-			rateLimit = &Player::aimSyncRateLimit[playerid];
-			break;
-		case Global::SyncTypes::E_PASSENGER_SYNC:
-			rateLimit = &Player::passengerSyncRateLimit[playerid];
-			break;
-		case Global::SyncTypes::E_SPECTATING_SYNC:
-			rateLimit = &Player::spectatorSyncRateLimit[playerid];
-			break;
-		default:
-			return 0;
-		}
-
-		if (rateLimit != nullptr)
-		{
-			rateLimit->maxPacketsPerWindow = maxPackets;
-			rateLimit->timeWindowMs = timeWindowMs;
-		}
+		Player::packetRateLimit[playerid].maxPacketsPerWindow = maxPackets;
+		Player::packetRateLimit[playerid].timeWindowMs = timeWindowMs;
 	}
 
 	return 1;
 }
 
-// native GetPacketRateLimit(E_SYNC_TYPES:type, &maxPackets, &timeWindowMs)
+// native GetPacketRateLimit(&maxPackets, &timeWindowMs)
 static cell AMX_NATIVE_CALL GetPacketRateLimit(AMX *amx, cell *params)
 {
-	CHECK_PARAMS(3, "GetPacketRateLimit");
+	CHECK_PARAMS(2, "GetPacketRateLimit");
 
-	int type = static_cast<int>(params[1]);
+	Player::PacketRateLimit *rateLimit = &Player::packetRateLimit[0];
 
-	Player::PacketRateLimit *rateLimit = nullptr;
+	cell *addr = nullptr;
+	amx_GetAddr(amx, params[1], &addr);
+	*addr = rateLimit->maxPacketsPerWindow;
 
-	switch (type)
-	{
-	case Global::SyncTypes::E_PLAYER_SYNC:
-		rateLimit = &Player::playerSyncRateLimit[0];
-		break;
-	case Global::SyncTypes::E_VEHICLE_SYNC:
-		rateLimit = &Player::vehicleSyncRateLimit[0];
-		break;
-	case Global::SyncTypes::E_AIM_SYNC:
-		rateLimit = &Player::aimSyncRateLimit[0];
-		break;
-	case Global::SyncTypes::E_PASSENGER_SYNC:
-		rateLimit = &Player::passengerSyncRateLimit[0];
-		break;
-	case Global::SyncTypes::E_SPECTATING_SYNC:
-		rateLimit = &Player::spectatorSyncRateLimit[0];
-		break;
-	default:
-		return 0;
-	}
+	amx_GetAddr(amx, params[2], &addr);
+	*addr = rateLimit->timeWindowMs;
 
-	if (rateLimit != nullptr)
-	{
-		cell *addr = nullptr;
-		amx_GetAddr(amx, params[2], &addr);
-		*addr = rateLimit->maxPacketsPerWindow;
-
-		amx_GetAddr(amx, params[3], &addr);
-		*addr = rateLimit->timeWindowMs;
-
-		return 1;
-	}
-
-	return 0;
+	return 1;
 }
 
-// native ResetPacketRateLimits(playerid = -1)
+// native ResetPacketRateLimits()
 static cell AMX_NATIVE_CALL ResetPacketRateLimits(AMX *amx, cell *params)
 {
-	CHECK_PARAMS(1, "ResetPacketRateLimits");
+	CHECK_PARAMS(0, "ResetPacketRateLimits");
 
-	int playerid = static_cast<int>(params[1]);
-
-	if (playerid == -1)
+	for (int i = 0; i < MAX_PLAYERS; i++)
 	{
-		for (int i = 0; i < MAX_PLAYERS; i++)
-		{
-			Player::ResetRateLimits(i);
-		}
-	}
-	else if (IsPlayerConnected(playerid))
-	{
-		Player::ResetRateLimits(playerid);
-	}
-	else
-	{
-		return 0;
+		Player::ResetRateLimits(i);
 	}
 
 	return 1;
