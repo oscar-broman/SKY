@@ -30,27 +30,22 @@ jobs:
     - name: Install dependencies (Linux)
       if: matrix.platform == 'linux'
       run: |
-    
+        sudo apt-get update
+        sudo apt-get install -y gcc-multilib g++-multilib cmake build-essential
+
     - name: Setup MSVC (Windows)
       if: matrix.platform == 'windows'
       uses: microsoft/setup-msbuild@v2
     
     - name: Build (Linux)
       if: matrix.platform == 'linux'
-      run: |
-        # Run the build in the Docker container
-        docker run --rm \
-          -v "$(pwd):/workspace" \
-          -w /workspace \
-          ghcr.io/adrfranklin/samp-plugin-builder:latest \
-          /bin/bash -c "mkdir -p build && cd build && cmake .. && make -j\$(nproc)"
+      run: cmake -B build -DCMAKE_BUILD_TYPE=Release
     
     - name: Configure CMake (Windows)
       if: matrix.platform == 'windows'
       run: cmake -B build -DCMAKE_BUILD_TYPE=Release -A Win32
     
-    - name: Build (Windows)
-      if: matrix.platform == 'windows'
+    - name: Build
       run: cmake --build build --config Release
     
     - name: Package
