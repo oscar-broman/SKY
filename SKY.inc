@@ -15,6 +15,22 @@ enum E_SYNC_TYPES
     E_ALL_SYNC
 };
 
+// Set the maximum number of invalid packets before a player is timed out
+native SetMaxInvalidPacketsThreshold(threshold);
+// Get the current maximum number of invalid packets threshold
+native GetMaxInvalidPacketsThreshold();
+// Set the duration for which a player is timed out after exceeding invalid packets threshold
+native SetInvalidPacketTimeout(durationMs);
+// Get the current timeout duration for invalid packets
+native GetInvalidPacketTimeout();
+
+// Set packet rate limit for all packets (applies to all players)
+native SetPacketRateLimit(maxPackets, timeWindowMs);
+// Get current packet rate limit settings
+native GetPacketRateLimit(&maxPackets, &timeWindowMs);
+// Reset rate limits to defaults for all players
+native ResetPacketRateLimits();
+
 // Make a player appear to spawn for all players but himself
 native SpawnPlayerForWorld(playerid);
 // Keep re-sending the last received sync data
@@ -22,12 +38,6 @@ native SpawnPlayerForWorld(playerid);
 native FreezeSyncData(playerid, bool:toggle);
 // Keep re-sending the last recieved sync packet of a certain type
 native FreezeSyncPacket(playerid, E_SYNC_TYPES:type = E_PLAYER_SYNC, bool:toggle);
-// Set packet rate limit for all packets (applies to all players)
-native SetPacketRateLimit(maxPackets, timeWindowMs);
-// Get current packet rate limit settings
-native GetPacketRateLimit(&maxPackets, &timeWindowMs);
-// Reset rate limits to defaults for all players
-native ResetPacketRateLimits();
 // Set the HP bar (warning: affects GetPlayerHealth)
 native SetFakeHealth(playerid, health);
 // Set the armour bar (warning: affects GetPlayerArmour)

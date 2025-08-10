@@ -35,6 +35,7 @@
 #include "Addresses.h"
 #include "Functions.h"
 #include "Hooks.h"
+#include "PacketHandling.h"
 #include "RPCs.h"
 #include "Utils.h"
 #include "Versions.h"
@@ -600,6 +601,44 @@ static cell AMX_NATIVE_CALL ResetPacketRateLimits(AMX *amx, cell *params)
 	return 1;
 }
 
+// native SetMaxInvalidPacketsThreshold(threshold)
+static cell AMX_NATIVE_CALL SetMaxInvalidPacketsThreshold(AMX *amx, cell *params)
+{
+	CHECK_PARAMS(1, "SetMaxInvalidPacketsThreshold");
+
+	int threshold = (int)params[1];
+	PacketHandling::SetMaxInvalidPacketsThreshold(threshold);
+
+	return 1;
+}
+
+// native GetMaxInvalidPacketsThreshold()
+static cell AMX_NATIVE_CALL GetMaxInvalidPacketsThreshold(AMX *amx, cell *params)
+{
+	CHECK_PARAMS(0, "GetMaxInvalidPacketsThreshold");
+
+	return PacketHandling::GetMaxInvalidPacketsThreshold();
+}
+
+// native SetInvalidPacketTimeoutDuration(durationMs)
+static cell AMX_NATIVE_CALL SetInvalidPacketTimeoutDuration(AMX *amx, cell *params)
+{
+	CHECK_PARAMS(1, "SetInvalidPacketTimeoutDuration");
+
+	DWORD durationMs = (DWORD)params[1];
+	PacketHandling::SetTimeoutDuration(durationMs);
+
+	return 1;
+}
+
+// native GetInvalidPacketTimeoutDuration()
+static cell AMX_NATIVE_CALL GetInvalidPacketTimeoutDuration(AMX *amx, cell *params)
+{
+	CHECK_PARAMS(0, "GetInvalidPacketTimeoutDuration");
+
+	return PacketHandling::GetTimeoutDuration();
+}
+
 static AMX_NATIVE_INFO native_list[] = {
 	{"SpawnPlayerForWorld", SpawnPlayerForWorld},
 	{"SetFakeHealth", SetFakeHealth},
@@ -622,6 +661,10 @@ static AMX_NATIVE_INFO native_list[] = {
 	{"TextDrawSetPosition", TextDrawSetPosition},
 	{"PlayerTextDrawSetPosition", PlayerTextDrawSetPosition},
 	{"TextDrawSetStrForPlayer", TextDrawSetStrForPlayer},
+	{"SetMaxInvalidPacketsThreshold", SetMaxInvalidPacketsThreshold},
+	{"GetMaxInvalidPacketsThreshold", GetMaxInvalidPacketsThreshold},
+	{"SetInvalidPacketTimeout", SetInvalidPacketTimeoutDuration},
+	{"GetInvalidPacketTimeout", GetInvalidPacketTimeoutDuration},
 	{0, 0}};
 
 int InitScripting(AMX *amx)
