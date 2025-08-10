@@ -1,6 +1,7 @@
 #include "Functions.h"
 #include "Addresses.h"
 #include "Hooks.h"
+#include "Memory.h"
 #include "Versions.h"
 #include "main.h"
 #include <raknet/NetworkTypes.h>
@@ -39,7 +40,7 @@ void CSAMPFunctions::Initialize()
 	POINT_TO_MEMBER(RakNet__RemoveFromBanList, pRakServer_VTBL[RAKNET_REMOVE_BAN_OFFSET]);
 	POINT_TO_MEMBER(RakNet__SetTimeoutTime, pRakServer_VTBL[RAKNET_SET_TIMEOUT_OFFSET]);
 
-	Unlock((void *)&pRakServer_VTBL[RAKNET_RECEIVE_OFFSET], 4);
+	Memory::Unlock((void *)&pRakServer_VTBL[RAKNET_RECEIVE_OFFSET], 4);
 	pRakServer_VTBL[RAKNET_RECEIVE_OFFSET] = reinterpret_cast<int>(CHookRakServer::Receive);
 }
 
