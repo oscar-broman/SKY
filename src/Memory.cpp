@@ -4,8 +4,8 @@
 #include <cstdint>
 
 #ifdef _WIN32
-#include <psapi.h>
 #include <windows.h>
+#include <psapi.h>
 #else
 #include <sys/mman.h>
 #include <unistd.h>
