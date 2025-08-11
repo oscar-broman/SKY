@@ -127,9 +127,24 @@ namespace SyncProcessing
         // Handle special weapon key restrictions
         if (data->byteWeapon == 44 || data->byteWeapon == 45) {
             data->wKeys &= ~4; // Remove fire key for night vision/thermal goggles
+
+            Player::gogglesTick[playerId] = GetTickCount();
+            Player::gogglesUsed[playerId] = 1;
         }
         else if (data->byteWeapon == 4 && !Global::knifeSync) {
             data->wKeys &= ~128; // Remove aim key for knife if knife sync disabled
+        } 
+        else if (Player::gogglesUsed[playerId]) {
+            DWORD currentTick = GetTickCount();
+
+            if (Player::gogglesUsed[playerId] == 2 && currentTick - Player::gogglesTick[playerId] > 40) {
+                Player::gogglesUsed[playerId] = 0;
+            } else {
+                data->wKeys &= ~4; // Remove fire key
+                
+                Player::gogglesTick[playerId] = currentTick;
+                Player::gogglesUsed[playerId] = 2;
+            }
         }
 
         Player::lastWeapon[playerId] = data->byteWeapon;

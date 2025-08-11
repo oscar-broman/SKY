@@ -2,6 +2,7 @@
 
 #include "../structs/CTypes.h"
 #include "../core/Global.h"
+#include "../utils/Utils.h"
 
 namespace SyncProcessing
 {

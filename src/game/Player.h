@@ -21,6 +21,9 @@ namespace Player
     extern DWORD lastUpdateTick[MAX_PLAYERS];
     extern BOOL blockKeySync[MAX_PLAYERS];
     extern BOOL infiniteAmmo[MAX_PLAYERS];
+    
+    extern DWORD gogglesTick[MAX_PLAYERS];
+    extern BYTE gogglesUsed[MAX_PLAYERS];
 
     extern BOOL syncDataFrozen[MAX_PLAYERS];
     extern BOOL syncAimDataFrozen[MAX_PLAYERS];
