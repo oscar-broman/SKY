@@ -14,7 +14,6 @@
 #include "../api/Functions.h"
 #include "../api/Scripting.h"
 #include "../utils/Utils.h"
-#include <fstream>
 
 #ifdef LINUX
 #include <cstring>

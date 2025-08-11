@@ -38,11 +38,11 @@
 #include "../network/RPCs.h"
 #include "../api/Scripting.h"
 #include "../utils/Utils.h"
+#include "../utils/Memory.h"
 #include "../structs/Versions.h"
 #include "main.h"
 
 #include "../game/Animation.h"
-#include "../utils/Memory.h"
 #include "../network/PacketHandling.h"
 #include "../game/SyncProcessing.h"
 
