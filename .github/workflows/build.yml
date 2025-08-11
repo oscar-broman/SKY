@@ -28,7 +28,7 @@ jobs:
         with:
           name: linux-build
           path: |
-            artifacts/linux/SKY.so
+            build/SKY.so
             SKY.inc
           retention-days: 7
 
@@ -55,7 +55,7 @@ jobs:
         with:
           name: windows-build
           path: |
-            build/Release/SKY.dll
+            build/SKY.dll
             SKY.inc
           retention-days: 7
 
