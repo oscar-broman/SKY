@@ -38,11 +38,8 @@ if(UNIX)
 	set_property(GLOBAL PROPERTY FIND_LIBRARY_USE_LIB64_PATHS OFF)
 	
 	# Static linking of runtime libraries to avoid glibc version dependencies
-	add_link_options(
-		"-static-libgcc"
-		"-static-libstdc++"
-		"-Wl,--no-undefined"
-	)
+	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static-libgcc -static-libstdc++ -Wl,--no-undefined")
+	set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -static-libgcc -static-libstdc++ -Wl,--no-undefined")
 elseif(WIN32)
 	add_definitions(
 		-D_CRT_SECURE_NO_WARNINGS

@@ -1,41 +1,33 @@
 version: "3"
-vars:
-  DOCKER_BUILDER_IMAGE_NAME: sky-builder
-  DOCKER_CONTAINER_NAME: sky-builder-container
+
 tasks:
   default:
-    deps: [build:linux, build:windows]
+    deps: [build:linux]
+
+  build:all:
+    desc: Build for Linux using Earthly
+    cmds:
+      - earthly +all
 
   build:linux:
-    dir: build
-    platforms: [linux]
+    desc: Build for Linux using Earthly
     cmds:
-      - mkdir -p build
-      - cmake ..
-      - cmake --build . --config Release
-      - make -j 8
+      - earthly +build-linux
 
-  build:windows:
-    dir: build
-    platforms: [windows]
+  export:
+    desc: Export Linux artifacts to host
     cmds:
-      - mkdir -p build
-      - cmake .. -A Win32
-      - cmake --build . --config Release
-      - make -j 8
+      - earthly +export-artifacts
 
-  docker:build:
+  package:
+    desc: Create distribution packages for Linux
     cmds:
-      - rm -rf build
-      - mkdir -p build
-      - chown -R {{.USER_ID}}:{{.GROUP_ID}} build
-      - docker build --build-arg USER_ID={{.USER_ID}} --build-arg GROUP_ID={{.GROUP_ID}} -t {{.DOCKER_BUILDER_IMAGE_NAME}} .
-      - |
-        docker run --rm --name {{.DOCKER_CONTAINER_NAME}} \
-          -v /root/workspaces/sky-workspace:/workspace \
-          {{.DOCKER_BUILDER_IMAGE_NAME}} \
-          /bin/bash -c "cd /workspace && mkdir -p build && cd build && cmake .. && make -j\$$(nproc)"
-    vars:
-      USER_ID: 1000
-      GROUP_ID: 1000
-    platforms: [linux]
+      - earthly +package
+
+  clean:
+    desc: Clean build artifacts
+    cmds:
+      - rm -rf build/
+      - rm -rf dist/
+      - rm -rf artifacts/
+      - earthly prune

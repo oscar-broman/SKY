@@ -8,35 +8,28 @@ on:
 
 jobs:
   build-linux:
-    runs-on: ubuntu-22.04
-
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
+          fetch-depth: 0
 
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y gcc-multilib g++-multilib cmake build-essential
+      - name: Setup Earthly
+        uses: earthly/actions/setup-earthly@v1
+        with:
+          version: latest
 
-      - name: Configure CMake
-        run: cmake -B build -DCMAKE_BUILD_TYPE=Release
-
-      - name: Build
-        run: cmake --build build --config Release
-
-      - name: Package
-        run: |
-          cd build
-          cpack
+      - name: Build Linux with Earthly
+        run: earthly +build-linux
 
       - name: Upload Linux artifact
         uses: actions/upload-artifact@v4
         with:
           name: linux-build
           path: |
-            build/SKY.so
+            artifacts/linux/SKY.so
+            SKY.inc
           retention-days: 7
 
   build-windows:
@@ -46,27 +39,24 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
+          fetch-depth: 0
 
-      - name: Setup MSVC
+      - name: Setup MSBuild
         uses: microsoft/setup-msbuild@v2
 
       - name: Configure CMake
-        run: cmake -B build -DCMAKE_BUILD_TYPE=Release -A Win32
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release
 
-      - name: Build
+      - name: Build Windows
         run: cmake --build build --config Release
-
-      - name: Package
-        run: |
-          cd build
-          cpack
 
       - name: Upload Windows artifact
         uses: actions/upload-artifact@v4
         with:
           name: windows-build
           path: |
-            build/SKY.dll
+            build/Release/SKY.dll
+            SKY.inc
           retention-days: 7
 
   build-status:
@@ -80,8 +70,8 @@ jobs:
           if [[ "${{ needs.build-linux.result }}" == "success" && "${{ needs.build-windows.result }}" == "success" ]]; then
             echo "✅ All builds successful"
           else
-            echo "❌ Some builds failed"
-            echo "Linux: ${{ needs.build-linux.result }}"
-            echo "Windows: ${{ needs.build-windows.result }}"
+            echo "❌ One or more builds failed"
+            echo "Linux build: ${{ needs.build-linux.result }}"
+            echo "Windows build: ${{ needs.build-windows.result }}"
             exit 1
           fi

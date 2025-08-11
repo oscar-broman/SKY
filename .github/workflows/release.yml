@@ -8,65 +8,66 @@ on:
     types: [published]
 
 jobs:
-  build-and-release:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        include:
-          - os: ubuntu-22.04
-            platform: linux
-            package_path: build/release-linux.tar.gz
-            upload_name: release-linux.tar.gz
-          - os: windows-latest
-            platform: windows
-            package_path: build/release-windows.zip
-            upload_name: release-windows.zip
+  build-linux:
+    runs-on: ubuntu-22.04
     
     steps:
     - uses: actions/checkout@v4
       with:
         submodules: recursive
-    
-    - name: Install dependencies (Linux)
-      if: matrix.platform == 'linux'
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y gcc-multilib g++-multilib cmake build-essential
+        fetch-depth: 0
 
-    - name: Setup MSVC (Windows)
-      if: matrix.platform == 'windows'
-      uses: microsoft/setup-msbuild@v2
-    
-    - name: Build (Linux)
-      if: matrix.platform == 'linux'
-      run: cmake -B build -DCMAKE_BUILD_TYPE=Release
-    
-    - name: Configure CMake (Windows)
-      if: matrix.platform == 'windows'
-      run: cmake -B build -DCMAKE_BUILD_TYPE=Release -A Win32
-    
-    - name: Build
-      run: cmake --build build --config Release
-    
-    - name: Package
-      run: |
-        cd build
-        cpack
-  
-    - name: Upload package to release
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Setup Earthly
+      uses: earthly/actions/setup-earthly@v1
       with:
-        upload_url: ${{ github.event.release.upload_url }}
-        asset_path: ${{ matrix.package_path }}
-        asset_name: SKY-${{ matrix.platform }}-release.${{ matrix.platform == 'windows' && 'zip' || 'tar.gz' }}
-        asset_content_type: ${{ matrix.platform == 'windows' && 'application/zip' || 'application/gzip' }}
+        version: latest
+
+    - name: Build Linux with Earthly
+      run: earthly +build-linux
+    
+    - name: Package Linux build
+      run: |
+        mkdir -p dist
+        tar -czf dist/release-linux.tar.gz SKY.inc artifacts/linux/SKY.so
+
+    - name: Upload Linux artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: linux-release
+        path: dist/release-linux.tar.gz
+
+  build-windows:
+    runs-on: windows-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        submodules: recursive
+        fetch-depth: 0
+
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2
+
+    - name: Configure CMake
+      run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+
+    - name: Build Windows
+      run: cmake --build build --config Release
+
+    - name: Package Windows build
+      run: |
+        mkdir -p dist
+        Compress-Archive -Path "build/Release/SKY.dll" -Path "SKY.inc" -DestinationPath "dist/release-windows.zip"
+
+    - name: Upload Windows artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: windows-release
+        path: dist/release-windows.zip
 
   create-release:
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
-    needs: build-and-release
     
     steps:
     - uses: actions/checkout@v4
@@ -82,21 +83,56 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: ${{ steps.get_version.outputs.VERSION }}
-        release_name: SKY Plugin ${{ steps.get_version.outputs.VERSION }}
+        release_name: SKY ${{ steps.get_version.outputs.VERSION }}
         body: |
-          ## SKY Plugin Release ${{ steps.get_version.outputs.VERSION }}
+          SKY Plugin Release ${{ steps.get_version.outputs.VERSION }}
           
-          ### Downloads
-          - **Windows**: `SKY-windows.dll` - Copy to your SA-MP server's `plugins` folder
-          - **Linux**: `SKY-linux.so` - Copy to your SA-MP server's `plugins` folder
+          ## Downloads
+          - **Linux**: linux-release.tar.gz
+          - **Windows**: windows-release.zip
           
-          ### Installation
-          1. Download the appropriate binary for your server platform
-          2. Copy the file to your SA-MP server's `plugins` folder
-          3. Add `SKY` to the `plugins` line in your `server.cfg`
-          4. Include `SKY.inc` in your gamemode/filterscript
-          
-          ### Changes
-          See the commit history for detailed changes in this release.
+          ## Changes
+          See the commit history for detailed changes.
         draft: false
         prerelease: false
+
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+
+  upload-release-assets:
+    needs: [build-linux, build-windows, create-release]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+    - name: Download Linux artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: linux-release
+        path: dist/release-linux.tar.gz
+
+    - name: Download Windows artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: windows-release
+        path: dist/release-windows.zip
+
+    - name: Upload Linux package to release
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ needs.create-release.outputs.upload_url }}
+        asset_path: dist/release-linux.tar.gz
+        asset_name: linux-release.tar.gz
+        asset_content_type: application/gzip
+
+    - name: Upload Windows package to release
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ needs.create-release.outputs.upload_url }}
+        asset_path: dist/release-windows.zip
+        asset_name: windows-release.zip
+        asset_content_type: application/zip
