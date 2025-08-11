@@ -5,20 +5,20 @@
 
 namespace SyncFreezing
 {
-    template <typename Structs, typename SyncType>
-    void HandlePlayerSyncFreezing(WORD playerId, typename Structs::CSyncData *data, SyncType syncType);
+    template <typename Structs>
+    void HandlePlayerSyncFreezing(WORD playerId, typename Structs::CSyncData *data);
 
-    template <typename Structs, typename SyncType>
-    void HandleAimSyncFreezing(WORD playerId, typename Structs::CAimSyncData *data, SyncType syncType);
+    template <typename Structs>
+    void HandleAimSyncFreezing(WORD playerId, typename Structs::CAimSyncData *data);
 
-    template <typename Structs, typename SyncType>
-    void HandleVehicleSyncFreezing(WORD playerId, typename Structs::CVehicleSyncData *data, SyncType syncType);
+    template <typename Structs>
+    void HandleVehicleSyncFreezing(WORD playerId, typename Structs::CVehicleSyncData *data);
 
-    template <typename Structs, typename SyncType>
-    void HandlePassengerSyncFreezing(WORD playerId, typename Structs::CPassengerSyncData *data, SyncType syncType);
+    template <typename Structs>
+    void HandlePassengerSyncFreezing(WORD playerId, typename Structs::CPassengerSyncData *data);
 
-    template <typename Structs, typename SyncType>
-    void HandleSpectatorSyncFreezing(WORD playerId, typename Structs::CSpectatingSyncData *data, SyncType syncType);
+    template <typename Structs>
+    void HandleSpectatorSyncFreezing(WORD playerId, typename Structs::CSpectatingSyncData *data);
 }
 
 // Template implementations

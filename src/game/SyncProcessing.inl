@@ -108,7 +108,7 @@ namespace SyncProcessing
 
         ApplyGhostShootingPrevention(data);
 
-        SyncFreezing::HandlePlayerSyncFreezing<Structs>(playerId, data, SyncTypes::E_PLAYER_SYNC);
+        SyncFreezing::HandlePlayerSyncFreezing<Structs>(playerId, data);
 
         if (Player::blockKeySync[playerId]) {
             data->wKeys = 0;
@@ -155,7 +155,7 @@ namespace SyncProcessing
             return false;
         }
 
-        SyncFreezing::HandleAimSyncFreezing<Structs>(playerId, data, SyncTypes::E_AIM_SYNC);
+        SyncFreezing::HandleAimSyncFreezing<Structs>(playerId, data);
 
         // Fix first-person up/down aim sync for sniper rifles
         if (Player::lastWeapon[playerId] == 34 ||
@@ -196,7 +196,7 @@ namespace SyncProcessing
             return false;
         }
 
-        SyncFreezing::HandleVehicleSyncFreezing<Structs>(playerId, data, SyncTypes::E_VEHICLE_SYNC);
+        SyncFreezing::HandleVehicleSyncFreezing<Structs>(playerId, data);
 
         if (!ValidateWeaponID(data->bytePlayerWeapon)) {
             data->bytePlayerWeapon = 0; // Set to unarmed
@@ -227,7 +227,7 @@ namespace SyncProcessing
             return false;
         }
 
-        SyncFreezing::HandlePassengerSyncFreezing<Structs>(playerId, data, SyncTypes::E_PASSENGER_SYNC);
+        SyncFreezing::HandlePassengerSyncFreezing<Structs>(playerId, data);
 
         if (!ValidateWeaponID(data->bytePlayerWeapon)) {
             data->bytePlayerWeapon = 0; // Set to unarmed
@@ -254,7 +254,7 @@ namespace SyncProcessing
             return false;
         }
 
-        SyncFreezing::HandleSpectatorSyncFreezing<Structs>(playerId, data, SyncTypes::E_SPECTATING_SYNC);
+        SyncFreezing::HandleSpectatorSyncFreezing<Structs>(playerId, data);
 
         Player::lastSyncPacket[playerId] = SyncTypes::E_SPECTATING_SYNC;
         return true;
