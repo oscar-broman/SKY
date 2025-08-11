@@ -33,8 +33,8 @@
 #ifndef YSF_FUNCTIONS_H
 #define YSF_FUNCTIONS_H
 
-#include "main.h"
-#include "net.h"
+#include "../core/main.h"
+#include "../network/net.h"
 #include <raknet/NetworkTypes.h>
 
 #define DEFINE_FUNCTION_POINTER(name) \

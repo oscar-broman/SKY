@@ -1,10 +1,10 @@
 #include "Player.h"
-#include "RPCs.h"
+#include "../network/RPCs.h"
 
 #ifdef _WIN32
 #include <windows.h>
 #endif
-#include "Utils.h"
+#include "../utils/Utils.h"
 
 namespace Player
 {

@@ -1,9 +1,9 @@
 #include "Functions.h"
-#include "Addresses.h"
-#include "Hooks.h"
-#include "Memory.h"
-#include "Versions.h"
-#include "main.h"
+#include "../core/Addresses.h"
+#include "../core/Hooks.h"
+#include "../utils/Memory.h"
+#include "../structs/Versions.h"
+#include "../core/main.h"
 #include <raknet/NetworkTypes.h>
 #include <cstdio>
 

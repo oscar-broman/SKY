@@ -33,18 +33,18 @@
 #include "Hooks.h"
 
 #include "Addresses.h"
-#include "Functions.h"
-#include "Player.h"
-#include "RPCs.h"
-#include "Scripting.h"
-#include "Utils.h"
-#include "Versions.h"
+#include "../api/Functions.h"
+#include "../game/Player.h"
+#include "../network/RPCs.h"
+#include "../api/Scripting.h"
+#include "../utils/Utils.h"
+#include "../structs/Versions.h"
 #include "main.h"
 
-#include "Animation.h"
-#include "Memory.h"
-#include "PacketHandling.h"
-#include "SyncProcessing.h"
+#include "../game/Animation.h"
+#include "../utils/Memory.h"
+#include "../network/PacketHandling.h"
+#include "../game/SyncProcessing.h"
 
 #include <algorithm>
 #include <cmath>

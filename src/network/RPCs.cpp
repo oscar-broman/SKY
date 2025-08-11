@@ -1,10 +1,10 @@
 #include "RPCs.h"
 
-#include "main.h"
+#include "../core/main.h"
 
-#include "Functions.h"
-#include "Utils.h"
-#include "Addresses.h"
+#include "../api/Functions.h"
+#include "../utils/Utils.h"
+#include "../core/Addresses.h"
 
 int RPC_SelectObject = 0x1B; // 27
 int RPC_Spawn = 0x34; // 52

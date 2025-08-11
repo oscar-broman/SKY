@@ -1,7 +1,7 @@
 #pragma once
 
-#include "main.h"
-#include "CVector.h"
+#include "../core/main.h"
+#include "../structs/CVector.h"
 
 // Linux
 #ifndef _WIN32

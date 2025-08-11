@@ -32,16 +32,16 @@
 
 #include "Scripting.h"
 
-#include "Addresses.h"
+#include "../core/Addresses.h"
 #include "Functions.h"
-#include "Hooks.h"
-#include "PacketHandling.h"
-#include "RPCs.h"
-#include "Utils.h"
-#include "Versions.h"
-#include "Player.h"
-#include "Global.h"
-#include "main.h"
+#include "../core/Hooks.h"
+#include "../network/PacketHandling.h"
+#include "../network/RPCs.h"
+#include "../utils/Utils.h"
+#include "../structs/Versions.h"
+#include "../game/Player.h"
+#include "../core/Global.h"
+#include "../core/main.h"
 #include <cmath>
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>

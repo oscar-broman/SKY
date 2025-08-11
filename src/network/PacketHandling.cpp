@@ -1,6 +1,6 @@
 #include "PacketHandling.h"
-#include "Functions.h"
-#include "Player.h"
+#include "../api/Functions.h"
+#include "../game/Player.h"
 #include "RPCs.h"
 #include "net.h"
 #include <cstdio>

@@ -1,10 +1,10 @@
 #ifndef SKY_PLAYER
 #define SKY_PLAYER
 
-#include "CTypes.h"
+#include "../structs/CTypes.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
-#include "Global.h"
+#include "../core/Global.h"
 
 #ifndef MAX_PLAYERS
 #define MAX_PLAYERS 1000

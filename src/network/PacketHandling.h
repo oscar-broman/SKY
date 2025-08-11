@@ -1,6 +1,6 @@
 #pragma once
 
-#include "CTypes.h"
+#include "../structs/CTypes.h"
 #include "net.h"
 
 // Forward declaration

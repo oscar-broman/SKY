@@ -1,7 +1,7 @@
 #include "Addresses.h"
 
 #include "Hooks.h"
-#include "Memory.h"
+#include "../utils/Memory.h"
 #include "main.h"
 
 #ifdef _WIN32

@@ -1,7 +1,7 @@
 #pragma once
 
-#include "CTypes.h"
-#include "Global.h"
+#include "../structs/CTypes.h"
+#include "../core/Global.h"
 
 namespace SyncProcessing
 {

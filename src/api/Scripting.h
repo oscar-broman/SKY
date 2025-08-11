@@ -33,7 +33,7 @@
 #ifndef SCRIPTING_H
 #define SCRIPTING_H
 
-#include "main.h"
+#include "../core/main.h"
 
 #define CHECK_PARAMS(m, n)                                                                             \
 	if (params[0] != (m * 4))                                                                          \

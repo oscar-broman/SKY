@@ -8,8 +8,21 @@ find_package(SAMPSDK REQUIRED)
 include_directories(${SAMPSDK_DIR})
 include_directories(${SAMPSDK_DIR}/amx)
 
-file(GLOB PLUGIN_SOURCE_FILES
-	${PROJECT_SOURCE_DIR}/src/*.cpp
+# Add include directories for the reorganized structure
+include_directories(${PROJECT_SOURCE_DIR}/src)
+include_directories(${PROJECT_SOURCE_DIR}/src/core)
+include_directories(${PROJECT_SOURCE_DIR}/src/structs)
+include_directories(${PROJECT_SOURCE_DIR}/src/utils)
+include_directories(${PROJECT_SOURCE_DIR}/src/network)
+include_directories(${PROJECT_SOURCE_DIR}/src/game)
+include_directories(${PROJECT_SOURCE_DIR}/src/api)
+
+file(GLOB_RECURSE PLUGIN_SOURCE_FILES
+	${PROJECT_SOURCE_DIR}/src/core/*.cpp
+	${PROJECT_SOURCE_DIR}/src/api/*.cpp
+	${PROJECT_SOURCE_DIR}/src/game/*.cpp
+	${PROJECT_SOURCE_DIR}/src/network/*.cpp
+	${PROJECT_SOURCE_DIR}/src/utils/*.cpp
 )
 
 add_samp_plugin(SKY

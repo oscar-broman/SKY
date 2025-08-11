@@ -1,13 +1,13 @@
 #include "Utils.h"
-#include "main.h"
+#include "../core/main.h"
 
 #ifdef _WIN32
 #include <windows.h>
 #endif
 
-#include "Versions.h"
+#include "../structs/Versions.h"
 
-#include "Addresses.h"
+#include "../core/Addresses.h"
 #include <string.h>
 
 #ifndef _WIN32
