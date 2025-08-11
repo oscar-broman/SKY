@@ -15,6 +15,9 @@ namespace Player
     DWORD lastUpdateTick[MAX_PLAYERS] = {0};
     BOOL blockKeySync[MAX_PLAYERS] = {0};
     BOOL infiniteAmmo[MAX_PLAYERS] = {0};
+    
+    DWORD gogglesTick[MAX_PLAYERS] = {0};
+    BYTE gogglesUsed[MAX_PLAYERS] = {0};
 
     BOOL syncOnFootDataFrozen[MAX_PLAYERS] = {0};     // Stores the frozen state for OnFoot Sync
     BOOL syncAimDataFrozen[MAX_PLAYERS] = {0};        // Stores the frozen state for Aim Sync
