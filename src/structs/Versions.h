@@ -6,13 +6,13 @@
 
 #include "CVector.h"
 #include "CVector2D.h"
+#include "../utils/Utils.h"
 #include <map>
 
 #include "CTypes.h"
-#include "main.h"
-#include "RPCs.h"
-#include "Hooks.h"
-#include "Player.h"
+#include "../core/main.h"
+#include "../network/RPCs.h"
+#include "../game/Player.h"
 #include <amx/amx.h>
 #include <plugincommon.h>
 #include <raknet/BitStream.h>

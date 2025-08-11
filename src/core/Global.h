@@ -1,7 +1,7 @@
 #ifndef SKY_GLOBAL
 #define SKY_GLOBAL
 
-#include "CTypes.h"
+#include "../structs/CTypes.h"
 
 namespace Global
 {

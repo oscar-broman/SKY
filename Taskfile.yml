@@ -1,26 +1,33 @@
 version: "3"
 
 tasks:
-  build:
-    cmds:
-      - task setup
-      - task build:linux
-      - task build:windows
+  default:
+    deps: [build:linux]
 
-  setup:
+  build:all:
+    desc: Build for Linux using Earthly
     cmds:
-      - rm -rf build/
-      - mkdir -p build/linux
-      - mkdir -p build/windows
+      - earthly +all
 
   build:linux:
+    desc: Build for Linux using Earthly
     cmds:
-      - docker build --no-cache -t oscar-broman/sky:linux --build-arg build=Release .
-      - docker run --volume=$(pwd)/build:/work/build oscar-broman/sky:linux
+      - earthly +build-linux
 
-  build:windows:
-    dir: build/windows
+  export:
+    desc: Export Linux artifacts to host
     cmds:
-      - cmake ../.. -A Win32
-      - cmake --build . --config Release
-      - cpack
+      - earthly +export-artifacts
+
+  package:
+    desc: Create distribution packages for Linux
+    cmds:
+      - earthly +package
+
+  clean:
+    desc: Clean build artifacts
+    cmds:
+      - rm -rf build/
+      - rm -rf dist/
+      - rm -rf artifacts/
+      - earthly prune

@@ -64,7 +64,8 @@
                 "ms-azuretools.vscode-docker",
                 "github.copilot",
                 "ms-vscode.cpptools-extension-pack",
-                "ms-vscode.cmake-tools"
+                "ms-vscode.cmake-tools",
+                "Trunk.io"
             ],
             "settings": {
                 // General settings

@@ -9,12 +9,11 @@
 
 #include "Addresses.h"
 #include "Hooks.h"
-#include "RPCs.h"
+#include "../network/RPCs.h"
 
-#include "Functions.h"
-#include "Scripting.h"
-#include "Utils.h"
-#include <fstream>
+#include "../api/Functions.h"
+#include "../api/Scripting.h"
+#include "../utils/Utils.h"
 
 #ifdef LINUX
 #include <cstring>

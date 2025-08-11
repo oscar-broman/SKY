@@ -1,14 +1,22 @@
 #include "Utils.h"
-#include "main.h"
-#include "Versions.h"
+#include "../core/main.h"
 
-#include "Addresses.h"
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
+#include "../structs/Versions.h"
+
+#include "../core/Addresses.h"
 #include <string.h>
+
+#ifndef _WIN32
+#include "sys/time.h"
+#endif
 
 // Linux GetTickCount
 #ifndef _WIN32
 
-#include "sys/time.h"
 timeval startTime;
 timeval currentTime;
 
@@ -140,4 +148,58 @@ bool IsPlayerConnected(int playerid)
 
 		return netGame->pPlayerPool->pPlayer[playerid] != 0;
 	});
+}
+
+bool ValidatePosition(const CVector& position) {
+    // Check for NaN and infinity
+    if (!std::isfinite(position.fX) || !std::isfinite(position.fY) || !std::isfinite(position.fZ)) {
+        return false;
+    }
+    
+    // Check reasonable world bounds (San Andreas map boundaries)
+    const float MAX_COORD = 4000.0f;
+    const float MIN_COORD = -4000.0f;
+    
+    if (position.fX < MIN_COORD || position.fX > MAX_COORD ||
+        position.fY < MIN_COORD || position.fY > MAX_COORD ||
+        position.fZ < -100.0f || position.fZ > 2000.0f) { // Z has different bounds
+        return false;
+    }
+    
+    return true;
+}
+
+bool ValidatePlayerID(int playerid) {
+    if (playerid < 0 || playerid >= 1000) {
+        return false;
+    }
+    
+    return true;
+}
+
+bool ValidateWeaponID(int weaponid) {
+    // Weapon IDs range from 0 to 46
+    // 0 = Fist/Unarmed
+    // 1-18 = Melee weapons and thrown weapons
+    // 22-46 = Firearms and special weapons
+    // 19, 20, 21 are invalid weapon IDs
+    if (weaponid < 0 || weaponid > 46) {
+        return false;
+    }
+    
+    // Check for invalid weapon IDs in the valid range
+    if (weaponid >= 19 && weaponid <= 21) {
+        return false;
+    }
+    
+    return true;
+}
+
+bool ValidateVehicleID(int vehicleid) {
+	// Vehicle IDs range from 0 to 1999
+	if (vehicleid < 0 || vehicleid >= 2000) {
+		return false;
+	}
+	
+	return true;
 }

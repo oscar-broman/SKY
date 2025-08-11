@@ -32,15 +32,16 @@
 
 #include "Scripting.h"
 
-#include "Addresses.h"
+#include "../core/Addresses.h"
 #include "Functions.h"
-#include "Hooks.h"
-#include "RPCs.h"
-#include "Utils.h"
-#include "Versions.h"
-#include "Player.h"
-#include "Global.h"
-#include "main.h"
+#include "../core/Hooks.h"
+#include "../network/PacketHandling.h"
+#include "../network/RPCs.h"
+#include "../utils/Utils.h"
+#include "../structs/Versions.h"
+#include "../game/Player.h"
+#include "../core/Global.h"
+#include "../core/main.h"
 #include <cmath>
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
@@ -77,7 +78,7 @@ static cell AMX_NATIVE_CALL SpawnPlayerForWorld(AMX *amx, cell *params)
 
 	int playerid = (int)params[1];
 
-	if(!IsPlayerConnected(playerid)) 
+	if (!IsPlayerConnected(playerid))
 		return 0;
 
 	CSAMPFunctions::SpawnPlayer(playerid);
@@ -90,7 +91,8 @@ static cell AMX_NATIVE_CALL SetLastAnimationData(AMX *amx, cell *params)
 {
 	CHECK_PARAMS(2, "SetLastAnimationData");
 
-	return Versions::getNetGame([params](auto netGame, auto structs) {
+	return Versions::getNetGame([params](auto netGame, auto structs)
+								{
 		using Structs = decltype(structs);
 
 		int playerid = (int)params[1];
@@ -102,8 +104,7 @@ static cell AMX_NATIVE_CALL SetLastAnimationData(AMX *amx, cell *params)
 		auto *d = &Player::getLastSyncData<Structs>(playerid);
 		d->dwAnimationData = animation;
 
-		return 1;
-	});
+		return 1; });
 }
 
 // native SendLastSyncData(playerid, toplayerid, animation = 0)
@@ -111,7 +112,8 @@ static cell AMX_NATIVE_CALL SendLastSyncData(AMX *amx, cell *params)
 {
 	CHECK_PARAMS(3, "SendLastSyncData");
 
-	return Versions::getNetGame([params](auto netGame, auto structs) {
+	return Versions::getNetGame([params](auto netGame, auto structs)
+								{
 		using Structs = decltype(structs);
 
 		int playerid = (int)params[1];
@@ -129,8 +131,7 @@ static cell AMX_NATIVE_CALL SendLastSyncData(AMX *amx, cell *params)
 
 		CSAMPFunctions::Send(&bs, HIGH_PRIORITY, RELIABLE_SEQUENCED, 0, CSAMPFunctions::GetPlayerIDFromIndex(toplayerid), false);
 
-		return 1;
-	});
+		return 1; });
 }
 
 // native SendLastSyncPacket(playerid, toplayerid, E_SYNC_TYPES:type = E_PLAYER_SYNC, animation = 0)
@@ -138,7 +139,8 @@ static cell AMX_NATIVE_CALL SendLastSyncPacket(AMX *amx, cell *params)
 {
 	CHECK_PARAMS(4, "SendLastSyncPacket");
 
-	return Versions::getNetGame([params](auto netGame, auto structs) {
+	return Versions::getNetGame([params](auto netGame, auto structs)
+								{
 		using Structs = decltype(structs);
 		using SyncTypes = Global::SyncTypes;
 
@@ -188,8 +190,7 @@ static cell AMX_NATIVE_CALL SendLastSyncPacket(AMX *amx, cell *params)
 
 		CSAMPFunctions::Send(&bs, HIGH_PRIORITY, RELIABLE_SEQUENCED, 0, CSAMPFunctions::GetPlayerIDFromIndex(toplayerid), false);
 
-		return 1;
-	});
+		return 1; });
 }
 
 // native SetFakeArmour(playerid, health);
@@ -200,7 +201,7 @@ static cell AMX_NATIVE_CALL SetFakeArmour(AMX *amx, cell *params)
 	int playerid = (int)params[1];
 	BYTE armour = (BYTE)params[2];
 
-	if(!IsPlayerConnected(playerid))
+	if (!IsPlayerConnected(playerid))
 		return 0;
 
 	Player::fakeArmour[playerid] = armour;
@@ -216,8 +217,8 @@ static cell AMX_NATIVE_CALL SetFakeHealth(AMX *amx, cell *params)
 	int playerid = (int)params[1];
 	BYTE health = (BYTE)params[2];
 
-	if(!IsPlayerConnected(playerid))
-		return 0;	
+	if (!IsPlayerConnected(playerid))
+		return 0;
 
 	Player::fakeHealth[playerid] = health;
 
@@ -231,8 +232,8 @@ static cell AMX_NATIVE_CALL SetFakeFacingAngle(AMX *amx, cell *params)
 
 	int playerid = (int)params[1];
 
-	if(!IsPlayerConnected(playerid))
-		return 0;	
+	if (!IsPlayerConnected(playerid))
+		return 0;
 
 	if (Player::fakeQuat[playerid])
 	{
@@ -281,8 +282,8 @@ static cell AMX_NATIVE_CALL SetInfiniteAmmoSync(AMX *amx, cell *params)
 	int playerid = (int)params[1];
 	BOOL toggle = (BOOL)params[2];
 
-	if(!IsPlayerConnected(playerid))
-		return 0;	
+	if (!IsPlayerConnected(playerid))
+		return 0;
 
 	Player::infiniteAmmo[playerid] = toggle;
 
@@ -296,8 +297,8 @@ static cell AMX_NATIVE_CALL SetKeySyncBlocked(AMX *amx, cell *params)
 	int playerid = (int)params[1];
 	BOOL toggle = (BOOL)params[2];
 
-	if(!IsPlayerConnected(playerid))
-		return 0;	
+	if (!IsPlayerConnected(playerid))
+		return 0;
 
 	Player::blockKeySync[playerid] = toggle;
 
@@ -312,10 +313,10 @@ static cell AMX_NATIVE_CALL ClearAnimationsForPlayer(AMX *amx, cell *params)
 	int playerid = (int)params[1];
 	int forplayerid = (int)params[2];
 
-	if(!IsPlayerConnected(playerid))
+	if (!IsPlayerConnected(playerid))
 		return 0;
 
-	if(!IsPlayerConnected(forplayerid)) 
+	if (!IsPlayerConnected(forplayerid))
 		return 0;
 
 	RakNet::BitStream bs;
@@ -331,7 +332,8 @@ static cell AMX_NATIVE_CALL SendDeath(AMX *amx, cell *params)
 {
 	CHECK_PARAMS(1, "SendDeath");
 
-	return Versions::getNetGame([params](auto netGame, auto structs) {
+	return Versions::getNetGame([params](auto netGame, auto structs)
+								{
 		int playerid = (int)params[1];
 
 		if(!IsPlayerConnected(playerid))
@@ -346,8 +348,7 @@ static cell AMX_NATIVE_CALL SendDeath(AMX *amx, cell *params)
 
 		CSAMPFunctions::RPC(&RPC_DeathBroadcast, &bs, HIGH_PRIORITY, RELIABLE_ORDERED, 0, CSAMPFunctions::GetPlayerIDFromIndex(playerid), true, false);
 
-		return 1;
-	});
+		return 1; });
 }
 
 // native FreezeSyncData(playerid, bool:toggle)
@@ -355,7 +356,8 @@ static cell AMX_NATIVE_CALL FreezeSyncData(AMX *amx, cell *params)
 {
 	CHECK_PARAMS(2, "FreezeSyncData");
 
-	return Versions::getNetGame([params](auto netGame, auto structs) {
+	return Versions::getNetGame([params](auto netGame, auto structs)
+								{
 		using Structs = decltype(structs);
 		using SyncTypes = Global::SyncTypes;
 
@@ -374,8 +376,7 @@ static cell AMX_NATIVE_CALL FreezeSyncData(AMX *amx, cell *params)
 
 		Player::SetSyncFrozenState(playerid, SyncTypes::E_PLAYER_SYNC, toggle);
 
-		return 1;
-	});
+		return 1; });
 }
 
 // native FreezeSyncPacket(playerid, E_SYNC_TYPES:type = E_PLAYER_SYNC, bool:toggle)
@@ -383,7 +384,8 @@ static cell AMX_NATIVE_CALL FreezeSyncPacket(AMX *amx, cell *params)
 {
 	CHECK_PARAMS(3, "FreezeSyncPacket");
 
-	return Versions::getNetGame([params](auto netGame, auto structs) {
+	return Versions::getNetGame([params](auto netGame, auto structs)
+								{
 		using Structs = decltype(structs);
 		using SyncTypes = Global::SyncTypes;
 
@@ -464,8 +466,7 @@ static cell AMX_NATIVE_CALL FreezeSyncPacket(AMX *amx, cell *params)
 				return 0;
 		}
 
-		return 1;
-	});
+		return 1; });
 }
 
 // native TextDrawSetPosition(Text:text, Float:fX, Float:fY)
@@ -473,7 +474,8 @@ static cell AMX_NATIVE_CALL TextDrawSetPosition(AMX *amx, cell *params)
 {
 	CHECK_PARAMS(3, "TextDrawSetPosition");
 
-	return Versions::getNetGame([params](auto netGame, auto structs) {
+	return Versions::getNetGame([params](auto netGame, auto structs)
+								{
 		int textdrawid = (int)params[1];
 		if (textdrawid < 0 || textdrawid >= MAX_TEXT_DRAWS)
 			return 0;
@@ -486,8 +488,7 @@ static cell AMX_NATIVE_CALL TextDrawSetPosition(AMX *amx, cell *params)
 		pTD->vecPos.fX = amx_ctof(params[2]);
 		pTD->vecPos.fY = amx_ctof(params[3]);
 
-		return 1;
-	});
+		return 1; });
 }
 
 // native PlayerTextDrawSetPosition(playerid, PlayerText:text, Float:fX, Float:fY)
@@ -495,7 +496,8 @@ static cell AMX_NATIVE_CALL PlayerTextDrawSetPosition(AMX *amx, cell *params)
 {
 	CHECK_PARAMS(4, "PlayerTextDrawSetPosition");
 
-	return Versions::getNetGame([params](auto netGame, auto structs) {
+	return Versions::getNetGame([params](auto netGame, auto structs)
+								{
 		int playerid = (int)params[1];
 		int textdrawid = (int)params[2];
 
@@ -515,8 +517,7 @@ static cell AMX_NATIVE_CALL PlayerTextDrawSetPosition(AMX *amx, cell *params)
 		pTD->vecPos.fX = amx_ctof(params[3]);
 		pTD->vecPos.fY = amx_ctof(params[4]);
 
-		return 1;
-	});
+		return 1; });
 }
 
 // native TextDrawSetStringForPlayer(Text:text, playerid, const string[])
@@ -529,13 +530,13 @@ static cell AMX_NATIVE_CALL TextDrawSetStrForPlayer(AMX *amx, cell *params)
 		return 0;
 
 	int playerid = (int)params[2];
-	if(!IsPlayerConnected(playerid))
+	if (!IsPlayerConnected(playerid))
 		return 0;
-			
+
 	char *text;
 	amx_StrParam(amx, params[3], text);
 	unsigned short len = (unsigned short)strlen(text);
-	
+
 	RakNet::BitStream bs;
 	bs.Write((WORD)textdrawid);
 	bs.Write((unsigned short)len);
@@ -546,6 +547,98 @@ static cell AMX_NATIVE_CALL TextDrawSetStrForPlayer(AMX *amx, cell *params)
 	return 1;
 }
 
+// native SetPacketRateLimit(maxPackets, timeWindowMs)
+static cell AMX_NATIVE_CALL SetPacketRateLimit(AMX *amx, cell *params)
+{
+	CHECK_PARAMS(2, "SetPacketRateLimit");
+
+	WORD maxPackets = static_cast<WORD>(params[1]);
+	DWORD timeWindowMs = static_cast<DWORD>(params[2]);
+
+	if (maxPackets <= 0 || maxPackets > 1000)
+		return 0;
+		
+	if (timeWindowMs < 100 || timeWindowMs > 60000)
+		return 0;
+
+	// Apply to all players
+	for (int playerid = 0; playerid < MAX_PLAYERS; playerid++)
+	{
+		Player::packetRateLimit[playerid].maxPacketsPerWindow = maxPackets;
+		Player::packetRateLimit[playerid].timeWindowMs = timeWindowMs;
+	}
+
+	return 1;
+}
+
+// native GetPacketRateLimit(&maxPackets, &timeWindowMs)
+static cell AMX_NATIVE_CALL GetPacketRateLimit(AMX *amx, cell *params)
+{
+	CHECK_PARAMS(2, "GetPacketRateLimit");
+
+	Player::PacketRateLimit *rateLimit = &Player::packetRateLimit[0];
+
+	cell *addr = nullptr;
+	amx_GetAddr(amx, params[1], &addr);
+	*addr = rateLimit->maxPacketsPerWindow;
+
+	amx_GetAddr(amx, params[2], &addr);
+	*addr = rateLimit->timeWindowMs;
+
+	return 1;
+}
+
+// native ResetPacketRateLimits()
+static cell AMX_NATIVE_CALL ResetPacketRateLimits(AMX *amx, cell *params)
+{
+	CHECK_PARAMS(0, "ResetPacketRateLimits");
+
+	for (int i = 0; i < MAX_PLAYERS; i++)
+	{
+		Player::ResetRateLimits(i);
+	}
+
+	return 1;
+}
+
+// native SetMaxInvalidPacketsThreshold(threshold)
+static cell AMX_NATIVE_CALL SetMaxInvalidPacketsThreshold(AMX *amx, cell *params)
+{
+	CHECK_PARAMS(1, "SetMaxInvalidPacketsThreshold");
+
+	int threshold = (int)params[1];
+	PacketHandling::SetMaxInvalidPacketsThreshold(threshold);
+
+	return 1;
+}
+
+// native GetMaxInvalidPacketsThreshold()
+static cell AMX_NATIVE_CALL GetMaxInvalidPacketsThreshold(AMX *amx, cell *params)
+{
+	CHECK_PARAMS(0, "GetMaxInvalidPacketsThreshold");
+
+	return PacketHandling::GetMaxInvalidPacketsThreshold();
+}
+
+// native SetInvalidPacketTimeoutDuration(durationMs)
+static cell AMX_NATIVE_CALL SetInvalidPacketTimeoutDuration(AMX *amx, cell *params)
+{
+	CHECK_PARAMS(1, "SetInvalidPacketTimeoutDuration");
+
+	DWORD durationMs = (DWORD)params[1];
+	PacketHandling::SetTimeoutDuration(durationMs);
+
+	return 1;
+}
+
+// native GetInvalidPacketTimeoutDuration()
+static cell AMX_NATIVE_CALL GetInvalidPacketTimeoutDuration(AMX *amx, cell *params)
+{
+	CHECK_PARAMS(0, "GetInvalidPacketTimeoutDuration");
+
+	return PacketHandling::GetTimeoutDuration();
+}
+
 static AMX_NATIVE_INFO native_list[] = {
 	{"SpawnPlayerForWorld", SpawnPlayerForWorld},
 	{"SetFakeHealth", SetFakeHealth},
@@ -553,6 +646,9 @@ static AMX_NATIVE_INFO native_list[] = {
 	{"SetFakeFacingAngle", SetFakeFacingAngle},
 	{"FreezeSyncData", FreezeSyncData},
 	{"FreezeSyncPacket", FreezeSyncPacket},
+	{"SetPacketRateLimit", SetPacketRateLimit},
+	{"GetPacketRateLimit", GetPacketRateLimit},
+	{"ResetPacketRateLimits", ResetPacketRateLimits},
 	{"SetKnifeSync", SetKnifeSync},
 	{"SendDeath", SendDeath},
 	{"SetLastAnimationData", SetLastAnimationData},
@@ -565,6 +661,10 @@ static AMX_NATIVE_INFO native_list[] = {
 	{"TextDrawSetPosition", TextDrawSetPosition},
 	{"PlayerTextDrawSetPosition", PlayerTextDrawSetPosition},
 	{"TextDrawSetStrForPlayer", TextDrawSetStrForPlayer},
+	{"SetMaxInvalidPacketsThreshold", SetMaxInvalidPacketsThreshold},
+	{"GetMaxInvalidPacketsThreshold", GetMaxInvalidPacketsThreshold},
+	{"SetInvalidPacketTimeout", SetInvalidPacketTimeoutDuration},
+	{"GetInvalidPacketTimeout", GetInvalidPacketTimeoutDuration},
 	{0, 0}};
 
 int InitScripting(AMX *amx)
