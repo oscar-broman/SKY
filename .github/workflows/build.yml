@@ -45,7 +45,7 @@ jobs:
         uses: microsoft/setup-msbuild@v2
 
       - name: Configure CMake
-        run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+        run: cmake -B build -DCMAKE_BUILD_TYPE=Release -A Win32
 
       - name: Build Windows
         run: cmake --build build --config Release
