@@ -33,9 +33,6 @@ native ResetPacketRateLimits();
 
 // Make a player appear to spawn for all players but himself
 native SpawnPlayerForWorld(playerid);
-// Keep re-sending the last received sync data
-#pragma deprecated Please use FreezeSyncPacket instead
-native FreezeSyncData(playerid, bool:toggle);
 // Keep re-sending the last recieved sync packet of a certain type
 native FreezeSyncPacket(playerid, E_SYNC_TYPES:type = E_PLAYER_SYNC, bool:toggle);
 // Set the HP bar (warning: affects GetPlayerHealth)
@@ -50,10 +47,6 @@ native SetKnifeSync(toggle);
 native SendDeath(playerid);
 // Set the last animation data
 native SetLastAnimationData(playerid, data);
-// Send the last sync data
-// If an animation is specified, it will be similar to ApplyAnimation
-#pragma deprecated Please use SendLastSyncPacket instead
-native SendLastSyncData(playerid, toplayerid, animation = 0);
 // Send the last sync packet
 // If a type is specified it will sync that packet only
 // If an animation is specified, it will be similar to ApplyAnimation
@@ -72,3 +65,11 @@ native TextDrawSetPosition(Text:text, Float:x, Float:y);
 native PlayerTextDrawSetPosition(playerid, PlayerText:text, Float:x, Float:y);
 // Set the string of a TextDraw per-player
 native TextDrawSetStrForPlayer(Text:text, playerid, const string[]);
+
+// Keep re-sending the last received sync data
+#pragma deprecated Please use FreezeSyncPacket instead
+native FreezeSyncData(playerid, bool:toggle);
+// Send the last sync data
+// If an animation is specified, it will be similar to ApplyAnimation
+#pragma deprecated Please use SendLastSyncPacket instead
+native SendLastSyncData(playerid, toplayerid, animation = 0);
