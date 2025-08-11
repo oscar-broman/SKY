@@ -33,6 +33,7 @@ Debug/
 builds/
 build/
 out/
+dist/
 artifacts/
 
 # VScode
