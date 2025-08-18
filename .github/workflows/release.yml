@@ -59,7 +59,7 @@ jobs:
       run: |
         mkdir -p dist
         copy build/SKY.dll dist/SKY.dll
-        copy build/SKY.inc dist/SKY.inc
+        copy SKY.inc dist/SKY.inc
         cd dist
         Compress-Archive -Path "SKY.dll,SKY.inc" -DestinationPath "release-windows.zip"
 
