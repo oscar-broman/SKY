@@ -58,7 +58,7 @@ jobs:
     - name: Package Windows build
       run: |
         mkdir -p dist
-        mv build/Release/SKY.dll SKY.dll
+        mv build/SKY.dll SKY.dll
         Compress-Archive -Path "SKY.dll,SKY.inc" -DestinationPath "dist/release-windows.zip"
 
     - name: Upload Windows artifact
